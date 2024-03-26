@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "510819516658",
+    "project_id": "handyapp-d7e11",
+    "storage_bucket": "handyapp-d7e11.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:510819516658:android:b8638803a1d0bfafcd106b",
+        "android_client_info": {
+          "package_name": "com.example.handyapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-7ehad_9PDmOJ8BmwRHvTcIK4UcKk8O8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
