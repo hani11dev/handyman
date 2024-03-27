@@ -1,4 +1,4 @@
-package com.example.handyapp.home.myRequests
+package com.example.handyapp.home.Settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,12 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 
 @Composable
-fun MyTasksScreen(navController: NavController){
+fun SettingsScreen(navController: NavController){
     Column (
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Text("My Requsts Screen")
+        Text("Settings Screen")
     }
 }

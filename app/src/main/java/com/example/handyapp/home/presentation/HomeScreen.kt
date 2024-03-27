@@ -3,6 +3,7 @@ package com.plcoding.m3_bottomnavigation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,20 +45,23 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 
-data class BottomNavigationItem(
+/*data class BottomNavigationItem(
     val title: String,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
     val hasNews: Boolean,
     val badgeCount: Int? = null
-)
+)*/
 
 @Composable
 fun HomeScreen(navController: NavController){
-    Text(text = "this is home screen", fontSize = 40.sp, color = Color.Green)
-    BottomNavBar(navController = navController)
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+        Text(text = "this is home screen", fontSize = 40.sp, color = Color.Green)
+    }
+    //BottomNavBar(navController = navController)
 }
 
+/*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomNavBar(navController: NavController) {
@@ -142,4 +147,5 @@ fun BottomNavBar(navController: NavController) {
                     }
                 }
             }
+*/
 

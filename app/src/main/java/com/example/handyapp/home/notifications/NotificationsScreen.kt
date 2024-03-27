@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.plcoding.m3_bottomnavigation.BottomNavBar
 
 @Composable
 fun NotificationsScreen(navController: NavController){
@@ -19,5 +18,4 @@ fun NotificationsScreen(navController: NavController){
     ){
         Text("My Requsts Screen")
     }
-    BottomNavBar(navController = navController)
 }
