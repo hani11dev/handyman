@@ -14,11 +14,5 @@ data class RegisterInfoState (
     val month: String = "",
     val monthError: String? = null,
     val year: String = "",
-    val yearError: String? = null,
-    val wilaya: String  = "",
-    val wilayaError: String? = null,
-    val city: String = "",
-    val cityError: String? = null,
-    val street: String = "",
-    val streetError: String? = null,
+    val yearError: String? = null
 )

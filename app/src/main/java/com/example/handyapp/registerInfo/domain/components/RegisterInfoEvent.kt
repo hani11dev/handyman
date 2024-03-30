@@ -1,9 +1,5 @@
 package com.example.handyapp.register.domain.components
 
-import android.content.ContentResolver
-import android.net.Uri
-import com.google.firebase.storage.FirebaseStorage
-
 sealed class RegisterInfoEvent {
     data class FirstNameChanged(val firstName: String): RegisterInfoEvent()
     data class LastNameChanged(val lastName: String): RegisterInfoEvent()

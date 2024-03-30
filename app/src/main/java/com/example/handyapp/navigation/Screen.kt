@@ -12,4 +12,8 @@ sealed class Screen(val route: String) {
    object MyTasks: Screen(route = "My Tasks")
    object Notifications: Screen(route = "Notifications")
    object Settings: Screen(route = "settings")
+    object Refused: Screen(route = "refused")
+    object OneLastStepScreen: Screen(route = "one_last_step_screen")
+    object FinalRegistrationScreen: Screen(route = "final_registration_screen")
+    object FinishedSetupScreen: Screen(route = "finished_setup_screen")
 }

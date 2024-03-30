@@ -5,7 +5,7 @@ class ValidatePhoneNumber {
         if(phoneNumber.length != 10){
             return ValidationResult(
                 successful = false,
-                errorMessage = "password can't be < 8"
+                errorMessage = "phone number must have 10 digits"
             )
         }
         if(!(phoneNumber.startsWith("06")) && !(phoneNumber.startsWith("05")) && !(phoneNumber.startsWith("07"))){

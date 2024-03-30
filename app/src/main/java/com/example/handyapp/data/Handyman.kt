@@ -1,8 +1,8 @@
 package com.example.handyapp.data
 
 data class Handyman(
-    val firstName: String? = null,
-    val lastName: String? = null,
+    val FirstName: String? = null,
+    val LastName: String? = null,
     val phoneNumber: String? = null,
     val wilaya: String? = null,
     val city: String? = null,
@@ -11,5 +11,9 @@ data class Handyman(
     val month: String? = null,
     val year: String? = null,
     val serviceCat: String?  = null,
-    val status: String? = "NEW"
+    val status: String? = "NEW",
+    val averageSalary: Int? = null,
+    val about: String? = null,
+    val ordersCompleted: Int = 0,
+    val nbReviews: String = "0"
 )

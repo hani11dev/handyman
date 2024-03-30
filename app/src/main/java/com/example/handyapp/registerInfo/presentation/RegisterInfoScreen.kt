@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.handyapp.navigation.Screen
 import com.example.handyapp.register.domain.components.RegisterInfoEvent
 import com.example.handyapp.registerInfo.presentation.RegisterInfoViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -54,11 +55,7 @@ fun RegisterInfoScreen(context: Context, navController: NavController) {
         viewModel.validationEvents.collect{event ->
             when(event){
                 is RegisterInfoViewModel.ValidationEvent.Success ->{
-                    Toast.makeText(
-                        context,
-                        "Submit Successful",
-                        Toast.LENGTH_LONG
-                    )
+                    navController.navigate(Screen.Waiting.route)
                 }
             }
         }
@@ -85,44 +82,7 @@ fun RegisterInfoScreen(context: Context, navController: NavController) {
         if(state.lastNameError != null){
             Text(text = state.lastNameError, color = MaterialTheme.colorScheme.error)
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Row{
-            TextField(value = state.wilaya, onValueChange = {
-                viewModel.onEvent(RegisterInfoEvent.WilayaChanged(it))},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                placeholder = { Text(text = "Wilaya") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-            )
-            TextField(value = state.city, onValueChange = {
-                viewModel.onEvent(RegisterInfoEvent.CityChanged(it))},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                placeholder = { Text(text = "City") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-            )
-            TextField(value = state.street, onValueChange = {
-                viewModel.onEvent(RegisterInfoEvent.StreetChanged(it))},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                placeholder = { Text(text = "Street") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-            )
-        }
-        if(state.wilayaError != null){
-            Text(text = state.wilayaError, color = MaterialTheme.colorScheme.error)
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        if(state.cityError != null){
-            Text(text = state.cityError, color = MaterialTheme.colorScheme.error)
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        if(state.streetError != null){
-            Text(text = state.streetError, color = MaterialTheme.colorScheme.error)
-        }
+
         Spacer(modifier = Modifier.height(16.dp))
         Row {
             TextField(value = state.day, onValueChange = {

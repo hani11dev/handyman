@@ -11,6 +11,10 @@ import com.example.handyapp.register.presentation.RegisterScreen1
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.example.handyapp.finalRegister.FinalRegisterScreen
+import com.example.handyapp.finalRegister.FinishedSetupScreen
+import com.example.handyapp.finalRegister.OneLastStepScreen
+import com.example.handyapp.home.presentation.RefusedScreen
 import com.example.handyapp.home.presentation.WaitingScreen
 import com.example.handyapp.register.presentation.RegisterSuccessScreen
 
@@ -50,6 +54,22 @@ fun SetupNavGraph(
         navigation(startDestination = Screen.Waiting.route , route = Graph.Waiting.route){
             composable(route = Screen.Waiting.route){
                 WaitingScreen(navController = navController)
+            }
+        }
+        navigation(startDestination = Screen.Refused.route , route = Graph.Refused.route){
+            composable(route = Screen.Refused.route){
+                RefusedScreen(navController = navController)
+            }
+        }
+        navigation(startDestination = Screen.OneLastStepScreen.route , route = Graph.Accepted.route){
+            composable(route = Screen.OneLastStepScreen.route){
+                OneLastStepScreen(navController = navController)
+            }
+            composable(route = Screen.FinishedSetupScreen.route){
+                FinishedSetupScreen(navController = navController)
+            }
+            composable(route = Screen.FinalRegistrationScreen.route){
+                FinalRegisterScreen(navController = navController)
             }
         }
 

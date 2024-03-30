@@ -54,6 +54,10 @@ class LoginViewModel(
                                     }else if(data == "WAITING"){
                                         navController.navigate(Graph.Waiting.route)
                                     }else if(data == "ACCEPTED"){
+                                        navController.navigate(Graph.Accepted.route)
+                                    }else if(data == "REFUSED"){
+                                        navController.navigate(Graph.Refused.route)
+                                    }else if(data == "ACTIVE"){
                                         navController.navigate(Graph.Browse.route)
                                     }
                                 }
@@ -63,10 +67,10 @@ class LoginViewModel(
                             }
                         }
                         .addOnFailureListener { e ->
-                            println("Error getting document: $e")
+                            Log.d("Login", "login failed")
                         }
                 } else {
-                    println("User is not authenticated")
+                    Log.d("Login", "login failed")
                 }
             }
     }

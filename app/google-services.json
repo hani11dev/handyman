@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "510819516658",
-    "project_id": "handyapp-d7e11",
-    "storage_bucket": "handyapp-d7e11.appspot.com"
+    "project_number": "555809918919",
+    "project_id": "fixmaster-194a4",
+    "storage_bucket": "fixmaster-194a4.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:510819516658:android:b8638803a1d0bfafcd106b",
+        "mobilesdk_app_id": "1:555809918919:android:6a8ce4069bf8afbfb893e2",
         "android_client_info": {
           "package_name": "com.example.handyapp"
         }
@@ -15,7 +15,45 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyB-7ehad_9PDmOJ8BmwRHvTcIK4UcKk8O8"
+          "current_key": "AIzaSyBXnXqFeeV6Jx-w5povHGpAjIVdkjy7Zrs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555809918919:android:820ffbd3fcef693cb893e2",
+        "android_client_info": {
+          "package_name": "com.koDea.fixMaster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXnXqFeeV6Jx-w5povHGpAjIVdkjy7Zrs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555809918919:android:1badcc87d4a2efcab893e2",
+        "android_client_info": {
+          "package_name": "com.koDea.fixMasterClient"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXnXqFeeV6Jx-w5povHGpAjIVdkjy7Zrs"
         }
       ],
       "services": {
