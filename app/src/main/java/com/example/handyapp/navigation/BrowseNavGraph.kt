@@ -1,15 +1,13 @@
 package com.example.handyapp.navigation
 
+import MyRequestsScreen
 import MyTasksScreen
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.handyapp.home.Settings.SettingsScreen
-import com.example.handyapp.home.myRequests.MyRequestsScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
-import com.example.handyapp.home.presentation.WaitingScreen
 import com.plcoding.m3_bottomnavigation.HomeScreen
 
 @Composable
