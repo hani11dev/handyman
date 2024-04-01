@@ -35,6 +35,7 @@ class LoginViewModel(
     fun Login() {
         Firebase.auth.signInWithEmailAndPassword(state.email, state.password)
             .addOnCompleteListener { task ->
+
                 navController.navigate(Graph.Browse.route)
                 /*val db = FirebaseFirestore.getInstance()
 // Get the current user ID (assuming the user is authenticated)

@@ -7,12 +7,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class BrowseViewModel : ViewModel(){
+@HiltViewModel
+class BrowseViewModel @Inject constructor() : ViewModel(){
     var startDestination by mutableStateOf(Graph.State.route)
         private set
 
-    var subStartDestination by mutableStateOf(Screen.Waiting.route)
+    var subStartDestination by mutableStateOf("")
         private set
 
     init {
@@ -47,6 +50,7 @@ class BrowseViewModel : ViewModel(){
                         }else if(data == "ACTIVE"){
                             //navController.navigate(Graph.Browse.route)
                             startDestination = Graph.Home.route
+                            subStartDestination = Screen.Waiting.route
                         }
                     }
                     // You can further process the retrieved document data here

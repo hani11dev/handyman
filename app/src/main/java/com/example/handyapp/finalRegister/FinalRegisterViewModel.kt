@@ -98,7 +98,7 @@ class FinalRegisterViewModel(
                             "AverageSalary" to state.averageSalary,
                             "WorkingAreas" to state.workingAreas,
                             "About" to state.about,
-                            "Status" to "Active"
+                            "Status" to "ACTIVE"
                         )
                     )
                     .addOnSuccessListener {

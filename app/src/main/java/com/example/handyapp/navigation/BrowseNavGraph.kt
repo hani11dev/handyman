@@ -68,7 +68,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                 FinalRegisterScreen(navController = browseNavController)
             }
             composable(route = Screen.FinishedSetupScreen.route){
-                FinishedSetupScreen(navController = browseNavController)
+                FinishedSetupScreen(navController = rootNavController)
             }
             composable(
                 route = Screen.RegisterInfo.route
