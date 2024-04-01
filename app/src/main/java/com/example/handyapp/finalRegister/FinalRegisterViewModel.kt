@@ -97,6 +97,7 @@ class FinalRegisterViewModel(
                             "Street" to state.street,
                             "AverageSalary" to state.averageSalary,
                             "WorkingAreas" to state.workingAreas,
+                            "About" to state.about,
                             "Status" to "Active"
                         )
                     )

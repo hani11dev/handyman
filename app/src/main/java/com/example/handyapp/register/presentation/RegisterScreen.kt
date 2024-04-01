@@ -35,15 +35,7 @@ import com.example.handyapp.register.domain.components.RegistrationEvent
 fun RegisterScreen1(
     navController: NavController
 ){
-    val viewModel = viewModel<RegisterViewModel>(
-        factory = object : ViewModelProvider.Factory{
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return RegisterViewModel(
-                    navController = navController
-                )as T
-            }
-        }
-    )
+    val viewModel = viewModel<RegisterViewModel>()
     val state = viewModel.state
     val context = LocalContext.current
     LaunchedEffect(key1 = context){

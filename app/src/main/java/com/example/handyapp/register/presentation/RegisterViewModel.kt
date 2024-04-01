@@ -28,7 +28,6 @@ class RegisterViewModel(
     private val validateConfirmPassword: ValidateConfirmPassword = ValidateConfirmPassword(),
     private val validateTerms: ValidateTerms = ValidateTerms(),
     private val validatePhone: ValidatePhoneNumber = ValidatePhoneNumber(),
-    val navController: NavController
     ): ViewModel(){
     var state by mutableStateOf(RegisterState())
 
@@ -41,13 +40,16 @@ class RegisterViewModel(
         auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener{
                 task ->
             if (task.isSuccessful) {
-                // User registered successfully
                 val user: FirebaseUser? = auth.currentUser
-                val uid = user?.uid // Retrieve the UID
+                val uid = user?.uid
+                val Handyman = hashMapOf(
+                    "PhoneNumber" to state.phoneNumber,
+                    "status" to "NEW"
+                )
                 uid?.let {
                     db.collection("handymen")
                         .document(uid)
-                        .set(Handyman(phoneNumber = state.phoneNumber))
+                        .set(Handyman)
                         .addOnSuccessListener {
                             Log.d("Register", "document was added")
                         }
@@ -56,7 +58,6 @@ class RegisterViewModel(
                         }
                 }
             } else {
-                // Handle registration errors
                 println("Registration error: ${task.exception?.message}")
             }
         }.addOnFailureListener{
