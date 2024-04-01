@@ -50,7 +50,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             composable(
                 route = Screen.Settings.route
             ) {
-                SettingsScreen(navController = browseNavController)
+                SettingsScreen(rootNavController, browseNavController)
             }
         }
         navigation(route = Graph.State.route , startDestination = subStartDestination){

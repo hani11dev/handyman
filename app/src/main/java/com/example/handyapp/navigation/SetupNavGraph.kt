@@ -21,10 +21,11 @@ import com.example.handyapp.register.presentation.RegisterSuccessScreen
 @Composable
 fun SetupNavGraph(
     navController: NavHostController = rememberNavController(),
+    startDestination : String
 ) {
     NavHost(
         navController = navController,
-        startDestination = Graph.Auth.route
+        startDestination = startDestination
     ) {
         navigation(route = Graph.Auth.route, startDestination = Screen.Login.route) {
             composable(
