@@ -37,11 +37,11 @@ fun SetupNavGraph(
             ) {
                 RegisterScreen1(navController)
             }
-            composable(
+            /*composable(
                 route = Screen.RegisterInfo.route
             ) {
                 RegisterInfoScreen(context = LocalContext.current, navController = navController)
-            }
+            }*/
             composable(
                 route = Screen.RegistrationSucceeded.route
             ) {
@@ -51,7 +51,7 @@ fun SetupNavGraph(
         composable(route = Graph.Browse.route){
             BrowseScreen(rootNavController = navController)
         }
-        navigation(startDestination = Screen.Waiting.route , route = Graph.Waiting.route){
+        /*navigation(startDestination = Screen.Waiting.route , route = Graph.Waiting.route){
             composable(route = Screen.Waiting.route){
                 WaitingScreen(navController = navController)
             }
@@ -71,7 +71,7 @@ fun SetupNavGraph(
             composable(route = Screen.FinalRegistrationScreen.route){
                 FinalRegisterScreen(navController = navController)
             }
-        }
+        }*/
 
     }
 }

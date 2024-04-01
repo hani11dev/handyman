@@ -7,5 +7,7 @@ sealed class Graph (val route : String){
     object Waiting : Graph("waiting_graph")
     object Refused : Graph("refused_graph")
     object Accepted: Graph("accepted_graph")
+    object Home: Graph("home_graph")
+    object State: Graph("state_graph")
 
 }

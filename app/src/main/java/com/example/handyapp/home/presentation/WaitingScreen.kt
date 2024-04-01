@@ -10,11 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.handyapp.navigation.Graph
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun WaitingScreen(navController: NavHostController){
+fun WaitingScreen(navController: NavHostController , rootNavController: NavController){
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -24,7 +25,7 @@ fun WaitingScreen(navController: NavHostController){
         Text(text = "wait until admins review your request")
         Button(onClick = {
             FirebaseAuth.getInstance().signOut()
-            navController.navigate(Screen.Login.route)
+            rootNavController.navigate(Graph.Auth.route)
         }) {
             Text(text = "Logout")
         }
