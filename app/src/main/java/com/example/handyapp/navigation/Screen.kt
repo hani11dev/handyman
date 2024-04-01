@@ -16,4 +16,5 @@ sealed class Screen(val route: String) {
     object OneLastStepScreen: Screen(route = "one_last_step_screen")
     object FinalRegistrationScreen: Screen(route = "final_registration_screen")
     object FinishedSetupScreen: Screen(route = "finished_setup_screen")
+    object BrowseJobsScreen: Screen (route = "jobs_screen")
 }

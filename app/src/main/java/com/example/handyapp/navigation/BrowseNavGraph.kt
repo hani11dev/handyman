@@ -1,5 +1,6 @@
 package com.example.handyapp.navigation
 
+import JobsScreen
 import MyRequestsScreen
 import MyTasksScreen
 import RegisterInfoScreen
@@ -21,11 +22,11 @@ import com.plcoding.m3_bottomnavigation.HomeScreen
 @Composable
 fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: NavHostController , startDestination : String , subStartDestination : String){
     NavHost(navController = browseNavController, startDestination = startDestination ){
-        navigation(route = Graph.Home.route , startDestination = Screen.Home.route){
+        navigation(route = Graph.Home.route , startDestination = Screen.MyRequests.route){
             composable(
                 route = Screen.Home.route
             ) {
-                HomeScreen(browseNavController)
+                JobsScreen()
             }
             /*composable(
                 route = Screen.Waiting.route

@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -11,39 +12,51 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.handyapp.R
 
 
 data class Task(
+    val id:Int,
     val client:String,
     val category:String,
     val title:String,
@@ -51,24 +64,50 @@ data class Task(
     val time_day: String,
     val time_hour: String,
     val Price:Int,
-    val localisation:String
+    val localisation:String,
+    var status:String
 )
 
-val lists= listOf(
-    Task("Louis Do",
+val lists =mutableListOf<Task>(
+    Task(1,
+        "Louis lo",
+        "Painting",
         "paint a room",
-        "paint a room",
-        "paint a room",
+        "paint a room...",
         "10-4-2024","10:00",
-        600,
-        "Alger"),
-    Task("Louis moo",
+        600,"alger","in progress"),
+    Task(2,
+        "Louis Do",
+        "Painting",
         "paint a room",
-        "paint a room",
-        "paint a room",
+        "paint a room...",
         "12-3-2024","9:00",
         600,
-        "Alger"),
+        "alger","in progress"),
+    Task(3,
+        "Louis Do",
+        "Painting",
+        "paint a room",
+        "paint a room...",
+        "12-3-2024","9:00",
+        600,
+        "alger","in progress"),
+    Task(4,
+        "Louis Do",
+        "Painting",
+        "paint a room",
+        "paint a room...",
+        "12-3-2024","9:00",
+        600,
+        "alger","rejected"),
+    Task(5,
+        "Louis Do",
+        "Painting",
+        "paint a room",
+        "paint a room...",
+        "12-3-2024","9:00",
+        600,
+        "alger","done"),
 )
 
 @Composable
@@ -94,9 +133,14 @@ fun HeaderRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Taskcard (task: Task/*,navController: NavHostController*/) {
+fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> Unit) {
+    var sheetstate = rememberModalBottomSheetState()
+    var isSheetOpen by remember {mutableStateOf(false)}
     var paused by remember { mutableStateOf(false) }
+    var canceled by remember { mutableStateOf(false) }
+    task.status=if (!canceled && !paused )"in progress" else if (canceled) "canceled" else "paused"
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         modifier = Modifier
@@ -106,7 +150,7 @@ fun Taskcard (task: Task/*,navController: NavHostController*/) {
             .clip(RoundedCornerShape(8.dp))
             //.background(color =if(!paused) MaterialTheme.colorScheme. else  MaterialTheme.colorScheme. )
             .clickable {
-                //navController.navigate(Route.)
+                isSheetOpen = true
             },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -121,6 +165,22 @@ fun Taskcard (task: Task/*,navController: NavHostController*/) {
                 ,verticalArrangement = Arrangement.Center
             )
             {
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .weight(1f),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (task.status=="paused")colorResource(id = R.color.purple_200) else colorResource
+                            (id = R.color.teal_200) )
+                ) {
+                    Text(
+                        text = task.status,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
@@ -183,7 +243,10 @@ fun Taskcard (task: Task/*,navController: NavHostController*/) {
                     }
                 })
                 OutlinedButton(
-                    onClick = {},
+                    onClick = {
+                        onClick(task.id)
+                        canceled=true
+                    },
                     modifier=Modifier.padding(2.dp),
                     colors =ButtonDefaults.outlinedButtonColors(containerColor =Color.Red,
                         contentColor = MaterialTheme.colorScheme.onSecondary )
@@ -212,11 +275,378 @@ fun Taskcard (task: Task/*,navController: NavHostController*/) {
             }
         }
     }
+    if(isSheetOpen) {
+        ModalBottomSheet(
+            sheetState = sheetstate,
+            onDismissRequest = {
+                isSheetOpen=false
+            }) {
+            LazyHorizontalGrid(rows = GridCells.Fixed(1),modifier=Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .height(200.dp)
+            ) {
+                /*items(item.jobImages) {
+                    Image(
+                        painter = painterResource(id = it),
+                        contentDescription = null, //alignment = Alignment.Center,
+                        modifier = Modifier.height(200.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }*/
+            }
+            Text(text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally))
+            Card(Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp)).padding(8.dp)
+                .align(Alignment.CenterHorizontally))
+            {
+                Row{
+                    Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Status: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Date: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Time: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Phone: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Title: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Description: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End,modifier=Modifier.weight(1f)) {
+                        Text(
+                            text = task.status,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.time_day,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.time_hour,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(text ="",//client.phone
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.title,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.description,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                    }
+                }
+                Text(text = buildAnnotatedString {
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    ) {
+                        append(text = "Price : ${task.Price} DA ")
+                    }
+                },
+                    modifier=Modifier.align(Alignment.End)
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
+    var sheetstate = rememberModalBottomSheetState()
+    var isSheetOpen by remember {mutableStateOf(false)}
+    ElevatedCard(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(128.dp)
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                isSheetOpen = true
+            },
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+
+        Box(modifier = Modifier
+            .fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 12.dp, horizontal = 12.dp)
+                    .align(Alignment.TopStart)
+                ,verticalArrangement = Arrangement.Center
+            )
+            {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    /* Icon(
+                         painter = painterResource(id = R.drawable.user),
+                         contentDescription = "user",
+                         tint = MaterialTheme.colorScheme.primary
+                     )*/
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = task.client, textAlign = TextAlign.Center,fontWeight = FontWeight.Medium)
+                }
+                Text(
+                    text = task.title,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Normal,
+                )
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    /*Icon(
+                        painter = painterResource(id = R.drawable.location),
+                        contentDescription = "location",
+                        tint = MaterialTheme.colorScheme.primary
+                    )*/
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = task.localisation, textAlign = TextAlign.Center,fontWeight = FontWeight.Medium)
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 12.dp, horizontal = 12.dp)
+                    .align(Alignment.TopEnd),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .weight(1f),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (task.status=="canceled")Color.Yellow
+                        else if(task.status=="rejected") Color.Red
+                        else Color.Green)
+                ) {
+                    Text(
+                        text = task.status,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Text(text = buildAnnotatedString {
+                    withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                        append("Price ")
+                    }
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    ) {
+                        append(text = task.Price.toString() + "DA")
+                    }
+                    withStyle(SpanStyle(fontWeight = FontWeight.Light)) {
+                        append("/hr")
+                    }
+                })
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = task.time_day, textAlign = TextAlign.Center,fontWeight = FontWeight.Light)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(text = task.time_hour, textAlign = TextAlign.Center,fontWeight = FontWeight.Light)
+                }
+
+            }
+        }
+    }
+    if(isSheetOpen) {
+        ModalBottomSheet(
+            sheetState = sheetstate,
+            onDismissRequest = {
+                isSheetOpen=false
+            }) {
+            LazyHorizontalGrid(rows = GridCells.Fixed(1),modifier=Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .height(200.dp)
+            ) {
+                /*items(item.jobImages) {
+                    Image(
+                        painter = painterResource(id = it),
+                        contentDescription = null, //alignment = Alignment.Center,
+                        modifier = Modifier.height(200.dp),
+                        contentScale = ContentScale.Crop
+                    )
+                }*/
+            }
+            Text(text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
+                modifier = Modifier.padding(8.dp).align(Alignment.CenterHorizontally))
+            Card(Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp)).padding(8.dp)
+                .align(Alignment.CenterHorizontally))
+            {
+                Row{
+                    Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Status: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Date: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Time: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Phone: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Title: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = "Description: ",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Left,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End,modifier=Modifier.weight(1f)) {
+                        Text(
+                            text = task.status,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.time_day,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.time_hour,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(text ="CENSORED",
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.title,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                        Text(
+                            text = task.description,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Right,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(6.dp)
+                        )
+                    }
+                }
+                Text(text = buildAnnotatedString {
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    ) {
+                        append(text = "Price : ${task.Price} DA ")
+                    }
+                },
+                    modifier=Modifier.align(Alignment.End)
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTasksScreen(navController: NavHostController) {
+    val list: List<Task> = lists
+    val statList = listOf("All", "canceled", "in progress", "done", "rejected","paused")
+    var tasklist by remember { mutableStateOf(list) }
+    var isExpanded by remember { mutableStateOf(false) }
+    var selectedStatus by remember {mutableStateOf(statList[0]) }
     Scaffold(modifier = Modifier
         .fillMaxSize()
     )
@@ -228,15 +658,113 @@ fun MyTasksScreen(navController: NavHostController) {
                 .padding(paddingValues)
                 .background(
                     color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.background else colorResource(
-                        id = Color.LightGray.toArgb()
+                        id = R.color.white//R.color.lightGray
                     )
                 )
         ) {
             item {
                 HeaderRow(/*navController = navController,*/ title = "Tasks"/*, onClick = {}*/)
             }
-            items(lists) { item ->
-                Taskcard(item/*, navController*/)
+            item{
+                ExposedDropdownMenuBox(
+                    expanded = isExpanded,
+                    onExpandedChange = { isExpanded = !isExpanded },
+                    modifier = Modifier.fillMaxWidth().padding(4.dp)
+                ) {
+                    TextField(
+                        value = selectedStatus, onValueChange = {}, readOnly = true,
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                        }, modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    DropdownMenu(expanded = isExpanded, onDismissRequest = {isExpanded =false},
+                        modifier=Modifier.exposedDropdownSize().padding(2.dp) ) {
+                        DropdownMenuItem(
+                            text = { Text(statList[0]) },
+                            onClick = {
+                                selectedStatus = statList[0]
+                                isExpanded = false
+                            }
+                        )
+
+
+                        DropdownMenuItem(
+                            text = { Text(statList[1]) },
+                            onClick = {
+                                selectedStatus = statList[1]
+                                isExpanded = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text(statList[2]) },
+                            onClick = {
+                                selectedStatus = statList[2]
+                                isExpanded = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text(statList[3]) },
+                            onClick = {
+                                selectedStatus = statList[3]
+                                isExpanded = false
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text(statList[4]) },
+                            onClick = {
+
+                                selectedStatus = statList[4]
+                                isExpanded = false
+
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text(statList[5]) },
+                            onClick = {
+                                selectedStatus = statList[5]
+                                isExpanded = false
+
+                            }
+                        )
+                    }
+
+                }
+            }
+            if (selectedStatus == "All") {
+                items(tasklist) {item ->
+                    if (item.status=="done" ||item.status=="rejected"||item.status=="canceled"){
+                        Taskcardcanceld(task = item)
+                    }
+                    else{
+                        Taskcard(task = item) {cardId->
+                            val cards = tasklist.toMutableList()
+                            val card = tasklist.indexOfFirst { it.id == cardId }
+                            cards[card]=cards[card].copy(status = "canceled")
+                            tasklist=cards
+                        }
+                    }
+                }
+            }
+            else {
+                items(tasklist) { item ->
+                    if (selectedStatus == item.status) {
+                        if (item.status=="done" ||item.status=="rejected"||item.status=="canceled"){
+                            Taskcardcanceld(task = item)
+                        }
+                        else{
+                            Taskcard(task = item) {cardId->
+                                val cards = tasklist.toMutableList()
+                                val card = tasklist.indexOfFirst { it.id == cardId }
+                                cards[card]=cards[card].copy(status = "canceled")
+                                tasklist=cards
+                            }
+                        }
+                    }
+                }
             }
         }
     }
