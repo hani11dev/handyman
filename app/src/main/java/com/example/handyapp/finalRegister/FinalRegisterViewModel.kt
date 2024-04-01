@@ -52,6 +52,7 @@ class FinalRegisterViewModel(
             is FinalRegistrationEvent.Submit->{
                 submitData()
             }
+            else -> {}
         }
     }
 
@@ -98,7 +99,7 @@ class FinalRegisterViewModel(
                             "AverageSalary" to state.averageSalary,
                             "WorkingAreas" to state.workingAreas,
                             "About" to state.about,
-                            "Status" to "Active"
+                            "status" to "ACTIVE"
                         )
                     )
                     .addOnSuccessListener {
