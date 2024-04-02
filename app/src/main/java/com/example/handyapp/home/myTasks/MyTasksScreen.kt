@@ -83,7 +83,7 @@ val lists =mutableListOf<Task>(
         "paint a room...",
         "12-3-2024","9:00",
         600,
-        "alger","in progress"),
+        "alger","rejected"),
     Task(3,
         "Louis Do",
         "Painting",

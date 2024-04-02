@@ -1,7 +1,10 @@
 package com.example.handyapp.home.myRequests
 
 
+import MyTasksScreen
+import Task
 import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.BottomAppBarDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -41,17 +45,22 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.handyapp.R
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import lists
 
+
+val taskCollectionRef = Firebase.firestore.collection("tasks")
 
 @Composable
 fun MyRequestsScreenReal(
     context: Context,
     clientRef: CollectionReference,
     request: Map<String, Any>,
-    navController: NavController,
+    navController: NavHostController,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     val title = request["title"] as? String ?: ""
@@ -61,6 +70,7 @@ fun MyRequestsScreenReal(
     val budget = request["budget"].toString() // Convert budget to string
     val day = request["day"] as? String ?: ""
     val description = request["description"] as? String ?: ""
+    val hour = request["hour"] as? String ?: ""
     var isDetailVisible by remember { mutableStateOf(false) }
     var selectedImage by remember { mutableStateOf(-1) } // Initialize selectedImage
 
@@ -71,7 +81,6 @@ fun MyRequestsScreenReal(
             request["clientId"] as? String ?: ""
         )
     }
-
 
     Card(
         modifier = Modifier.padding(8.dp),
@@ -84,12 +93,11 @@ fun MyRequestsScreenReal(
         ) {
             Text(
                 text = title,
-                // style = MaterialTheme.typography.h6,
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center // Center title text
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp)) // Add space between title and other texts
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -97,20 +105,18 @@ fun MyRequestsScreenReal(
             ) {
                 Text(
                     text = "Client: ${name.value ?: ""}",
-                    //  style = MaterialTheme.typography.body2,
                     modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp)) // Add space between text elements
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
                     text = "Location: $wilaya, $city",
-                    // style = MaterialTheme.typography.body2,
                     modifier = Modifier.weight(1f)
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp)) // Add space between text rows
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -118,20 +124,18 @@ fun MyRequestsScreenReal(
             ) {
                 Text(
                     text = "Price: $budget",
-                    //  style = MaterialTheme.typography.body2,
                     modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp)) // Add space between text elements
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
                     text = "Date: $day",
-                    //  style = MaterialTheme.typography.body2,
                     modifier = Modifier.weight(1f)
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp)) // Add space between texts and buttons
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -139,7 +143,23 @@ fun MyRequestsScreenReal(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
-                    onClick = { /* Handle accept */ },
+                    onClick = {
+                        saveTask(
+                            taskCollectionRef,
+                            Id = 1 ,
+                            Client = name.value ?: "",
+                            Category = "?",
+                            Title =  title,
+                            Description = description ,
+                            Time_day = day,
+                            Time_hour = hour ,
+                            Price = budget.toInt() ?: 0,
+                            localisation = "$wilaya,$city",
+                            Status = "IN_PROGRESS"
+
+                        )
+
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF84D588)
                     ),
@@ -147,14 +167,30 @@ fun MyRequestsScreenReal(
                 ) {
                     Text(
                         text = "Accept",
-                        // style = MaterialTheme.typography.button
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp)) // Add equal space between buttons
+                Spacer(modifier = Modifier.width(8.dp))
 
                 Button(
-                    onClick = { /* Handle decline */ },
+                    onClick = {
+
+                        saveTask(
+                            taskCollectionRef,
+                            Id = 1 ,
+                            Client = name.value ?: "",
+                            Category = "?",
+                            Title =  title,
+                            Description = description ,
+                            Time_day = day,
+                            Time_hour = hour ,
+                            Price = budget.toInt() ?: 0,
+                            localisation = wilaya+","+city,
+                            Status = "REJECTED"
+
+                        )
+
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFDB6161)
                     ),
@@ -162,11 +198,10 @@ fun MyRequestsScreenReal(
                 ) {
                     Text(
                         text = "Decline",
-                        //  style = MaterialTheme.typography.button
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp)) // Add equal space between buttons
+                Spacer(modifier = Modifier.width(8.dp))
 
                 ClickableText(
                     text = AnnotatedString.Builder().apply {
@@ -244,8 +279,11 @@ fun MyRequestsScreenReal(
                 }
             }
         }
-
     }
+
+
+
+
 }
 
 

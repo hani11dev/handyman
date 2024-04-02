@@ -1,3 +1,4 @@
+import android.content.Intent
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -11,7 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.handyapp.home.myRequests.MyRequestsScreenReal
 import com.example.handyapp.home.myRequests.MyRequestsScreenReal
 import com.example.handyapp.home.myRequests.getCollectionData
@@ -22,10 +25,12 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 @Composable
-fun MyRequestsScreen(navController: NavController) {
+fun MyRequestsScreen(navController: NavHostController) {
 
     val requestsCollectionRef = Firebase.firestore.collection("requests")
     val clientsCollectionRef = Firebase.firestore.collection("Clients")
+
+
     val requests = remember { mutableStateListOf<Map<String, Any>>() }
     val currentUser = FirebaseAuth.getInstance().currentUser
     var userId = ""
@@ -51,9 +56,11 @@ fun MyRequestsScreen(navController: NavController) {
                 context = LocalContext.current, // Pass context here
                 clientRef = clientsCollectionRef,
                 request = request,
-                navController = navController,
+                navController = navController
 
             )
+
+
             Spacer(modifier = Modifier.height(16.dp))
         }
 

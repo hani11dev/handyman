@@ -1,10 +1,13 @@
 package com.example.handyapp.home.myRequests
+import Task
 import com.google.firebase.firestore.CollectionReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import android.util.Log
-
+import android.widget.Toast
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 suspend fun getCollectionData(
@@ -57,6 +60,51 @@ suspend fun getClientFirstName(
     }
     return null
 }
+
+
+
+fun saveTask(taskRef: CollectionReference,
+             Id:Int,
+             Client:String,
+             Category:String,
+             Title:String,
+             Description:String,
+             Time_day: String,
+             Time_hour: String,
+             Price:Int,
+             localisation:String,
+             Status:String
+) =
+    CoroutineScope(Dispatchers.IO).launch {
+        try{
+            val task =Task(
+                id = Id ,
+                client = Client,
+                category = Category,
+                title =  Title,
+                description = Description ,
+                time_day = Time_day,
+                time_hour =Time_hour ,
+                Price = Price,
+                localisation = localisation,
+                status = Status
+            )
+            taskRef.add(task).await()
+            withContext(Dispatchers.Main) {
+                //  Toast.makeText(this@MainActivity, "Successfully saved ",
+                //   Toast.LENGTH_LONG).show()
+                
+            }
+        }catch(e : Exception){
+            withContext(Dispatchers.Main) {
+                //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+
+
+
 
 
 
