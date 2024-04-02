@@ -1,3 +1,5 @@
+import android.content.res.Configuration
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,9 +16,12 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun JobsScreen() {
+    val backgroundColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.White
+    val itemColor = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
+
     Surface(
-        modifier = Modifier.padding(16.dp),
-        color = Color.White // Set background color to white
+        modifier = Modifier.fillMaxSize(),
+        color = backgroundColor // Set background color based on the theme
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
@@ -28,6 +33,7 @@ fun JobsScreen() {
                     budget = "20,500",
                     bids = 12,
                     daysLeft = 2,
+                    postedDate = "11-12-2024"
                 )
             }
 
@@ -37,7 +43,8 @@ fun JobsScreen() {
                     description = "A professional painter to finish the work of 3 large rooms (7 ft x 10 ft (70 square feet))as...",
                     budget = "10,600",
                     bids = 2,
-                    daysLeft = 1
+                    daysLeft = 1,
+                    postedDate = "11-10-2022"
                 )
             }
             item {
@@ -46,15 +53,17 @@ fun JobsScreen() {
                     description = "Need a plumber to fix my kitchen's sink, it has been leaking water for a while now...",
                     budget = "20,500",
                     bids = 12,
-                    daysLeft = 2
+                    daysLeft = 2,
+                    postedDate = "11-11-2021"
                 )
             }
         }
     }
 }
 
+
 @Composable
-fun TaskItem(title: String, description: String, budget: String, bids: Int, daysLeft: Int) {
+fun TaskItem(title: String, description: String, budget: String, bids: Int, daysLeft: Int, postedDate: String) {
     Surface(
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
         color = Color.LightGray, // Set background color to light grey
@@ -65,8 +74,8 @@ fun TaskItem(title: String, description: String, budget: String, bids: Int, days
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black, // Set very dark color for the title
+                style = MaterialTheme.typography.headlineSmall,
+                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.Black, // Adjust title color based on theme
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             Divider(
@@ -78,7 +87,7 @@ fun TaskItem(title: String, description: String, budget: String, bids: Int, days
                 text = description,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 4.dp),
-                color = Color.Black // Set black color for the description text
+                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.Black // Adjust description color based on theme
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -88,19 +97,25 @@ fun TaskItem(title: String, description: String, budget: String, bids: Int, days
                 Text(
                     text = "Budget: $budget DA",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Blue // Set black color for the budget text
+                    color = if (isSystemInDarkTheme()) Color.Black else Color.Blue // Adjust budget color based on theme
                 )
                 Text(
                     text = "Days left: $daysLeft",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Black // Set black color for the days left text
+                    color = if (isSystemInDarkTheme()) Color.DarkGray else Color.Black // Adjust days left color based on theme
                 )
             }
             Text(
                 text = "Bids: $bids",
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(bottom = 4.dp),
-                color = Color.Black // Set black color for the bids text
+                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.Black // Adjust bids color based on theme
+            )
+            Text(
+                text = "Posted: $postedDate",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 8.dp).offset(110.dp), // Adjust offset here
+                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.Black // Adjust posted date color based on theme
             )
         }
     }
