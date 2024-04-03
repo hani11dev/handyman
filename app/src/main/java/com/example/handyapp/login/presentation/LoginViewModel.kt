@@ -43,8 +43,11 @@ class LoginViewModel(
                             db.collection("HandyMan").document(task.user!!.uid).update("DeviceToken" , OneSignal.User.pushSubscription.id).addOnSuccessListener {
 
                             }
-
-                            navController.navigate(Graph.Browse.route)
+                            navController.navigate(Graph.Browse.route){
+                                popUpTo(Graph.Auth.route){
+                                    inclusive = true
+                                }
+                            }
                             /*val db = FirebaseFirestore.getInstance()
             // Get the current user ID (assuming the user is authenticated)
                             val currentUser = FirebaseAuth.getInstance().currentUser

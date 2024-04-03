@@ -21,7 +21,11 @@ fun FinishedSetupScreen(navController: NavController){
     ) {
         Text(text = "You finished setting up your account !")
         Button(onClick = {
-            navController.navigate(Graph.Browse.route)
+            navController.navigate(Graph.Browse.route){
+                popUpTo(Graph.State.route){
+                    inclusive = true
+                }
+            }
         }) {
             Text(text = "Go to home page")
         }
