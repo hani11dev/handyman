@@ -42,7 +42,7 @@ fun FinalRegisterScreen(navController: NavController){
                             .document(userId)
                             .update(
                                 hashMapOf<String, Any>(
-                                    "status" to "ACTIVE"
+                                    "Status" to "ACTIVE"
                                 )
                             )
                             .addOnSuccessListener {

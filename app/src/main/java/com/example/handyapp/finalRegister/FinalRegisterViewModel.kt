@@ -84,12 +84,12 @@ class FinalRegisterViewModel(
         val db = FirebaseFirestore.getInstance()
         val user = FirebaseAuth.getInstance().currentUser
 
-        val usersCollection = db.collection("handymen")
+        val usersCollection = db.collection("HandyMan")
         if (user != null) {
             // User is signed in
             val userId = user.uid
             userId.let {
-                db.collection("handymen")
+                db.collection("HandyMan")
                     .document(userId)
                     .update(
                         hashMapOf<String, Any>(
@@ -99,7 +99,7 @@ class FinalRegisterViewModel(
                             "AverageSalary" to state.averageSalary,
                             "WorkingAreas" to state.workingAreas,
                             "About" to state.about,
-                            "status" to "ACTIVE"
+                            "Status" to "ACTIVE"
                         )
                     )
                     .addOnSuccessListener {
@@ -108,7 +108,7 @@ class FinalRegisterViewModel(
                     .addOnFailureListener { e ->
                         println("Error adding document: $e")
                     }
-                val handyMenCollectionRef = db.collection("handymen").document(userId)
+                val handyMenCollectionRef = db.collection("HandyMan").document(userId)
                 val reviewSubCol = handyMenCollectionRef.collection("reviews")
                 val requests = handyMenCollectionRef.collection("requests")
 

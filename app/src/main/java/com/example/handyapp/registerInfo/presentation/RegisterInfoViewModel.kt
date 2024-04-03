@@ -99,7 +99,7 @@ class RegisterInfoViewModel (
             // User is signed in
             val userId = user.uid
             userId.let {
-                db.collection("handymen")
+                db.collection("HandyMan")
                     .document(userId)
                     .update(
                         hashMapOf<String, Any>(
@@ -108,15 +108,15 @@ class RegisterInfoViewModel (
                             "Day" to state.day,
                             "Month" to state.month,
                             "Year" to state.year,
+                            "Status" to "WAITING"
                         )
                     )
                     .addOnSuccessListener {
-
                     }
                     .addOnFailureListener { e ->
                         println("Error adding document: $e")
                     }
-                val handyMenCollectionRef = db.collection("handymen").document(userId)
+                val handyMenCollectionRef = db.collection("HandyMan").document(userId)
                 val reviewSubCol = handyMenCollectionRef.collection("reviews")
                 val requests = handyMenCollectionRef.collection("requests")
             }

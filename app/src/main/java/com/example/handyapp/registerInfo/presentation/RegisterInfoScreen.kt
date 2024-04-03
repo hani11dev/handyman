@@ -214,6 +214,7 @@ private fun uploadToFirebase(contentResolver: ContentResolver, uri: Uri, path: S
         val inputStream = contentResolver.openInputStream(uri)
         val uploadTask = inputStream?.let { fileRef.putStream(it) }
         uploadTask?.addOnSuccessListener { _ ->
+
             callback.invoke(uri.lastPathSegment ?: "Unknown")
         }?.addOnFailureListener {
             // Error uploading file

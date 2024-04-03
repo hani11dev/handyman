@@ -88,6 +88,8 @@ dependencies {
 
     //SplashScreen
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    implementation("com.onesignal:OneSignal:[5.0.0, 5.99.99]")
 }
 kapt {
     correctErrorTypes = true

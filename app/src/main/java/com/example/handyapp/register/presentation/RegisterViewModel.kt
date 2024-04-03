@@ -18,6 +18,7 @@ import com.example.handyapp.register.domain.components.RegistrationEvent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.onesignal.OneSignal
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -44,10 +45,25 @@ class RegisterViewModel(
                 val uid = user?.uid
                 val Handyman = hashMapOf(
                     "PhoneNumber" to state.phoneNumber,
-                    "status" to "NEW"
+                    "Status" to "NEW",
+                    "Email" to state.email,
+                    "DeviceToken" to OneSignal.User.pushSubscription.id,
+                    "FirstName" to "",
+                    "LastName" to "",
+                    "Day" to "",
+                    "Month" to "",
+                    "Year" to "",
+                    "Rating" to "0.0",
+                    "nbReviews" to "0",
+                    "OrdersCompleted" to "0",
+                    "Category" to "",
+                    "About" to "",
+                    "WorkingAreas" to "",
+                    "SubCategory" to "",
+                    "ProfileImage" to "",
                 )
                 uid?.let {
-                    db.collection("handymen")
+                    db.collection("HandyMan")
                         .document(uid)
                         .set(Handyman)
                         .addOnSuccessListener {

@@ -23,13 +23,13 @@ class BrowseViewModel @Inject constructor() : ViewModel(){
 // Get the current user ID (assuming the user is authenticated)
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid
-        val docRef = db.collection("handymen").document(userId!!) // Use user ID as document ID
+        val docRef = db.collection("HandyMan").document(userId!!) // Use user ID as document ID
         // Get the document
         docRef.get()
             .addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
                     // Document exists, retrieve data
-                    val data = documentSnapshot.getString("status") // Map<String, Any> containing document data
+                    val data = documentSnapshot.getString("Status") // Map<String, Any> containing document data
                     if(data != null){
                         if(data == "NEW"){
                             //navController.navigate(Screen.RegisterInfo.route)
