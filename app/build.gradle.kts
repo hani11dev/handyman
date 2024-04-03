@@ -77,6 +77,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1")
+
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5")
+
     // Dependency Injection
     implementation("androidx.hilt:hilt-navigation-fragment:1.2.0")
     implementation("com.google.dagger:hilt-android:2.51")

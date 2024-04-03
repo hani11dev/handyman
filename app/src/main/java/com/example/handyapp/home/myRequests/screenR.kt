@@ -71,6 +71,7 @@ fun MyRequestsScreenReal(
     val day = request["day"] as? String ?: ""
     val description = request["description"] as? String ?: ""
     val hour = request["hour"] as? String ?: ""
+    val street = request["street"] as? String ?: ""
     var isDetailVisible by remember { mutableStateOf(false) }
     var selectedImage by remember { mutableStateOf(-1) } // Initialize selectedImage
 
@@ -159,6 +160,23 @@ fun MyRequestsScreenReal(
 
                         )
 
+                        deleteRequest(
+                            Title = title ,
+                            Description = description ,
+                            Wilaya= wilaya,
+                            City= city,
+                            Street = street ,
+                            Day = day,
+                            Hour = hour ,
+                            Budget= budget.toInt() ?:0,
+                            clientId =  request["clientId"] as? String ?: "",
+                            handymanID = request["handymanID"] as? String ?: ""
+
+                        )
+
+
+
+
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF84D588)
@@ -179,7 +197,7 @@ fun MyRequestsScreenReal(
                             taskCollectionRef,
                             Id = 1 ,
                             Client = name.value ?: "",
-                            Category = "?",
+                            Category = "CATEGORY",
                             Title =  title,
                             Description = description ,
                             Time_day = day,
@@ -189,6 +207,22 @@ fun MyRequestsScreenReal(
                             Status = "REJECTED"
 
                         )
+
+                        deleteRequest(
+                            Title = title ,
+                            Description = description ,
+                            Wilaya= wilaya,
+                            City= city,
+                            Street = street ,
+                            Day = day,
+                            Hour = hour ,
+                            Budget= budget.toInt() ?:0,
+                            clientId =  request["clientId"] as? String ?: "",
+                            handymanID = request["handymanID"] as? String ?: ""
+
+                        )
+
+
 
                     },
                     colors = ButtonDefaults.buttonColors(
