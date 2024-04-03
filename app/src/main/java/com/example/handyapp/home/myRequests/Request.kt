@@ -24,6 +24,20 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
+
+
+data class REQUEST(
+    var Title: String = "" ,
+    var Description: String = "" ,
+    var Wilaya: String = "" ,
+    var City: String = "" ,
+    var Street: String = "" ,
+    var Day: String = "" ,
+    var Hour: String = "" ,
+    var Budget: Int = -1
+)
+
+
 @Composable
 fun MyRequestsScreen(navController: NavHostController) {
 

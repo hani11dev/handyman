@@ -1,13 +1,15 @@
 package com.example.handyapp.home.myRequests
+import REQUEST
 import Task
+import android.util.Log
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import android.util.Log
-import android.widget.Toast
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 
 suspend fun getCollectionData(
@@ -101,6 +103,41 @@ fun saveTask(taskRef: CollectionReference,
             }
         }
     }
+
+
+
+
+fun deleteRequest(
+    Title: String,
+    Description: String,
+    Wilaya: String,
+    City: String,
+    Street: String,
+    Day: String,
+    Hour: String,
+    Budget: Int,
+    clientId: String,
+    handymanID: String
+) = CoroutineScope(Dispatchers.IO).launch {
+
+    val requestQuery = Firebase.firestore.collection("requests")
+        .whereEqualTo("clientId", clientId)
+        .whereEqualTo("handymanID", handymanID)
+        .get()
+        .await()
+
+    if (requestQuery.documents.isNotEmpty()) {
+        for (document in requestQuery) {
+            try {
+                document.reference.delete().await()
+            } catch (e: Exception) {
+                // Handle exception if needed
+            }
+        }
+    } else {
+        // Handle case when no documents found
+    }
+}
 
 
 
