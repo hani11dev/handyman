@@ -32,22 +32,21 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 data class Job(
-    val category: String,
-    val city: String,
-    val day: String,
-    val description: String,
-    val hour: String,
-    val max: Int,
-    val min: Int,
-    val status: String,
-    val street: String,
-    val title: String,
-    val userId: String,
-    val wilaya: String
-) {
+    var id: String = "",
+    val category: String = "",
+    val city: String = "",
+    val day: String = "",
+    val description: String = "",
+    val hour: String = "",
+    val max: Int = 0,
+    val min: Int = 0,
+    val status: String = "",
+    val street: String = "",
+    val title: String = "",
+    val userId: String = "",
+    val wilaya: String = "",
+)
 
-    constructor() : this("", "", "", "", "", 0, 0, "", "", "", "", "")
-}
 class JobsViewModel : ViewModel() {
 
     private val _jobs = MutableStateFlow<List<Job>>(emptyList())
@@ -60,7 +59,9 @@ class JobsViewModel : ViewModel() {
             val jobsCollection = db.collection("Jobs")
             jobsCollection.get().addOnSuccessListener { result ->
                 for (document in result.documents) {
+                    val jobId = document.id
                     val job = document.toObject(Job::class.java)!!
+                    job.id = jobId
                     jobsList.add(job)
                 }
                 _jobs.value = jobsList
@@ -69,40 +70,44 @@ class JobsViewModel : ViewModel() {
         }
     }
 }
-
 @Composable
 fun JobItem(job: Job) {
     Card(
         modifier = Modifier
             .padding(vertical = 8.dp, horizontal = 16.dp),
-        elevation =  CardDefaults.cardElevation(defaultElevation = 4.dp)  // Adjust elevation as needed
+        elevation =  CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier.padding(8.dp)
         ) {
+            Text(
+                text = "ID: ${job.id}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Blue
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = job.title,
-                    style = MaterialTheme.typography.headlineMedium, // Use M3 headlineMedium
+                    style = MaterialTheme.typography.headlineMedium,
                     color = Color.Black,
-                    maxLines = 2, // Allow 2 lines for title
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = job.category,
-                    style = MaterialTheme.typography.bodyMedium, // Use M3 bodyMedium
-                    color = Color.Gray // Adjust category text color as needed
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = job.description,
-                style = MaterialTheme.typography.bodyLarge, // Use M3 bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
                 color = Color.Gray,
-                maxLines = 3, // Allow 3 lines for description
+                maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -112,10 +117,11 @@ fun JobItem(job: Job) {
             ) {
                 Text(
                     text = "Budget: ${job.min} - ${job.max} DA",
-                    style = MaterialTheme.typography.bodyMedium, // Use M3 bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Blue
                 )
-                IconButton(onClick = { /* Handle favorite button click */ }) {
+
+                IconButton(onClick = { }) {
                     Icon(Icons.Default.Favorite, contentDescription = "Favorite")
                 }
             }
