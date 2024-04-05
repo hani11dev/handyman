@@ -14,10 +14,10 @@ import com.example.handyapp.finalRegister.FinalRegisterScreen
 import com.example.handyapp.finalRegister.FinishedSetupScreen
 import com.example.handyapp.finalRegister.OneLastStepScreen
 import com.example.handyapp.home.Settings.SettingsScreen
+import com.example.handyapp.home.jobs.JobDetailsScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
 import com.example.handyapp.home.presentation.RefusedScreen
 import com.example.handyapp.home.presentation.WaitingScreen
-import com.plcoding.m3_bottomnavigation.HomeScreen
 
 @Composable
 fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: NavHostController , startDestination : String , subStartDestination : String){
@@ -26,7 +26,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             composable(
                 route = Screen.Home.route
             ) {
-                JobsScreen()
+                JobsScreen(browseNavController)
             }
             /*composable(
                 route = Screen.Waiting.route
@@ -52,6 +52,11 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                 route = Screen.Settings.route
             ) {
                 SettingsScreen(rootNavController, browseNavController)
+            }
+            composable(
+                route = Screen.JobsDetails.route + "/{jobID}"
+            ) {
+                JobDetailsScreen()
             }
         }
         navigation(route = Graph.State.route , startDestination = subStartDestination){

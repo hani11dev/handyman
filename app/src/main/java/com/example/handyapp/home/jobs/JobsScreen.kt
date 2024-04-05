@@ -1,3 +1,6 @@
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,19 +20,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
+import com.example.handyapp.Response
+import com.example.handyapp.home.jobs.JobsViewModel
+import com.example.handyapp.navigation.Screen
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class Job(
     var id: String = "",
@@ -47,34 +64,15 @@ data class Job(
     val wilaya: String = "",
 )
 
-class JobsViewModel : ViewModel() {
 
-    private val _jobs = MutableStateFlow<List<Job>>(emptyList())
-    val jobs: StateFlow<List<Job>> = _jobs
-
-    fun getJobs() {
-        viewModelScope.launch {
-            val jobsList = mutableListOf<Job>()
-            val db = Firebase.firestore
-            val jobsCollection = db.collection("Jobs")
-            jobsCollection.get().addOnSuccessListener { result ->
-                for (document in result.documents) {
-                    val jobId = document.id
-                    val job = document.toObject(Job::class.java)!!
-                    job.id = jobId
-                    jobsList.add(job)
-                }
-                _jobs.value = jobsList
-            }.addOnFailureListener { exception ->
-            }
-        }
-    }
-}
 @Composable
-fun JobItem(job: Job) {
+fun JobItem(job: Job , navHostController: NavHostController) {
     Card(
         modifier = Modifier
-            .padding(vertical = 8.dp, horizontal = 16.dp),
+            .padding(vertical = 8.dp, horizontal = 16.dp)
+            .clickable {
+                       navHostController.navigate(Screen.JobsDetails.route + "/${job.id}")
+            },
         elevation =  CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -130,18 +128,39 @@ fun JobItem(job: Job) {
 }
 
 @Composable
-fun JobsScreen() {
-    val viewModel = JobsViewModel()
+fun JobsScreen(navHostController: NavHostController , viewModel: JobsViewModel = hiltViewModel() , context : Context = LocalContext.current) {
+   // val viewModel = JobsViewModel()
 
-    LaunchedEffect(Unit) {
+    /*LaunchedEffect(Unit) {
         viewModel.getJobs()
-    }
+    }*/
 
-    val jobs by viewModel.jobs.collectAsState(emptyList())
+    //val jobs by viewModel.jobs.collectAsState(emptyList())
+    val lists = listOf(
+        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
+        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
+        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
+        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
+        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
+        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
+    )
 
-    LazyColumn {
-        items(jobs) { job ->
-            JobItem(job)
+    when(val resp = viewModel.jobs.value){
+        is Response.onLoading -> {
+            //Toast.makeText(context , "load" ,Toast.LENGTH_SHORT).show()
+        }
+        is Response.onFaillure -> {Toast.makeText(context , "failled" ,Toast.LENGTH_SHORT).show()}
+        is Response.onSuccess -> {
+            //Toast.makeText(context , "succes" ,Toast.LENGTH_SHORT).show()
+            if (resp.data.isNotEmpty()){
+                LazyColumn {
+                    items(resp.data) { job ->
+                        JobItem(job , navHostController)
+                    }
+                }
+            }
         }
     }
+
+
 }
