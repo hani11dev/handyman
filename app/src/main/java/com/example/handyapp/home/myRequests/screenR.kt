@@ -44,17 +44,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.handyapp.R
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import lists
 
 
 val taskCollectionRef = Firebase.firestore.collection("tasks")
-
 @Composable
 fun MyRequestsScreenReal(
     context: Context,
@@ -75,7 +74,6 @@ fun MyRequestsScreenReal(
     var isDetailVisible by remember { mutableStateOf(false) }
     var selectedImage by remember { mutableStateOf(-1) } // Initialize selectedImage
 
-
     LaunchedEffect(key1 = Unit) {
         name.value = getClientFirstName(
             clientRef,
@@ -84,13 +82,13 @@ fun MyRequestsScreenReal(
     }
 
     Card(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.padding(4.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(backgroundColor),
         border = BorderStroke(2.dp, Color.LightGray)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(8.dp)
         ) {
             Text(
                 text = title,
@@ -98,7 +96,7 @@ fun MyRequestsScreenReal(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -109,7 +107,7 @@ fun MyRequestsScreenReal(
                     modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
 
                 Text(
                     text = "Location: $wilaya, $city",
@@ -117,7 +115,7 @@ fun MyRequestsScreenReal(
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -128,7 +126,7 @@ fun MyRequestsScreenReal(
                     modifier = Modifier.weight(1f)
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
 
                 Text(
                     text = "Date: $day",
@@ -136,7 +134,7 @@ fun MyRequestsScreenReal(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -188,7 +186,7 @@ fun MyRequestsScreenReal(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
 
                 Button(
                     onClick = {
@@ -219,7 +217,6 @@ fun MyRequestsScreenReal(
                             Budget= budget.toInt() ?:0,
                             clientId =  request["clientId"] as? String ?: "",
                             handymanID = request["handymanID"] as? String ?: ""
-
                         )
 
 
@@ -235,7 +232,7 @@ fun MyRequestsScreenReal(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
 
                 ClickableText(
                     text = AnnotatedString.Builder().apply {
@@ -260,7 +257,7 @@ fun MyRequestsScreenReal(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(4.dp),
                         contentAlignment = Alignment.TopCenter
                     ) {
                         Column {
@@ -268,13 +265,13 @@ fun MyRequestsScreenReal(
                                 text = "Description",
                                 textAlign = TextAlign.Center
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
 
                             Text(
                                 text = description,
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -286,7 +283,7 @@ fun MyRequestsScreenReal(
                                         painter = painterResource(id = image),
                                         contentDescription = "Image $index",
                                         modifier = Modifier
-                                            .size(100.dp)
+                                            .size(80.dp)
                                             .clickable {
                                                 selectedImage = image // Set selected image
                                             }
@@ -314,11 +311,4 @@ fun MyRequestsScreenReal(
             }
         }
     }
-
-
-
-
 }
-
-
-

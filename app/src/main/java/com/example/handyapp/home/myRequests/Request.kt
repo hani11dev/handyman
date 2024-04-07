@@ -1,4 +1,5 @@
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,8 @@ import com.google.firebase.ktx.Firebase
 
 
 
+
+
 data class REQUEST(
     var Title: String = "" ,
     var Description: String = "" ,
@@ -37,13 +40,11 @@ data class REQUEST(
     var Budget: Int = -1
 )
 
-
 @Composable
 fun MyRequestsScreen(navController: NavHostController) {
 
     val requestsCollectionRef = Firebase.firestore.collection("requests")
     val clientsCollectionRef = Firebase.firestore.collection("Clients")
-
 
     val requests = remember { mutableStateListOf<Map<String, Any>>() }
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -51,15 +52,14 @@ fun MyRequestsScreen(navController: NavHostController) {
     if(currentUser != null){
         userId = currentUser.uid
     }
-    LaunchedEffect(key1 = Unit) {
-        requests.addAll(
-            getCollectionData(
-                requestsCollectionRef,
-                userId
-            )
-        )
 
+    LaunchedEffect(key1 = Unit) {
+        getCollectionData(requestsCollectionRef, userId) { updatedRequests ->
+            requests.clear() // Clear the existing list
+            requests.addAll(updatedRequests) // Add the updated requests
+        }
     }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -67,16 +67,14 @@ fun MyRequestsScreen(navController: NavHostController) {
     ) {
         items(requests) { request ->
             MyRequestsScreenReal(
-                context = LocalContext.current, // Pass context here
+                context = LocalContext.current,
                 clientRef = clientsCollectionRef,
                 request = request,
                 navController = navController
-
             )
-
-
             Spacer(modifier = Modifier.height(16.dp))
         }
-
     }
 }
+
+

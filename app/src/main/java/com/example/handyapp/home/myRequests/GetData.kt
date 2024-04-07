@@ -3,6 +3,7 @@ import REQUEST
 import Task
 import android.util.Log
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
@@ -12,29 +13,59 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
 
+
+
+
+/*suspend fun getCollectionData(handymanRef: CollectionReference, referenceId: String): List<Map<String, Any>> {
+    return try {
+        val querySnapshot = withContext(Dispatchers.IO) {
+            handymanRef
+                .whereEqualTo("handymanID", referenceId) // Filter by handymanID
+                .get()
+                .await()
+        }
+
+        val results = querySnapshot.documents.map { it.data ?: emptyMap() } // Convert documents to data maps h
+        val sortedResults = results.sortedByDescending { (it["budget"] as? Long) ?: -1 }
+
+
+        sortedResults // Return sorted results
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList() // Return empty list in case of failure
+    }
+}*/
+
 suspend fun getCollectionData(
     handymanRef: CollectionReference,
     referenceId: String,
-): List<Map<String, Any>> {
-    val result = mutableListOf<Map<String, Any>>()
+    onUpdate: (List<Map<String, Any>>) -> Unit // Callback to update the list
+) {
     try {
-        val querySnapshot =
-            handymanRef.whereEqualTo("handymanID", referenceId).get().await()
-        for (document in querySnapshot.documents) {
-            val data = document.data
-            if (data != null) {
-                result.add(data)
-            }
-        }
-    } catch (e: Exception) {
-        // Handle error (log or show error message)
-        withContext(Dispatchers.Main) {
-            // displayToast(e.message ?: "Unknown error occurred")
+        handymanRef
+            .whereEqualTo("handymanID", referenceId) // Filter by handymanID
+            .addSnapshotListener { querySnapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    // Handle error (log or show error message)
+                    return@addSnapshotListener
+                }
 
-        }
+                if (querySnapshot != null) {
+                    val results = querySnapshot.documents.map { it.data ?: emptyMap() } // Convert documents to data maps
+                    val sortedResults = results.sortedByDescending { (it["budget"] as? Long) ?: -1 }
+                    onUpdate(sortedResults) // Call the callback to update the list
+                }
+            }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // Handle error (log or show error message)
     }
-    return result
 }
+
+
+
+
 
 
 suspend fun getClientFirstName(
