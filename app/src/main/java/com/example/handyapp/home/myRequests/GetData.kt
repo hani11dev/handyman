@@ -96,7 +96,7 @@ suspend fun getClientFirstName(
 
 
 
-fun saveTask(taskRef: CollectionReference,
+/*fun saveTask(taskRef: CollectionReference,
              Id:Int,
              Client:String,
              Category:String,
@@ -133,7 +133,7 @@ fun saveTask(taskRef: CollectionReference,
                 //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
             }
         }
-    }
+    }*/
 
 
 fun deleteRequest(
@@ -148,14 +148,21 @@ fun deleteRequest(
     clientId: String,
     handymanID: String
 ) = CoroutineScope(Dispatchers.IO).launch {
+    try {
+        val requestQuery = Firebase.firestore.collection("requests")
+            .whereEqualTo("clientId", clientId)
+            .whereEqualTo("handymanID", handymanID)
+            .whereEqualTo("title", Title)
+            .whereEqualTo("description", Description)
+            .whereEqualTo("wilaya", Wilaya)
+            .whereEqualTo("city", City)
+            .whereEqualTo("street", Street)
+            .whereEqualTo("day", Day)
+            .whereEqualTo("hour", Hour)
+            .whereEqualTo("budget", Budget)
+            .get()
+            .await()
 
-    val requestQuery = Firebase.firestore.collection("requests")
-        .whereEqualTo("clientId", clientId)
-        .whereEqualTo("handymanID", handymanID)
-        .get()
-        .await()
-
-    if (requestQuery.documents.isNotEmpty()) {
         for (document in requestQuery) {
             try {
                 document.reference.delete().await()
@@ -163,10 +170,49 @@ fun deleteRequest(
                 // Handle exception if needed
             }
         }
-    } else {
-        // Handle case when no documents found
+    } catch (e: Exception) {
+        // Handle exception if needed
     }
 }
+
+fun saveTask(
+    taskCollectionRef: CollectionReference,
+    Id: Int,
+    Client: String,
+    Category: String,
+    Title: String,
+    Description: String,
+    Time_day: String,
+    Time_hour: String,
+    Price: Int,
+    localisation: String,
+    Status: String,
+    RejectionReason: String? = null // Make rejection reason nullable
+) {
+    val task = hashMapOf(
+        "Id" to Id,
+        "Client" to Client,
+        "Category" to Category,
+        "Title" to Title,
+        "Description" to Description,
+        "Time_day" to Time_day,
+        "Time_hour" to Time_hour,
+        "Price" to Price,
+        "localisation" to localisation,
+        "Status" to Status
+    )
+
+    // Conditionally add rejection reason only if the status is "REJECTED"
+    if (Status == "REJECTED" && RejectionReason != null) {
+        task["RejectionReason"] = RejectionReason
+    }
+
+    taskCollectionRef.add(task)
+}
+
+
+
+
 
 
 

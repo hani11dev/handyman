@@ -5,6 +5,7 @@ import MyTasksScreen
 import Task
 import android.content.Context
 import android.content.Intent
+import android.provider.CalendarContract
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBarDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,6 +30,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,7 +57,9 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
+
 val taskCollectionRef = Firebase.firestore.collection("tasks")
+
 @Composable
 fun MyRequestsScreenReal(
     context: Context,
@@ -73,6 +79,9 @@ fun MyRequestsScreenReal(
     val street = request["street"] as? String ?: ""
     var isDetailVisible by remember { mutableStateOf(false) }
     var selectedImage by remember { mutableStateOf(-1) } // Initialize selectedImage
+
+    var showAcceptConfirmation by remember { mutableStateOf(false) }
+    var showRejectConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = Unit) {
         name.value = getClientFirstName(
@@ -100,11 +109,13 @@ fun MyRequestsScreenReal(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Client: ${name.value ?: ""}",
                     modifier = Modifier.weight(1f)
+
                 )
 
                 Spacer(modifier = Modifier.width(4.dp))
@@ -143,38 +154,7 @@ fun MyRequestsScreenReal(
             ) {
                 Button(
                     onClick = {
-                        saveTask(
-                            taskCollectionRef,
-                            Id = 1 ,
-                            Client = name.value ?: "",
-                            Category = "?",
-                            Title =  title,
-                            Description = description ,
-                            Time_day = day,
-                            Time_hour = hour ,
-                            Price = budget.toInt() ?: 0,
-                            localisation = "$wilaya,$city",
-                            Status = "IN_PROGRESS"
-
-                        )
-
-                        deleteRequest(
-                            Title = title ,
-                            Description = description ,
-                            Wilaya= wilaya,
-                            City= city,
-                            Street = street ,
-                            Day = day,
-                            Hour = hour ,
-                            Budget= budget.toInt() ?:0,
-                            clientId =  request["clientId"] as? String ?: "",
-                            handymanID = request["handymanID"] as? String ?: ""
-
-                        )
-
-
-
-
+                        showAcceptConfirmation = true
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF84D588)
@@ -190,37 +170,7 @@ fun MyRequestsScreenReal(
 
                 Button(
                     onClick = {
-
-                        saveTask(
-                            taskCollectionRef,
-                            Id = 1 ,
-                            Client = name.value ?: "",
-                            Category = "CATEGORY",
-                            Title =  title,
-                            Description = description ,
-                            Time_day = day,
-                            Time_hour = hour ,
-                            Price = budget.toInt() ?: 0,
-                            localisation = wilaya+","+city,
-                            Status = "REJECTED"
-
-                        )
-
-                        deleteRequest(
-                            Title = title ,
-                            Description = description ,
-                            Wilaya= wilaya,
-                            City= city,
-                            Street = street ,
-                            Day = day,
-                            Hour = hour ,
-                            Budget= budget.toInt() ?:0,
-                            clientId =  request["clientId"] as? String ?: "",
-                            handymanID = request["handymanID"] as? String ?: ""
-                        )
-
-
-
+                        showRejectConfirmation = true
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFDB6161)
@@ -278,7 +228,10 @@ fun MyRequestsScreenReal(
                                 horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 // Display images here
-                                listOf(R.drawable.adam, R.drawable._1).forEachIndexed { index, image ->
+                                listOf(
+                                    R.drawable.adam,
+                                    R.drawable._1
+                                ).forEachIndexed { index, image ->
                                     Image(
                                         painter = painterResource(id = image),
                                         contentDescription = "Image $index",
@@ -310,5 +263,118 @@ fun MyRequestsScreenReal(
                 }
             }
         }
+
+
+        if (showAcceptConfirmation) {
+            AlertDialog(
+                onDismissRequest = { showAcceptConfirmation = false },
+                title = { Text("Accept Request") },
+                text = { Text("Are you sure you want to accept this request?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            saveTask(
+                                taskCollectionRef,
+                                Id = 1,
+                                Client = name.value ?: "",
+                                Category = "?",
+                                Title = title,
+                                Description = description,
+                                Time_day = day,
+                                Time_hour = hour,
+                                Price = budget.toInt() ?: 0,
+                                localisation = "$wilaya,$city",
+                                Status = "IN_PROGRESS"
+                            )
+                            deleteRequest(
+                                Title = title,
+                                Description = description,
+                                Wilaya = wilaya,
+                                City = city,
+                                Street = street,
+                                Day = day,
+                                Hour = hour,
+                                Budget = budget.toInt() ?: 0,
+                                clientId = request["clientId"] as? String ?: "",
+                                handymanID = request["handymanID"] as? String ?: ""
+                            )
+                            showAcceptConfirmation = false // Dismiss the dialog
+                        }
+                    ) {
+                        Text("Accept")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showAcceptConfirmation = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (showRejectConfirmation) {
+            var rejectionReason by remember { mutableStateOf("") } // State for rejection reason
+
+            AlertDialog(
+                onDismissRequest = { showRejectConfirmation = false },
+                title = { Text("Reject Request") },
+                text = {
+                    Column {
+                        Text("Are you sure you want to reject this request?")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = rejectionReason,
+                            onValueChange = { rejectionReason = it },
+                            label = { Text("Rejection Reason") }
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            saveTask(
+                                taskCollectionRef,
+                                Id = 1,
+                                Client = name.value ?: "",
+                                Category = "CATEGORY",
+                                Title = title,
+                                Description = description,
+                                Time_day = day,
+                                Time_hour = hour,
+                                Price = budget.toInt() ?: 0,
+                                localisation = "$wilaya,$city",
+                                Status = "REJECTED",
+                                RejectionReason = rejectionReason // Save rejection reason
+                            )
+                            deleteRequest(
+                                Title = title,
+                                Description = description,
+                                Wilaya = wilaya,
+                                City = city,
+                                Street = street,
+                                Day = day,
+                                Hour = hour,
+                                Budget = budget.toInt() ?: 0,
+                                clientId = request["clientId"] as? String ?: "",
+                                handymanID = request["handymanID"] as? String ?: ""
+                            )
+                            showRejectConfirmation = false // Dismiss the dialog
+                        }
+                    ) {
+                        Text("Reject")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showRejectConfirmation = false }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
     }
-}
+
+    }
