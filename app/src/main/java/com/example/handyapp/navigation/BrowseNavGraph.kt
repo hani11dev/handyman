@@ -1,5 +1,6 @@
 package com.example.handyapp.navigation
 
+import JobDetailsScreen
 import JobsScreen
 import MyRequestsScreen
 import MyTasksScreen
@@ -14,7 +15,7 @@ import com.example.handyapp.finalRegister.FinalRegisterScreen
 import com.example.handyapp.finalRegister.FinishedSetupScreen
 import com.example.handyapp.finalRegister.OneLastStepScreen
 import com.example.handyapp.home.Settings.SettingsScreen
-import com.example.handyapp.home.jobs.JobDetailsScreen
+import com.example.handyapp.home.jobs.BiddingScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
 import com.example.handyapp.home.presentation.RefusedScreen
 import com.example.handyapp.home.presentation.WaitingScreen
@@ -56,7 +57,12 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             composable(
                 route = Screen.JobsDetails.route + "/{jobID}"
             ) {
-                JobDetailsScreen()
+                JobDetailsScreen(navHostController = browseNavController)
+            }
+            composable(
+                route = Screen.BidScreen.route + "/{jobID}"
+            ) {
+                BiddingScreen()
             }
         }
         navigation(route = Graph.State.route , startDestination = subStartDestination){

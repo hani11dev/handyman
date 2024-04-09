@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.navigation.compose)
+    implementation("io.coil-kt:coil-compose:1.4.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
