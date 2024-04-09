@@ -98,6 +98,9 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     implementation("com.onesignal:OneSignal:[5.0.0, 5.99.99]")
+
+    implementation("io.coil-kt:coil-compose:1.4.0")
+
 }
 kapt {
     correctErrorTypes = true

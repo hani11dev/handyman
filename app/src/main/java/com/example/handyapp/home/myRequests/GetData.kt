@@ -36,6 +36,48 @@ import kotlinx.coroutines.withContext
     }
 }*/
 
+
+
+/*fun saveTask(taskRef: CollectionReference,
+             Id:Int,
+             Client:String,
+             Category:String,
+             Title:String,
+             Description:String,
+             Time_day: String,
+             Time_hour: String,
+             Price:Int,
+             localisation:String,
+             Status:String
+) =
+    CoroutineScope(Dispatchers.IO).launch {
+        try{
+            val task =Task(
+                id = Id ,
+                client = Client,
+                category = Category,
+                title =  Title,
+                description = Description ,
+                time_day = Time_day,
+                time_hour =Time_hour ,
+                Price = Price,
+                localisation = localisation,
+                status = Status
+            )
+            taskRef.add(task).await()
+            withContext(Dispatchers.Main) {
+                //  Toast.makeText(this@MainActivity, "Successfully saved ",
+                //   Toast.LENGTH_LONG).show()
+
+            }
+        }catch(e : Exception){
+            withContext(Dispatchers.Main) {
+                //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }*/
+
+
 suspend fun getCollectionData(
     handymanRef: CollectionReference,
     referenceId: String,
@@ -96,46 +138,6 @@ suspend fun getClientFirstName(
 
 
 
-/*fun saveTask(taskRef: CollectionReference,
-             Id:Int,
-             Client:String,
-             Category:String,
-             Title:String,
-             Description:String,
-             Time_day: String,
-             Time_hour: String,
-             Price:Int,
-             localisation:String,
-             Status:String
-) =
-    CoroutineScope(Dispatchers.IO).launch {
-        try{
-            val task =Task(
-                id = Id ,
-                client = Client,
-                category = Category,
-                title =  Title,
-                description = Description ,
-                time_day = Time_day,
-                time_hour =Time_hour ,
-                Price = Price,
-                localisation = localisation,
-                status = Status
-            )
-            taskRef.add(task).await()
-            withContext(Dispatchers.Main) {
-                //  Toast.makeText(this@MainActivity, "Successfully saved ",
-                //   Toast.LENGTH_LONG).show()
-                
-            }
-        }catch(e : Exception){
-            withContext(Dispatchers.Main) {
-                //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-            }
-        }
-    }*/
-
-
 fun deleteRequest(
     Title: String,
     Description: String,
@@ -177,34 +179,34 @@ fun deleteRequest(
 
 fun saveTask(
     taskCollectionRef: CollectionReference,
-    Id: Int,
-    Client: String,
-    Category: String,
-    Title: String,
-    Description: String,
-    Time_day: String,
-    Time_hour: String,
-    Price: Int,
+    id: String, // must be a string
+    client: String,
+    category: String,
+    title: String,
+    description: String,
+    time_day: String,
+    time_hour: String,
+    price: Int,
     localisation: String,
-    Status: String,
-    RejectionReason: String? = null // Make rejection reason nullable
+    status: String,
+    rejection_Reason: String? = null // Make rejection reason nullable
 ) {
     val task = hashMapOf(
-        "Id" to Id,
-        "Client" to Client,
-        "Category" to Category,
-        "Title" to Title,
-        "Description" to Description,
-        "Time_day" to Time_day,
-        "Time_hour" to Time_hour,
-        "Price" to Price,
+        "id" to id,
+        "client" to client,
+        "Category" to category,
+        "title" to title,
+        "description" to description,
+        "time_day" to time_day,
+        "time_hour" to time_hour,
+        "price" to price,
         "localisation" to localisation,
-        "Status" to Status
+        "Status" to status
     )
 
     // Conditionally add rejection reason only if the status is "REJECTED"
-    if (Status == "REJECTED" && RejectionReason != null) {
-        task["RejectionReason"] = RejectionReason
+    if (status == "REJECTED" && rejection_Reason != null) {
+        task["RejectionReason"] = rejection_Reason
     }
 
     taskCollectionRef.add(task)
