@@ -78,7 +78,7 @@ fun JobItem(job: Job, navHostController: NavHostController) {
                 navHostController.navigate(Screen.JobsDetails.route + "/${job.id}")
             },
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f) // Adjust alpha for subtle elevation
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -89,26 +89,26 @@ fun JobItem(job: Job, navHostController: NavHostController) {
             ) {
                 val calendar = Calendar.getInstance()
                 val year = calendar.get(Calendar.YEAR)
-                val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-indexed
+                val month = calendar.get(Calendar.MONTH) + 1
                 val day = calendar.get(Calendar.DAY_OF_MONTH)
-                val formattedDate = String.format("%02d/%02d/%04d", day, month, year)  // Format as DD/MM/YYYY
+                val formattedDate = String.format("%02d/%02d/%04d", day, month, year)
 
                 Text(
                     text = "Posted: ${formattedDate}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) // Slightly transparent text
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
                     text = job.category,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface // Use onSurface for text color
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = job.title,
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface, // Use onSurface for text color
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -116,7 +116,7 @@ fun JobItem(job: Job, navHostController: NavHostController) {
             Text(
                 text = job.description,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface, // Use onSurface for text color
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
@@ -128,7 +128,7 @@ fun JobItem(job: Job, navHostController: NavHostController) {
                 Text(
                     text = "Budget: ${job.min} - ${job.max} DA",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary // Use primary for budget highlight
+                    color = MaterialTheme.colorScheme.primary
                 )
                 IconButton(onClick = { /* TODO: Handle favorite click */ }) {
                     Icon(Icons.Default.Favorite, contentDescription = "Favorite")
