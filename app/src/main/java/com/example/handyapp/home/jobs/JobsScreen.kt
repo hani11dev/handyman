@@ -17,6 +17,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,6 +47,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import javax.inject.Inject
 
 data class Job(
@@ -66,49 +70,57 @@ data class Job(
 
 
 @Composable
-fun JobItem(job: Job , navHostController: NavHostController) {
-    Card(
+fun JobItem(job: Job, navHostController: NavHostController) {
+    Surface(
         modifier = Modifier
             .padding(vertical = 8.dp, horizontal = 16.dp)
             .clickable {
-                       navHostController.navigate(Screen.JobsDetails.route + "/${job.id}")
+                navHostController.navigate(Screen.JobsDetails.route + "/${job.id}")
             },
-        elevation =  CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f) // Adjust alpha for subtle elevation
     ) {
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
-            Text(
-                text = "ID: ${job.id}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Blue
-            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                val calendar = Calendar.getInstance()
+                val year = calendar.get(Calendar.YEAR)
+                val month = calendar.get(Calendar.MONTH) + 1 // Months are 0-indexed
+                val day = calendar.get(Calendar.DAY_OF_MONTH)
+                val formattedDate = String.format("%02d/%02d/%04d", day, month, year)  // Format as DD/MM/YYYY
+
                 Text(
-                    text = job.title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.Black,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    text = "Posted: ${formattedDate}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) // Slightly transparent text
                 )
                 Text(
                     text = job.category,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurface // Use onSurface for text color
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
+                text = job.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface, // Use onSurface for text color
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
                 text = job.description,
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurface, // Use onSurface for text color
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -116,16 +128,17 @@ fun JobItem(job: Job , navHostController: NavHostController) {
                 Text(
                     text = "Budget: ${job.min} - ${job.max} DA",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Blue
+                    color = MaterialTheme.colorScheme.primary // Use primary for budget highlight
                 )
-
-                IconButton(onClick = { }) {
+                IconButton(onClick = { /* TODO: Handle favorite click */ }) {
                     Icon(Icons.Default.Favorite, contentDescription = "Favorite")
                 }
             }
         }
     }
 }
+
+
 
 @Composable
 fun JobsScreen(navHostController: NavHostController , viewModel: JobsViewModel = hiltViewModel() , context : Context = LocalContext.current) {
