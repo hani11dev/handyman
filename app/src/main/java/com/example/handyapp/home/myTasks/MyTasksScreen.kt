@@ -79,7 +79,7 @@ data class Task(
     var status:String
 )
 
-val lists =mutableListOf<Task>(
+/*val lists =mutableListOf<Task>(
     Task(1,
         "Louis lo",
         "Painting",
@@ -120,7 +120,7 @@ val lists =mutableListOf<Task>(
         600,
         "alger","done"),
 )
-
+*/
 @Composable
 fun HeaderRow(
     //navController: NavHostController,
@@ -841,21 +841,28 @@ fun getTask(taskref:CollectionReference,id:String,onUpdate:(List<Task>)->Unit):L
 }
 
 fun updateStatus(ref:CollectionReference,item:Task,newValue:String){
-    val document=ref
-        .whereEqualTo("id",item.id)
+        ref
         .whereEqualTo("client",item.client)
         .whereEqualTo("time_day",item.time_day)
         .whereEqualTo("time_hour",item.time_hour)
         .whereEqualTo("localisation",item.localisation)
-    document.get().addOnCompleteListener {task->
-        if(task.isSuccessful){
-           for(doc in task.result!!.documents){
-               doc.reference.update("status",newValue)
-           }
+        .get()
+        .addOnSuccessListener { documents->
+            for(doc in documents){
+                doc.reference.update("status",newValue)
+                    .addOnSuccessListener {  }
+                    .addOnFailureListener{}
+            }
         }
-        else{}
-    }
+            .addOnFailureListener{}
+
+    /*addOnCompleteListener {task->
+
+        for(doc in task.result.documents){
+            doc.reference.update("status",newValue)
+        }*/
 }
+
 
 
 
