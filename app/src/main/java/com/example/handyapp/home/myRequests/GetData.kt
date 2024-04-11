@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -188,10 +189,10 @@ suspend fun getClientFirstName(
 }
 
 
-@Composable
+/*@Composable
 fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
     val db = Firebase.firestore
-    val scope = rememberCoroutineScope() // Use viewModelScope if using ViewModels
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = requestID) {
         scope.launch {
@@ -202,6 +203,51 @@ fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) 
                 emptyList()
             }
             onSuccess(downloadedImages) // Update onSuccess callback
+        }
+    }
+}*/
+
+/*@Composable
+fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
+    val db = Firebase.firestore
+    val scope = rememberCoroutineScope() // Use viewModelScope if using ViewModels
+    val errorMessage = remember { mutableStateOf<String?>(null) } // State for error message
+
+    LaunchedEffect(key1 = requestID) {
+        scope.launch {
+            try {
+                val downloadedImages = loadingImages(requestID)
+                onSuccess(downloadedImages) // Update onSuccess callback
+            } catch (e: Exception) {
+                errorMessage.value = "Error loading images: ${e.message}"
+            }
+        }
+    }
+
+    errorMessage.value?.let { message ->
+        // Display error message if not null
+        Text(text = message, color = Color.Red)
+    }
+}*/
+
+
+
+@Composable
+fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
+    val db = Firebase.firestore
+
+    LaunchedEffect(key1 = requestID) {
+        val requestDocument = db.collection("requests").document(requestID)
+            .get().await()
+        if (requestDocument.exists()){
+            val loadedImages = try {
+                loadingImages(requestID)
+            } catch (e: Exception) {
+                Log.e("loadImages", "Error loading images: ${e.message}", e)
+                emptyList()
+            }
+            onSuccess(loadedImages)
+            Log.d("ImageURLs", "Image URLs: $loadedImages")
         }
     }
 }
@@ -229,32 +275,25 @@ private suspend fun loadingImages(requestID: String): List<String> = withContext
 
 
 
-/*@Composable
-fun DetailScreen(navController: NavController, requestID: String) {
-
-    // Show a toast with requestID
-    Toast.makeText(
-        LocalContext.current,
-        "Request ID: $requestID",
-        Toast.LENGTH_SHORT
-    ).show()
-
-
-}*/
 @Composable
 fun DetailScreen(navController: NavController, requestID: String) {
+    MainContent(navController, requestID)
+}
+
+
+@Composable
+fun MainContent(navController: NavController, requestID: String ) {
+
     val imagesListState = remember { mutableStateListOf<String>() }
 
-    // Call the requestPictureDisplay function to load images
-    requestPictureDisplay(requestID) { imagesList ->
-        imagesListState.clear()
-        imagesListState.addAll(imagesList)
-    }
+        requestPictureDisplay(requestID) { imagesList ->
+            imagesListState.clear()
+            imagesListState.addAll(imagesList)
+        }
 
     Column {
         Text(text = "Request Details")
 
-        // Display the images using Image composable inside a LazyColumn
         LazyRow {
             items(imagesListState) { imageUrl ->
                 Image(
@@ -264,8 +303,12 @@ fun DetailScreen(navController: NavController, requestID: String) {
                 )
             }
         }
+
+
     }
 }
+
+
 
 
 
