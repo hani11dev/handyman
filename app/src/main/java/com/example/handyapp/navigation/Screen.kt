@@ -9,6 +9,7 @@ sealed class Screen(val route: String) {
     object RegistrationSucceeded: Screen(route = "registration_succeeded_screen")
     object Waiting: Screen(route = "waiting_screen")
    object MyRequests: Screen(route = "My Requests")
+   object DetailRequest: Screen(route = "Detail Request")
    object MyTasks: Screen(route = "My Tasks")
    object Notifications: Screen(route = "Notifications")
    object Settings: Screen(route = "settings")

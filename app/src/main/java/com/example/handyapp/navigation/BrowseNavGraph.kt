@@ -8,14 +8,17 @@ import RegisterInfoScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.handyapp.finalRegister.FinalRegisterScreen
 import com.example.handyapp.finalRegister.FinishedSetupScreen
 import com.example.handyapp.finalRegister.OneLastStepScreen
 import com.example.handyapp.home.Settings.SettingsScreen
 import com.example.handyapp.home.jobs.BiddingScreen
+import com.example.handyapp.home.myRequests.DetailScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
 import com.example.handyapp.home.presentation.RefusedScreen
 import com.example.handyapp.home.presentation.WaitingScreen
@@ -44,6 +47,24 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             ) {
                 MyRequestsScreen(browseNavController)
             }
+            /*composable(
+                route = Screen.DetailRequest.route+ "/{requestID}",
+                arguments = listOf(navArgument("requestID"){type = NavType.StringType})
+            ) {
+                DetailScreen(navController = browseNavController ,
+                    requestID = = it.arguments?.gerString("requestID")
+                )
+
+
+            }*/
+
+            composable(
+                route = Screen.DetailRequest.route + "/{requestID}",
+                arguments = listOf(navArgument("requestID") { type = NavType.StringType })
+            ) {
+                val requestID = it.arguments?.getString("requestID") ?: "" // Get requestID argument or use empty string as default
+                DetailScreen(navController = browseNavController, requestID = requestID)
+            }
             composable(
                 route = Screen.Notifications.route
             ) {
@@ -65,6 +86,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                 BiddingScreen()
             }
         }
+
         navigation(route = Graph.State.route , startDestination = subStartDestination){
             composable(route = Screen.Waiting.route){
                 WaitingScreen(navController = browseNavController , rootNavController = rootNavController)
@@ -115,3 +137,4 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
         }*/
     }
 }
+

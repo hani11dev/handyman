@@ -1,142 +1,61 @@
 package com.example.handyapp.home.myRequests
-import REQUEST
-import Task
+
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.IOException
+import java.lang.reflect.Modifier
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 
-
-
-/*suspend fun getCollectionData(handymanRef: CollectionReference, referenceId: String): List<Map<String, Any>> {
-    return try {
-        val querySnapshot = withContext(Dispatchers.IO) {
-            handymanRef
-                .whereEqualTo("handymanID", referenceId) // Filter by handymanID
-                .get()
-                .await()
-        }
-
-        val results = querySnapshot.documents.map { it.data ?: emptyMap() } // Convert documents to data maps h
-        val sortedResults = results.sortedByDescending { (it["budget"] as? Long) ?: -1 }
-
-
-        sortedResults // Return sorted results
-    } catch (e: Exception) {
-        e.printStackTrace()
-        emptyList() // Return empty list in case of failure
-    }
-}*/
-
-
-
-/*fun saveTask(taskRef: CollectionReference,
-             Id:Int,
-             Client:String,
-             Category:String,
-             Title:String,
-             Description:String,
-             Time_day: String,
-             Time_hour: String,
-             Price:Int,
-             localisation:String,
-             Status:String
-) =
-    CoroutineScope(Dispatchers.IO).launch {
-        try{
-            val task =Task(
-                id = Id ,
-                client = Client,
-                category = Category,
-                title =  Title,
-                description = Description ,
-                time_day = Time_day,
-                time_hour =Time_hour ,
-                Price = Price,
-                localisation = localisation,
-                status = Status
-            )
-            taskRef.add(task).await()
-            withContext(Dispatchers.Main) {
-                //  Toast.makeText(this@MainActivity, "Successfully saved ",
-                //   Toast.LENGTH_LONG).show()
-
-            }
-        }catch(e : Exception){
-            withContext(Dispatchers.Main) {
-                //Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-            }
-        }
-    }*/
-
-
-suspend fun getCollectionData(
-    handymanRef: CollectionReference,
-    referenceId: String,
-    onUpdate: (List<Map<String, Any>>) -> Unit // Callback to update the list
-) {
-    try {
-        handymanRef
-            .whereEqualTo("handymanID", referenceId) // Filter by handymanID
-            .addSnapshotListener { querySnapshot, error ->
-                if (error != null) {
-                    error.printStackTrace()
-                    // Handle error (log or show error message)
-                    return@addSnapshotListener
-                }
-
-                if (querySnapshot != null) {
-                    val results = querySnapshot.documents.map { it.data ?: emptyMap() } // Convert documents to data maps
-                    val sortedResults = results.sortedByDescending { (it["budget"] as? Long) ?: -1 }
-                    onUpdate(sortedResults) // Call the callback to update the list
-                }
-            }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        // Handle error (log or show error message)
-    }
-}
-
-
-
-
-
-
-suspend fun getClientFirstName(
-    clientRef: CollectionReference,
-    clientId: String,
-): String? {
-    try {
-        val documentSnapshot = clientRef.document(clientId).get().await()
-        if (documentSnapshot.exists()) {
-            val data = documentSnapshot.data
-            if (data != null && data.containsKey("FirstName")) {
-                val firstName = data["FirstName"] as String
-                Log.d("ClientName", "Retrieved client name: $firstName")
-                return firstName
-            } else {
-                // onError("First Name field doesn't exist")
-            }
-        } else {
-            //onError("Document doesn't exist for the provided client ID")
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        // we use to have a context argument but i had to remove it
-        //onError("Error fetching client name: ${e.message}")
-    }
-    return null
-}
-
-
+data class request(
+    var requestID: String = "",
+    val category: String = "",
+    val city: String = "",
+    val day: String = "",
+    val description: String = "",
+    val hour: String = "",
+    val budget: Int = 0,
+    val street: String = "",
+    val title: String = "",
+    val clientId: String = "",
+    val handymanID: String = "",
+    val wilaya: String = "",
+)
 
 fun deleteRequest(
     Title: String,
@@ -213,7 +132,140 @@ fun saveTask(
 }
 
 
+suspend fun getCollectionData(
+    handymanRef: CollectionReference,
+    referenceId: String,
+    onUpdate: (List<Map<String, Any>>) -> Unit // Callback to update the list
+) {
+    try {
+        handymanRef
+            .whereEqualTo("handymanID", referenceId) // Filter by handymanID
+            .addSnapshotListener { querySnapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    // Handle error (log or show error message)
+                    return@addSnapshotListener
+                }
 
+                if (querySnapshot != null) {
+                    val results = querySnapshot.documents.map { it.data ?: emptyMap() } // Convert documents to data maps
+                    val sortedResults = results.sortedByDescending { (it["budget"] as? Long) ?: -1 }
+                    onUpdate(sortedResults) // Call the callback to update the list
+                }
+            }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // Handle error (log or show error message)
+    }
+}
+
+
+
+suspend fun getClientFirstName(
+    clientRef: CollectionReference,
+    clientId: String,
+): String? {
+    try {
+        val documentSnapshot = clientRef.document(clientId).get().await()
+        if (documentSnapshot.exists()) {
+            val data = documentSnapshot.data
+            if (data != null && data.containsKey("FirstName")) {
+                val firstName = data["FirstName"] as String
+                Log.d("ClientName", "Retrieved client name: $firstName")
+                return firstName
+            } else {
+                // onError("First Name field doesn't exist")
+            }
+        } else {
+            //onError("Document doesn't exist for the provided client ID")
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // we use to have a context argument but i had to remove it
+        //onError("Error fetching client name: ${e.message}")
+    }
+    return null
+}
+
+
+@Composable
+fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
+    val db = Firebase.firestore
+    val scope = rememberCoroutineScope() // Use viewModelScope if using ViewModels
+
+    LaunchedEffect(key1 = requestID) {
+        scope.launch {
+            val downloadedImages = try {
+                loadingImages(requestID)
+            } catch (e: Exception) {
+                Log.e("loadingImages", "Error loading images: ${e.message}", e)
+                emptyList()
+            }
+            onSuccess(downloadedImages) // Update onSuccess callback
+        }
+    }
+}
+
+private suspend fun loadingImages(requestID: String): List<String> = withContext(Dispatchers.IO) {
+    val storageRef = Firebase.storage.reference.child("Request/$requestID")
+    val requestFolderRef = storageRef
+
+    val images = mutableListOf<String>()
+    try {
+        val result = requestFolderRef.listAll().await()
+
+        for (itemRef in result.items) {
+            if (itemRef.path.endsWith(".jpg") || itemRef.path.endsWith(".png") || itemRef.path.endsWith(".jpeg")) {
+                val imageUrl = itemRef.downloadUrl.await().toString()
+                Log.d("loadingImages", "Image URL: $imageUrl")
+                images.add(imageUrl)
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("loadingImages", "Error loading images: ${e.message}", e)
+    }
+    return@withContext images
+}
+
+
+
+/*@Composable
+fun DetailScreen(navController: NavController, requestID: String) {
+
+    // Show a toast with requestID
+    Toast.makeText(
+        LocalContext.current,
+        "Request ID: $requestID",
+        Toast.LENGTH_SHORT
+    ).show()
+
+
+}*/
+@Composable
+fun DetailScreen(navController: NavController, requestID: String) {
+    val imagesListState = remember { mutableStateListOf<String>() }
+
+    // Call the requestPictureDisplay function to load images
+    requestPictureDisplay(requestID) { imagesList ->
+        imagesListState.clear()
+        imagesListState.addAll(imagesList)
+    }
+
+    Column {
+        Text(text = "Request Details")
+
+        // Display the images using Image composable inside a LazyColumn
+        LazyRow {
+            items(imagesListState) { imageUrl ->
+                Image(
+                    painter = rememberImagePainter(imageUrl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+    }
+}
 
 
 
