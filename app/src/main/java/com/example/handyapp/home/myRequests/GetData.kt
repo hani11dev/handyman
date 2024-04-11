@@ -1,20 +1,15 @@
 package com.example.handyapp.home.myRequests
-import ImageSection
+
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,12 +20,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -40,11 +36,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import androidx.compose.ui.Modifier
-import coil.compose.rememberImagePainter
+import java.io.IOException
+import java.lang.reflect.Modifier
+import java.net.HttpURLConnection
+import java.net.URL
 
 
-data class Request(
+
+data class request(
     var requestID: String = "",
     val category: String = "",
     val city: String = "",
@@ -190,10 +189,10 @@ suspend fun getClientFirstName(
 }
 
 
-@Composable
+/*@Composable
 fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
     val db = Firebase.firestore
-    val scope = rememberCoroutineScope() // Use viewModelScope if using ViewModels
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = requestID) {
         scope.launch {
@@ -204,6 +203,51 @@ fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) 
                 emptyList()
             }
             onSuccess(downloadedImages) // Update onSuccess callback
+        }
+    }
+}*/
+
+/*@Composable
+fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
+    val db = Firebase.firestore
+    val scope = rememberCoroutineScope() // Use viewModelScope if using ViewModels
+    val errorMessage = remember { mutableStateOf<String?>(null) } // State for error message
+
+    LaunchedEffect(key1 = requestID) {
+        scope.launch {
+            try {
+                val downloadedImages = loadingImages(requestID)
+                onSuccess(downloadedImages) // Update onSuccess callback
+            } catch (e: Exception) {
+                errorMessage.value = "Error loading images: ${e.message}"
+            }
+        }
+    }
+
+    errorMessage.value?.let { message ->
+        // Display error message if not null
+        Text(text = message, color = Color.Red)
+    }
+}*/
+
+
+
+@Composable
+fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
+    val db = Firebase.firestore
+
+    LaunchedEffect(key1 = requestID) {
+        val requestDocument = db.collection("requests").document(requestID)
+            .get().await()
+        if (requestDocument.exists()){
+            val loadedImages = try {
+                loadingImages(requestID)
+            } catch (e: Exception) {
+                Log.e("loadImages", "Error loading images: ${e.message}", e)
+                emptyList()
+            }
+            onSuccess(loadedImages)
+            Log.d("ImageURLs", "Image URLs: $loadedImages")
         }
     }
 }
@@ -231,175 +275,48 @@ private suspend fun loadingImages(requestID: String): List<String> = withContext
 
 
 
-/*@Composable
+@Composable
 fun DetailScreen(navController: NavController, requestID: String) {
-
-    // Show a toast with requestID
-    Toast.makeText(
-        LocalContext.current,
-        "Request ID: $requestID",
-        Toast.LENGTH_SHORT
-    ).show()
-
-
-}*/@Composable
-fun DetailScreen(
-    navController: NavController,
-    requestID: String
-) {
-    val db = Firebase.firestore
-    var request by remember { mutableStateOf<Request?>(null) }
-    val images = remember { mutableStateListOf<String>() }
-    var selectedImage by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(key1 = requestID) {
-        val requestDocument = db.collection("requests").document(requestID).get().await()
-        if (requestDocument.exists()) {
-            request = requestDocument.toObject(Request::class.java)
-            images.clear()
-            val loadedImages = try {
-                loadImages(requestID)
-            } catch (e: Exception) {
-                Log.e("loadImages", "Error loading images: ${e.message}", e)
-                emptyList()
-            }
-            images.addAll(loadedImages)
-            Log.d("ImageURLs", "Image URLs: $loadedImages")
-        }
-    }
-
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        request?.let { request ->
-            RequestDetailsPage(request = request, images = images, navController = navController, onImageSelected = { imageUrl ->
-                selectedImage = imageUrl
-            })
-        } ?: run {
-            Text(text = "Loading request details...")
-        }
-    }
-
-    selectedImage?.let { imageUrl ->
-        AlertDialog(
-            onDismissRequest = { selectedImage = null },
-            title = { Text(text = "Image Detail") },
-            text = { Image(painter = rememberImagePainter(imageUrl), contentDescription = null) },
-            confirmButton = {
-                Button(
-                    onClick = { selectedImage = null },
-                ) {
-                    Text("Close")
-                }
-            }
-        )
-    }
+    MainContent(navController, requestID)
 }
+
 
 @Composable
-fun RequestDetailsPage(
-    request: Request,
-    images: SnapshotStateList<String>,
-    navController: NavController,
-    onImageSelected: (String) -> Unit
-) {
-    val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(end = 12.dp)
-    ) {
-        RequestDetailsHeader(request = request)
+fun MainContent(navController: NavController, requestID: String ) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+    val imagesListState = remember { mutableStateListOf<String>() }
 
-        ImageSection(images = images, onImageSelected = onImageSelected)
+        requestPictureDisplay(requestID) { imagesList ->
+            imagesListState.clear()
+            imagesListState.addAll(imagesList)
+        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-    }
-}
+    Column {
+        Text(text = "Request Details")
 
-@Composable
-fun RequestDetailsHeader(request: Request) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 32.dp)
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Text(
-            text = request.title,
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Description:",
-            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = request.description,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 5,
-            overflow = TextOverflow.Ellipsis
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Location: ${request.street}, ${request.city}, ${request.wilaya}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Date: ${request.day} ${request.hour}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Budget: $${request.budget}",
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary
-        )
-    }
-}
-
-private suspend fun loadImages(requestID: String): List<String> = withContext(Dispatchers.IO) {
-    val storageRef = Firebase.storage.reference.child("Request/$requestID")
-    val requestFolderRef = storageRef
-
-    val images = mutableListOf<String>()
-    try {
-        val result = requestFolderRef.listAll().await()
-
-        for (itemRef in result.items) {
-            if (itemRef.path.endsWith(".jpg") || itemRef.path.endsWith(".png") || itemRef.path.endsWith(".jpeg")) {
-                val imageUrl = itemRef.downloadUrl.await().toString()
-                images.add(imageUrl)
+        LazyRow {
+            items(imagesListState) { imageUrl ->
+                Image(
+                    painter = rememberImagePainter(imageUrl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                )
             }
         }
-    } catch (e: Exception) {
-        Log.e("loadImages", "Error loading images: ${e.message}", e)
+
+
     }
-    return@withContext images
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
