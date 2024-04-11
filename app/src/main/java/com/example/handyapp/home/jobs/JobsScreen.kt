@@ -142,21 +142,6 @@ fun JobItem(job: Job, navHostController: NavHostController) {
 
 @Composable
 fun JobsScreen(navHostController: NavHostController , viewModel: JobsViewModel = hiltViewModel() , context : Context = LocalContext.current) {
-   // val viewModel = JobsViewModel()
-
-    /*LaunchedEffect(Unit) {
-        viewModel.getJobs()
-    }*/
-
-    //val jobs by viewModel.jobs.collectAsState(emptyList())
-    val lists = listOf(
-        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
-        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
-        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
-        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
-        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
-        Job("safsa" , "painter" , "asfas" , "fasfa" , "faslj" , "" , 2420 , 1512 , "" , "","title", "" , ""),
-    )
 
     when(val resp = viewModel.jobs.value){
         is Response.onLoading -> {
