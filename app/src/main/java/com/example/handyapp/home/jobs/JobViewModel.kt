@@ -55,17 +55,7 @@ class JobsViewModel @Inject constructor() : ViewModel() {
 
             trySend(resp).isSuccess
         }
-        /*jobsCollection.get().addOnSuccessListener { result ->
-            val resp  =if ()
-            for (document in result.documents) {
-                val jobId = document.id
-                val job = document.toObject(Job::class.java)!!
-                job.id = jobId
-                jobsList.add(job)
-            }
-            _jobs.value = jobsList
-        }.addOnFailureListener { exception ->
-        }*/
+
         awaitClose {
             jobsCollection.remove()
         }

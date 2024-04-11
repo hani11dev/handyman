@@ -1,5 +1,4 @@
-import android.content.Intent
-import android.util.Log
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -13,35 +12,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.handyapp.home.myRequests.MyRequestsScreenReal
+import com.example.handyapp.home.jobs.JobsDetailsViewModel
 import com.example.handyapp.home.myRequests.MyRequestsScreenReal
 import com.example.handyapp.home.myRequests.getCollectionData
-import com.example.handyapp.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 
 
 
-
-data class REQUEST(
-    var Title: String = "" ,
-    var Description: String = "" ,
-    var Wilaya: String = "" ,
-    var City: String = "" ,
-    var Street: String = "" ,
-    var Day: String = "" ,
-    var Hour: String = "" ,
-    var Budget: Int = -1
-)
-
 @Composable
-fun MyRequestsScreen(navController: NavHostController) {
+fun MyRequestsScreen( navController: NavHostController) {
 
     val requestsCollectionRef = Firebase.firestore.collection("requests")
     val clientsCollectionRef = Firebase.firestore.collection("Clients")

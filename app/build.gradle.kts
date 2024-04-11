@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.firebase.firestore)
     implementation(libs.androidx.navigation.compose)
+    implementation("io.coil-kt:coil-compose:1.4.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -96,6 +98,10 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     implementation("com.onesignal:OneSignal:[5.0.0, 5.99.99]")
+
+    implementation("io.coil-kt:coil-compose:1.4.0")
+
+
 }
 kapt {
     correctErrorTypes = true

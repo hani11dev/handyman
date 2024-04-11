@@ -1,11 +1,9 @@
 package com.example.handyapp.home.myRequests
 
 
-import MyTasksScreen
-import Task
+
 import android.content.Context
-import android.content.Intent
-import android.provider.CalendarContract
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -20,10 +18,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BottomAppBarDefaults.containerColor
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,16 +31,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -48,14 +49,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
+import coil.compose.rememberImagePainter
 import com.example.handyapp.R
+import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-
+import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 val taskCollectionRef = Firebase.firestore.collection("tasks")
@@ -77,18 +82,21 @@ fun MyRequestsScreenReal(
     val description = request["description"] as? String ?: ""
     val hour = request["hour"] as? String ?: ""
     val street = request["street"] as? String ?: ""
-    var isDetailVisible by remember { mutableStateOf(false) }
-    var selectedImage by remember { mutableStateOf(-1) } // Initialize selectedImage
+    val requestID = request["requestID"] as? String ?: ""
 
     var showAcceptConfirmation by remember { mutableStateOf(false) }
     var showRejectConfirmation by remember { mutableStateOf(false) }
 
+
     LaunchedEffect(key1 = Unit) {
+
         name.value = getClientFirstName(
             clientRef,
             request["clientId"] as? String ?: ""
         )
     }
+
+
 
     Card(
         modifier = Modifier.padding(4.dp),
@@ -198,183 +206,128 @@ fun MyRequestsScreenReal(
                     }.toAnnotatedString(),
                     onClick = {
 
-                        isDetailVisible = !isDetailVisible
+                        //  navController.navigate(Screen.DetailRequest.route)
+                        navController.navigate(Screen.DetailRequest.route + "/$requestID")
                     },
                     modifier = Modifier.align(Alignment.CenterVertically)
                 )
 
-                if (isDetailVisible) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
-                        contentAlignment = Alignment.TopCenter
-                    ) {
-                        Column {
-                            Text(
-                                text = "Description",
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
+            }
 
-                            Text(
-                                text = description,
-                            )
 
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                // Display images here
-                                listOf(
-                                    R.drawable.adam,
-                                    R.drawable._1
-                                ).forEachIndexed { index, image ->
-                                    Image(
-                                        painter = painterResource(id = image),
-                                        contentDescription = "Image $index",
-                                        modifier = Modifier
-                                            .size(80.dp)
-                                            .clickable {
-                                                selectedImage = image // Set selected image
-                                            }
-                                    )
-                                }
+            if (showAcceptConfirmation) {
+                AlertDialog(
+                    onDismissRequest = { showAcceptConfirmation = false },
+                    title = { Text("Accept Request") },
+                    text = { Text("Are you sure you want to accept this request?") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                saveTask(
+                                    taskCollectionRef,
+                                    id = "1",
+                                    client = name.value ?: "",
+                                    category = "?",
+                                    title = title,
+                                    description = description,
+                                    time_day = day,
+                                    time_hour = hour,
+                                    price = budget.toInt() ?: 0,
+                                    localisation = "$wilaya,$city",
+                                    status = "IN_PROGRESS"
+                                )
+                                deleteRequest(
+                                    Title = title,
+                                    Description = description,
+                                    Wilaya = wilaya,
+                                    City = city,
+                                    Street = street,
+                                    Day = day,
+                                    Hour = hour,
+                                    Budget = budget.toInt() ?: 0,
+                                    clientId = request["clientId"] as? String ?: "",
+                                    handymanID = request["handymanID"] as? String ?: ""
+                                )
+                                showAcceptConfirmation = false // Dismiss the dialog
                             }
-
-                            // Display selected image in a full-screen dialog
-                            if (selectedImage != -1) {
-                                Dialog(onDismissRequest = { selectedImage = -1 }) {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        Image(
-                                            painter = painterResource(id = selectedImage),
-                                            contentDescription = "Selected Image",
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    }
-                                }
-                            }
+                        ) {
+                            Text("Accept")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showAcceptConfirmation = false }
+                        ) {
+                            Text("Cancel")
                         }
                     }
-                }
+                )
+            }
+
+            if (showRejectConfirmation) {
+                var rejectionReason by remember { mutableStateOf("") } // State for rejection reason
+
+                AlertDialog(
+                    onDismissRequest = { showRejectConfirmation = false },
+                    title = { Text("Reject Request") },
+                    text = {
+                        Column {
+                            Text("Are you sure you want to reject this request?")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextField(
+                                value = rejectionReason,
+                                onValueChange = { rejectionReason = it },
+                                label = { Text("Rejection Reason") }
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                saveTask(
+                                    taskCollectionRef,
+                                    id = "0",
+                                    client = name.value ?: "",
+                                    category = "CATEGORY",
+                                    title = title,
+                                    description = description,
+                                    time_day = day,
+                                    time_hour = hour,
+                                    price = budget.toInt() ?: 0,
+                                    localisation = "$wilaya,$city",
+                                    status = "REJECTED",
+                                    rejection_Reason = rejectionReason // Save rejection reason
+                                )
+                                deleteRequest(
+                                    Title = title,
+                                    Description = description,
+                                    Wilaya = wilaya,
+                                    City = city,
+                                    Street = street,
+                                    Day = day,
+                                    Hour = hour,
+                                    Budget = budget.toInt() ?: 0,
+                                    clientId = request["clientId"] as? String ?: "",
+                                    handymanID = request["handymanID"] as? String ?: ""
+                                )
+                                showRejectConfirmation = false // Dismiss the dialog
+                            }
+                        ) {
+                            Text("Reject")
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = { showRejectConfirmation = false }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
             }
         }
 
-
-        if (showAcceptConfirmation) {
-            AlertDialog(
-                onDismissRequest = { showAcceptConfirmation = false },
-                title = { Text("Accept Request") },
-                text = { Text("Are you sure you want to accept this request?") },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            saveTask(
-                                taskCollectionRef,
-                                Id = 1,
-                                Client = name.value ?: "",
-                                Category = "?",
-                                Title = title,
-                                Description = description,
-                                Time_day = day,
-                                Time_hour = hour,
-                                Price = budget.toInt() ?: 0,
-                                localisation = "$wilaya,$city",
-                                Status = "IN_PROGRESS"
-                            )
-                            deleteRequest(
-                                Title = title,
-                                Description = description,
-                                Wilaya = wilaya,
-                                City = city,
-                                Street = street,
-                                Day = day,
-                                Hour = hour,
-                                Budget = budget.toInt() ?: 0,
-                                clientId = request["clientId"] as? String ?: "",
-                                handymanID = request["handymanID"] as? String ?: ""
-                            )
-                            showAcceptConfirmation = false // Dismiss the dialog
-                        }
-                    ) {
-                        Text("Accept")
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = { showAcceptConfirmation = false }
-                    ) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
-
-        if (showRejectConfirmation) {
-            var rejectionReason by remember { mutableStateOf("") } // State for rejection reason
-
-            AlertDialog(
-                onDismissRequest = { showRejectConfirmation = false },
-                title = { Text("Reject Request") },
-                text = {
-                    Column {
-                        Text("Are you sure you want to reject this request?")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        TextField(
-                            value = rejectionReason,
-                            onValueChange = { rejectionReason = it },
-                            label = { Text("Rejection Reason") }
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            saveTask(
-                                taskCollectionRef,
-                                Id = 1,
-                                Client = name.value ?: "",
-                                Category = "CATEGORY",
-                                Title = title,
-                                Description = description,
-                                Time_day = day,
-                                Time_hour = hour,
-                                Price = budget.toInt() ?: 0,
-                                localisation = "$wilaya,$city",
-                                Status = "REJECTED",
-                                RejectionReason = rejectionReason // Save rejection reason
-                            )
-                            deleteRequest(
-                                Title = title,
-                                Description = description,
-                                Wilaya = wilaya,
-                                City = city,
-                                Street = street,
-                                Day = day,
-                                Hour = hour,
-                                Budget = budget.toInt() ?: 0,
-                                clientId = request["clientId"] as? String ?: "",
-                                handymanID = request["handymanID"] as? String ?: ""
-                            )
-                            showRejectConfirmation = false // Dismiss the dialog
-                        }
-                    ) {
-                        Text("Reject")
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = { showRejectConfirmation = false }
-                    ) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
     }
+}
 
-    }
+
