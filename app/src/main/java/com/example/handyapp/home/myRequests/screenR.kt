@@ -83,6 +83,8 @@ fun MyRequestsScreenReal(
     val hour = request["hour"] as? String ?: ""
     val street = request["street"] as? String ?: ""
     val requestID = request["requestID"] as? String ?: ""
+    val handymanID = request["handymanID"]as? String ?: ""
+    val clientId= request["clientId"] as? String ?: ""
 
     var showAcceptConfirmation by remember { mutableStateOf(false) }
     var showRejectConfirmation by remember { mutableStateOf(false) }
@@ -225,7 +227,7 @@ fun MyRequestsScreenReal(
                             onClick = {
                                 saveTask(
                                     taskCollectionRef,
-                                    id = "1",
+                                    id = handymanID,
                                     client = name.value ?: "",
                                     category = "?",
                                     title = title,
@@ -286,7 +288,7 @@ fun MyRequestsScreenReal(
                             onClick = {
                                 saveTask(
                                     taskCollectionRef,
-                                    id = "0",
+                                    id = handymanID,
                                     client = name.value ?: "",
                                     category = "CATEGORY",
                                     title = title,

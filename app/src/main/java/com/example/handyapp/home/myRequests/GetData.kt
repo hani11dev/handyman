@@ -106,7 +106,7 @@ fun deleteRequest(
 
 fun saveTask(
     taskCollectionRef: CollectionReference,
-    id: String, // must be a string
+    id: String,
     client: String,
     category: String,
     title: String,
