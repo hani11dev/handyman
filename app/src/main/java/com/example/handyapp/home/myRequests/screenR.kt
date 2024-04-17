@@ -228,7 +228,7 @@ fun MyRequestsScreenReal(
                                 saveTask(
                                     taskCollectionRef,
                                     id = handymanID,
-                                    client = name.value ?: "",
+                                    client = clientId,
                                     category = "?",
                                     title = title,
                                     description = description,
@@ -247,8 +247,8 @@ fun MyRequestsScreenReal(
                                     Day = day,
                                     Hour = hour,
                                     Budget = budget.toInt() ?: 0,
-                                    clientId = request["clientId"] as? String ?: "",
-                                    handymanID = request["handymanID"] as? String ?: ""
+                                    clientId = clientId,
+                                    handymanID = handymanID
                                 )
                                 showAcceptConfirmation = false // Dismiss the dialog
                             }
