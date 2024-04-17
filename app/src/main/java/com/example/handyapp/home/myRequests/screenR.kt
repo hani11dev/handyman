@@ -188,7 +188,7 @@ fun MyRequestsScreenReal(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Decline",
+                        text = "Reject",
                     )
                 }
 
