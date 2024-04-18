@@ -1,4 +1,6 @@
-
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,6 +20,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +33,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -46,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -57,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.handyapp.R
+import com.example.handyapp.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
@@ -67,16 +75,16 @@ import java.lang.Exception
 
 
 data class Task(
-    val id:Int,
-    val client:String,
-    val category:String,
-    val title:String,
-    val description:String,
+    val id: Int,
+    val client: String,
+    val category: String,
+    val title: String,
+    val description: String,
     val time_day: String,
     val time_hour: String,
-    val Price:Int,
-    val localisation:String,
-    var status:String
+    val Price: Int,
+    val localisation: String,
+    var status: String
 )
 
 /*val lists =mutableListOf<Task>(
@@ -146,11 +154,11 @@ fun HeaderRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> Unit) {
+fun Taskcard(context : Context,task: Task,navController: NavHostController, onClick: (Int) -> Unit) {
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
     var sheetstate = rememberModalBottomSheetState()
-    var isSheetOpen by remember {mutableStateOf(false)}
-    var paused by remember { mutableStateOf(if(task.status=="PAUSED")true else false) }
+    var isSheetOpen by remember { mutableStateOf(false) }
+    var paused by remember { mutableStateOf(if (task.status == "PAUSED") true else false) }
     //var canceled by remember { mutableStateOf(false) }
     //task.status=if (!canceled && !paused )"in progress" else if (canceled) "canceled" else "paused"
     ElevatedCard(
@@ -167,14 +175,14 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
 
-        Box(modifier = Modifier
-            .fillMaxSize()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
                     .padding(vertical = 12.dp, horizontal = 12.dp)
-                    .align(Alignment.TopStart)
-                ,verticalArrangement = Arrangement.Center
+                    .align(Alignment.TopStart), verticalArrangement = Arrangement.Center
             )
             {
                 Card(
@@ -182,8 +190,9 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                         .wrapContentSize()
                         .weight(1f),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (task.status=="paused")colorResource(id = R.color.purple_200) else colorResource
-                            (id = R.color.teal_200) )
+                        containerColor = if (task.status == "paused") colorResource(id = R.color.purple_200) else colorResource
+                            (id = R.color.teal_200)
+                    )
                 ) {
                     Text(
                         text = task.status,
@@ -203,7 +212,11 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                          tint = MaterialTheme.colorScheme.primary
                      )*/
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = task.client, textAlign = TextAlign.Center,fontWeight = FontWeight.Medium)
+                    Text(
+                        text = task.client,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
                 Text(
                     text = task.title,
@@ -220,15 +233,27 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                         tint = MaterialTheme.colorScheme.primary
                     )*/
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = task.localisation, textAlign = TextAlign.Center,fontWeight = FontWeight.Medium)
+                    Text(
+                        text = task.localisation,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = task.time_day, textAlign = TextAlign.Center,fontWeight = FontWeight.Light)
+                    Text(
+                        text = task.time_day,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Light
+                    )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = task.time_hour, textAlign = TextAlign.Center,fontWeight = FontWeight.Light)
+                    Text(
+                        text = task.time_hour,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Light
+                    )
                 }
             }
             Column(
@@ -237,7 +262,7 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                     .align(Alignment.TopEnd),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 Text(text = buildAnnotatedString {
                     withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
                         append("Price ")
@@ -257,48 +282,58 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                 OutlinedButton(
                     onClick = {
                         onClick(task.id)
-                       // canceled=true
+                        // canceled=true
                     },
-                    modifier=Modifier.padding(2.dp),
-                    colors =ButtonDefaults.outlinedButtonColors(containerColor =Color.Red,
-                        contentColor = MaterialTheme.colorScheme.onSecondary )
+                    modifier = Modifier.padding(2.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.Red,
+                        contentColor = MaterialTheme.colorScheme.onSecondary
+                    )
 
-                ){
-                    Text(text = "cancel",
+                ) {
+                    Text(
+                        text = "cancel",
                         fontWeight = FontWeight.Bold,
                     )
                 }
                 OutlinedButton(
                     onClick = {
-                        paused=!paused
-                        if (paused){updateStatus(tasksCollectionRef,task,"PAUSED")}
-                        else{updateStatus(tasksCollectionRef,task,"IN_PROGRESS")}
+                        paused = !paused
+                        if (paused) {
+                            updateStatus(tasksCollectionRef, task, "PAUSED")
+                        } else {
+                            updateStatus(tasksCollectionRef, task, "IN_PROGRESS")
+                        }
                     },
-                    modifier=Modifier.padding(2.dp),
-                    colors =ButtonDefaults.outlinedButtonColors(containerColor =Color.LightGray )
-                ){
-                    if (!paused){
-                        Text(text = "Pause",
+                    modifier = Modifier.padding(2.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.LightGray)
+                ) {
+                    if (!paused) {
+                        Text(
+                            text = "Pause",
                             fontWeight = FontWeight.Bold
-                        )}
-                    else{
-                        Text(text = "resume",
+                        )
+                    } else {
+                        Text(
+                            text = "resume",
                             fontWeight = FontWeight.Bold
-                        )}
+                        )
+                    }
                 }
             }
         }
     }
-    if(isSheetOpen) {
+    if (isSheetOpen) {
         ModalBottomSheet(
             sheetState = sheetstate,
             onDismissRequest = {
-                isSheetOpen=false
+                isSheetOpen = false
             }) {
-            LazyHorizontalGrid(rows = GridCells.Fixed(1),modifier= Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .height(200.dp)
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(1), modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .height(200.dp)
             ) {
                 /*items(item.jobImages) {
                     Image(
@@ -309,19 +344,39 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                     )
                 }*/
             }
-            Text(text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
+            Text(
+                text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(8.dp)
-                    .align(Alignment.CenterHorizontally))
+                    .align(Alignment.CenterHorizontally)
+            )
             Card(
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
                     .padding(8.dp)
-                    .align(Alignment.CenterHorizontally))
+                    .align(Alignment.CenterHorizontally)
+            )
             {
-                Row{
+                Row {
                     Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
+                        Row {
+                            IconButton(onClick = {
+                                val uri = Uri.parse("tel:" + "0779616200")
+                                val intnet = Intent(Intent.ACTION_DIAL , uri)
+                                try {
+                                    context.startActivity(intnet)
+                                }catch (e:SecurityException){
+
+                                }
+                            }) {
+                                Icon(imageVector = Icons.Filled.Phone, contentDescription = "chat")
+                            }
+                            IconButton(onClick = { navController.navigate(Screen.ChatScreen.route + "/${task.client}") }) {
+                                Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")
+                            }
+
+                        }
                         Text(
                             text = "Status: ",
                             fontWeight = FontWeight.SemiBold,
@@ -359,7 +414,7 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                             modifier = Modifier.padding(6.dp)
                         )
                     }
-                    Column(horizontalAlignment = Alignment.End,modifier=Modifier.weight(1f)) {
+                    Column(horizontalAlignment = Alignment.End, modifier = Modifier.weight(1f)) {
                         Text(
                             text = task.status,
                             fontWeight = FontWeight.SemiBold,
@@ -381,7 +436,8 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                             color = Color.Gray,
                             modifier = Modifier.padding(6.dp)
                         )
-                        Text(text ="",//client.phone
+                        Text(
+                            text = "",//client.phone
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Right,
                             color = Color.Gray,
@@ -403,17 +459,18 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
                         )
                     }
                 }
-                Text(text = buildAnnotatedString {
-                    withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    ) {
-                        append(text = "Price : ${task.Price} DA ")
-                    }
-                },
-                    modifier=Modifier.align(Alignment.End)
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        ) {
+                            append(text = "Price : ${task.Price} DA ")
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.End)
                 )
             }
         }
@@ -422,9 +479,9 @@ fun Taskcard (task: Task/*,navController: NavHostController*/,onClick:(Int) -> U
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
+fun Taskcardcanceld(task: Task,navController: NavHostController) {
     var sheetstate = rememberModalBottomSheetState()
-    var isSheetOpen by remember {mutableStateOf(false)}
+    var isSheetOpen by remember { mutableStateOf(false) }
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         modifier = Modifier
@@ -438,14 +495,14 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
 
-        Box(modifier = Modifier
-            .fillMaxSize()
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
                     .padding(vertical = 12.dp, horizontal = 12.dp)
-                    .align(Alignment.TopStart)
-                ,verticalArrangement = Arrangement.Center
+                    .align(Alignment.TopStart), verticalArrangement = Arrangement.Center
             )
             {
                 Row(
@@ -458,7 +515,11 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                          tint = MaterialTheme.colorScheme.primary
                      )*/
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = task.client, textAlign = TextAlign.Center,fontWeight = FontWeight.Medium)
+                    Text(
+                        text = task.client,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
                 Text(
                     text = task.title,
@@ -475,7 +536,11 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                         tint = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = task.localisation, textAlign = TextAlign.Center,fontWeight = FontWeight.Medium)
+                    Text(
+                        text = task.localisation,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
             Column(
@@ -484,15 +549,16 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                     .align(Alignment.TopEnd),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 Card(
                     modifier = Modifier
                         .wrapContentSize()
                         .weight(1f),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (task.status=="canceled")Color.Yellow
-                        else if(task.status=="rejected") Color.Red
-                        else Color.Green)
+                        containerColor = if (task.status == "canceled") Color.Yellow
+                        else if (task.status == "rejected") Color.Red
+                        else Color.Green
+                    )
                 ) {
                     Text(
                         text = task.status,
@@ -522,24 +588,33 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = task.time_day, textAlign = TextAlign.Center,fontWeight = FontWeight.Light)
+                    Text(
+                        text = task.time_day,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Light
+                    )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = task.time_hour, textAlign = TextAlign.Center,fontWeight = FontWeight.Light)
+                    Text(
+                        text = task.time_hour,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Light
+                    )
                 }
 
             }
         }
     }
-    if(isSheetOpen) {
+    if (isSheetOpen) {
         ModalBottomSheet(
             sheetState = sheetstate,
             onDismissRequest = {
-                isSheetOpen=false
+                isSheetOpen = false
             }) {
-            LazyHorizontalGrid(rows = GridCells.Fixed(1),modifier= Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .height(200.dp)
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(1), modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .height(200.dp)
             ) {
                 /*items(item.jobImages) {
                     Image(
@@ -550,19 +625,25 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                     )
                 }*/
             }
-            Text(text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
+            Text(
+                text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(8.dp)
-                    .align(Alignment.CenterHorizontally))
+                    .align(Alignment.CenterHorizontally)
+            )
             Card(
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
                     .padding(8.dp)
-                    .align(Alignment.CenterHorizontally))
+                    .align(Alignment.CenterHorizontally)
+            )
             {
-                Row{
+                Row {
                     Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
+                        IconButton(onClick = { navController.navigate(Screen.ChatScreen.route) }) {
+                            Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")
+                        }
                         Text(
                             text = "Status: ",
                             fontWeight = FontWeight.SemiBold,
@@ -600,7 +681,7 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                             modifier = Modifier.padding(6.dp)
                         )
                     }
-                    Column(horizontalAlignment = Alignment.End,modifier=Modifier.weight(1f)) {
+                    Column(horizontalAlignment = Alignment.End, modifier = Modifier.weight(1f)) {
                         Text(
                             text = task.status,
                             fontWeight = FontWeight.SemiBold,
@@ -622,7 +703,8 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                             color = Color.Gray,
                             modifier = Modifier.padding(6.dp)
                         )
-                        Text(text ="CENSORED",
+                        Text(
+                            text = "CENSORED",
                             fontWeight = FontWeight.SemiBold,
                             textAlign = TextAlign.Right,
                             color = Color.Gray,
@@ -644,17 +726,18 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
                         )
                     }
                 }
-                Text(text = buildAnnotatedString {
-                    withStyle(
-                        SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    ) {
-                        append(text = "Price : ${task.Price} DA ")
-                    }
-                },
-                    modifier=Modifier.align(Alignment.End)
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        ) {
+                            append(text = "Price : ${task.Price} DA ")
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.End)
                 )
             }
         }
@@ -663,25 +746,26 @@ fun Taskcardcanceld (task: Task/*,navController: NavHostController*/) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyTasksScreen(navController: NavHostController) {
+fun MyTasksScreen(navController: NavHostController , context: Context = LocalContext.current) {
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
     val currentUser = FirebaseAuth.getInstance().currentUser
     var userId = ""
-    if(currentUser != null){
+    if (currentUser != null) {
         userId = currentUser.uid
     }
-    var tasklist by remember { mutableStateOf<List<Task>>(emptyList())}
+    var tasklist by remember { mutableStateOf<List<Task>>(emptyList()) }
     val listenerRegistration by remember { mutableStateOf<ListenerRegistration?>(null) }
     LaunchedEffect(key1 = tasksCollectionRef) {
-      val registration = getTask(tasksCollectionRef,userId){updateDocument->
-          tasklist=updateDocument
-      }
+        val registration = getTask(tasksCollectionRef, userId) { updateDocument ->
+            tasklist = updateDocument
+        }
     }
-    val statList = listOf("All", "CANCELLED", "IN_PROGRESS", "DONE", "REJECTED","PAUSED")
+    val statList = listOf("All", "CANCELLED", "IN_PROGRESS", "DONE", "REJECTED", "PAUSED")
     var isExpanded by remember { mutableStateOf(false) }
-    var selectedStatus by remember {mutableStateOf(statList[0]) }
-    Scaffold(modifier = Modifier
-        .fillMaxSize()
+    var selectedStatus by remember { mutableStateOf(statList[0]) }
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
     )
     { paddingValues ->
 
@@ -698,7 +782,7 @@ fun MyTasksScreen(navController: NavHostController) {
             item {
                 HeaderRow(/*navController = navController,*/ title = "Tasks"/*, onClick = {}*/)
             }
-            item{
+            item {
                 ExposedDropdownMenuBox(
                     expanded = isExpanded,
                     onExpandedChange = { isExpanded = !isExpanded },
@@ -714,10 +798,12 @@ fun MyTasksScreen(navController: NavHostController) {
                             .menuAnchor()
                             .fillMaxWidth()
                     )
-                    DropdownMenu(expanded = isExpanded, onDismissRequest = {isExpanded =false},
-                        modifier= Modifier
+                    DropdownMenu(
+                        expanded = isExpanded, onDismissRequest = { isExpanded = false },
+                        modifier = Modifier
                             .exposedDropdownSize()
-                            .padding(2.dp) ) {
+                            .padding(2.dp)
+                    ) {
                         DropdownMenuItem(
                             text = { Text(statList[0]) },
                             onClick = {
@@ -774,34 +860,31 @@ fun MyTasksScreen(navController: NavHostController) {
                 }
             }
             if (selectedStatus == "All") {
-                items(tasklist) {item ->
-                    if (item.status=="DONE" ||item.status=="REJECTED"||item.status=="CANCELLED"){
-                        Taskcardcanceld(task = item)
-                    }
-                    else{
-                        Taskcard(task = item) {cardId->
+                items(tasklist) { item ->
+                    if (item.status == "DONE" || item.status == "REJECTED" || item.status == "CANCELLED") {
+                        Taskcardcanceld(task = item , navController)
+                    } else {
+                        Taskcard(context = context,task = item , navController = navController  ) { cardId ->
                             /*val cards = tasklist.toMutableList()
                             val card = tasklist.indexOfFirst { it.id == cardId }
                             cards[card]=cards[card].copy(status = "CANCELLED")
                             tasklist=cards*/
-                            updateStatus(tasksCollectionRef,item,"CANCELLED")
+                            updateStatus(tasksCollectionRef, item, "CANCELLED")
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 items(tasklist) { item ->
                     if (selectedStatus == item.status) {
-                        if (item.status=="DONE" ||item.status=="REJECTED"||item.status=="CANCELLED"){
-                            Taskcardcanceld(task = item)
-                        }
-                        else{
-                            Taskcard(task = item) {cardId->
+                        if (item.status == "DONE" || item.status == "REJECTED" || item.status == "CANCELLED") {
+                            Taskcardcanceld(task = item , navController)
+                        } else {
+                            Taskcard(context = context,task = item , navController) { cardId ->
                                 /*val cards = tasklist.toMutableList()
                                 val card = tasklist.indexOfFirst { it.id == cardId }
                                 cards[card]=cards[card].copy(status = "CANCELLED")
                                 tasklist=cards*/
-                                updateStatus(tasksCollectionRef,item,"CANCELLED")
+                                updateStatus(tasksCollectionRef, item, "CANCELLED")
                             }
                         }
                     }
@@ -816,23 +899,39 @@ fun Map<String, Any>.toTask(): Task {
     val client = this["client"] as? String ?: ""
     val category = this["category"] as? String ?: ""
     val title = this["title"] as? String ?: ""
-    val description =  this["description"] as? String ?: ""
+    val description = this["description"] as? String ?: ""
     val time_hour = this["time_hour"] as? String ?: ""
     val price = this["price"].toString().toInt() // Convert Price to Int
-    val time_day= this["time_day"] as? String ?: ""
+    val time_day = this["time_day"] as? String ?: ""
     val localisation = this["localisation"] as? String ?: ""
-    val status = this["status"] as? String ?: ""    // ... similar logic for other Task properties ...
-    return Task(id, client, category, title, description, time_day, time_hour, price, localisation, status)
+    val status =
+        this["status"] as? String ?: ""    // ... similar logic for other Task properties ...
+    return Task(
+        id,
+        client,
+        category,
+        title,
+        description,
+        time_day,
+        time_hour,
+        price,
+        localisation,
+        status
+    )
 }
 
-fun getTask(taskref:CollectionReference,id:String,onUpdate:(List<Task>)->Unit):ListenerRegistration{
-    return taskref.whereEqualTo("id",id)
-        .addSnapshotListener{querySnapshot,_->
-            querySnapshot?.let{
-                val documents= mutableListOf<Task>()
-                for(document in it.documents){
-                    val yourdocument= document.data?.toTask()
-                    yourdocument?.let{doc->documents.add(doc)}
+fun getTask(
+    taskref: CollectionReference,
+    id: String,
+    onUpdate: (List<Task>) -> Unit
+): ListenerRegistration {
+    return taskref.whereEqualTo("id", id)
+        .addSnapshotListener { querySnapshot, _ ->
+            querySnapshot?.let {
+                val documents = mutableListOf<Task>()
+                for (document in it.documents) {
+                    val yourdocument = document.data?.toTask()
+                    yourdocument?.let { doc -> documents.add(doc) }
                 }
                 onUpdate(documents)
             }
@@ -840,21 +939,21 @@ fun getTask(taskref:CollectionReference,id:String,onUpdate:(List<Task>)->Unit):L
 
 }
 
-fun updateStatus(ref:CollectionReference,item:Task,newValue:String){
-        ref
-        .whereEqualTo("client",item.client)
-        .whereEqualTo("time_day",item.time_day)
-        .whereEqualTo("time_hour",item.time_hour)
-        .whereEqualTo("localisation",item.localisation)
+fun updateStatus(ref: CollectionReference, item: Task, newValue: String) {
+    ref
+        .whereEqualTo("client", item.client)
+        .whereEqualTo("time_day", item.time_day)
+        .whereEqualTo("time_hour", item.time_hour)
+        .whereEqualTo("localisation", item.localisation)
         .get()
-        .addOnSuccessListener { documents->
-            for(doc in documents){
-                doc.reference.update("status",newValue)
-                    .addOnSuccessListener {  }
-                    .addOnFailureListener{}
+        .addOnSuccessListener { documents ->
+            for (doc in documents) {
+                doc.reference.update("status", newValue)
+                    .addOnSuccessListener { }
+                    .addOnFailureListener {}
             }
         }
-            .addOnFailureListener{}
+        .addOnFailureListener {}
 
     /*addOnCompleteListener {task->
 

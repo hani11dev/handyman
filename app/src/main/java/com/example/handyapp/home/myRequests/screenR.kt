@@ -52,7 +52,7 @@ import androidx.compose.ui.unit.dp
 
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-import coil.compose.rememberImagePainter
+
 import com.example.handyapp.R
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.CollectionReference
