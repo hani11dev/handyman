@@ -760,7 +760,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
             tasklist = updateDocument
         }
     }
-    val statList = listOf("All", "CANCELLED", "IN_PROGRESS", "DONE", "REJECTED", "PAUSED")
+    val statList = listOf("All", "Cancelled", "In Progress", "Done", "Rejected", "Paused")
     var isExpanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(statList[0]) }
     Scaffold(
@@ -861,7 +861,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
             }
             if (selectedStatus == "All") {
                 items(tasklist) { item ->
-                    if (item.status == "DONE" || item.status == "REJECTED" || item.status == "CANCELLED") {
+                    if (item.status == "Done" || item.status == "Rejected" || item.status == "Cancelled") {
                         Taskcardcanceld(task = item , navController)
                     } else {
                         Taskcard(context = context,task = item , navController = navController  ) { cardId ->
@@ -869,14 +869,14 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                             val card = tasklist.indexOfFirst { it.id == cardId }
                             cards[card]=cards[card].copy(status = "CANCELLED")
                             tasklist=cards*/
-                            updateStatus(tasksCollectionRef, item, "CANCELLED")
+                            updateStatus(tasksCollectionRef, item, "Cancelled")
                         }
                     }
                 }
             } else {
                 items(tasklist) { item ->
                     if (selectedStatus == item.status) {
-                        if (item.status == "DONE" || item.status == "REJECTED" || item.status == "CANCELLED") {
+                        if (item.status == "Done" || item.status == "Rejected" || item.status == "Cancelled") {
                             Taskcardcanceld(task = item , navController)
                         } else {
                             Taskcard(context = context,task = item , navController) { cardId ->
@@ -884,7 +884,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                                 val card = tasklist.indexOfFirst { it.id == cardId }
                                 cards[card]=cards[card].copy(status = "CANCELLED")
                                 tasklist=cards*/
-                                updateStatus(tasksCollectionRef, item, "CANCELLED")
+                                updateStatus(tasksCollectionRef, item, "Cancelled")
                             }
                         }
                     }

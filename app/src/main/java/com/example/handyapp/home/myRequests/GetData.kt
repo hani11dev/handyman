@@ -132,7 +132,7 @@ fun saveTask(
     )
 
     // Conditionally add rejection reason only if the status is "REJECTED"
-    if (status == "REJECTED" && rejection_Reason != null) {
+    if (status == "Rejected" && rejection_Reason != null) {
         task["RejectionReason"] = rejection_Reason
     }
 

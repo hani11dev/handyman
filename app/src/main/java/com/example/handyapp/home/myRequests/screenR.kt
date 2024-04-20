@@ -297,7 +297,7 @@ fun MyRequestsScreenReal(
                                     time_hour = hour,
                                     price = budget.toInt() ?: 0,
                                     localisation = "$wilaya,$city",
-                                    status = "REJECTED",
+                                    status = "Rejected",
                                     rejection_Reason = rejectionReason // Save rejection reason
                                 )
                                 deleteRequest(
