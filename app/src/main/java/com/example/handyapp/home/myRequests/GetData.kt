@@ -106,33 +106,35 @@ fun deleteRequest(
 
 fun saveTask(
     taskCollectionRef: CollectionReference,
-    id: String,
-    client: String,
-    category: String,
-    title: String,
-    description: String,
-    time_day: String,
-    time_hour: String,
-    price: Int,
-    localisation: String,
-    status: String,
+    HandyId: String,
+    clientId: String,
+    Category: String,
+    Title: String,
+    Description: String,
+    Time_day: String,
+    Time_hour: String,
+    Price: Int,
+    Wilaya: String,
+    Address: String,
+    Status: String,
     rejection_Reason: String? = null // Make rejection reason nullable
 ) {
     val task = hashMapOf(
-        "id" to id,
-        "client" to client,
-        "Category" to category,
-        "title" to title,
-        "description" to description,
-        "time_day" to time_day,
-        "time_hour" to time_hour,
-        "price" to price,
-        "localisation" to localisation,
-        "Status" to status
+        "HandyId" to HandyId,
+        "clientId" to clientId,
+        "Category" to Category,
+        "Title" to Title,
+        "Description" to Description,
+        "Time_day" to Time_day,
+        "Time_hour" to Time_hour,
+        "Price" to Price,
+        "Wilaya" to Wilaya,
+        "Address" to Address,
+        "Status" to Status
     )
 
     // Conditionally add rejection reason only if the status is "REJECTED"
-    if (status == "Rejected" && rejection_Reason != null) {
+    if (Status == "Rejected" && rejection_Reason != null) {
         task["RejectionReason"] = rejection_Reason
     }
 

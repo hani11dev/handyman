@@ -227,16 +227,17 @@ fun MyRequestsScreenReal(
                             onClick = {
                                 saveTask(
                                     taskCollectionRef,
-                                    id = handymanID,
-                                    client = clientId,
-                                    category = "?",
-                                    title = title,
-                                    description = description,
-                                    time_day = day,
-                                    time_hour = hour,
-                                    price = budget.toInt() ?: 0,
-                                    localisation = "$wilaya,$city",
-                                    status = "IN_PROGRESS"
+                                    HandyId  = handymanID,
+                                    clientId = clientId,
+                                    Category = "CATEGORY",
+                                    Title = title,
+                                    Description = description,
+                                    Time_day = day,
+                                    Time_hour = hour,
+                                    Price = budget.toInt() ?: 0,
+                                    Wilaya = wilaya,
+                                    Address = "$street,$city" ,
+                                    Status = "In_progress"
                                 )
                                 deleteRequest(
                                     Title = title,
@@ -288,16 +289,17 @@ fun MyRequestsScreenReal(
                             onClick = {
                                 saveTask(
                                     taskCollectionRef,
-                                    id = handymanID,
-                                    client = name.value ?: "",
-                                    category = "CATEGORY",
-                                    title = title,
-                                    description = description,
-                                    time_day = day,
-                                    time_hour = hour,
-                                    price = budget.toInt() ?: 0,
-                                    localisation = "$wilaya,$city",
-                                    status = "Rejected",
+                                    HandyId  = handymanID,
+                                    clientId = clientId,
+                                    Category = "CATEGORY",
+                                    Title = title,
+                                    Description = description,
+                                    Time_day = day,
+                                    Time_hour = hour,
+                                    Price = budget.toInt() ?: 0,
+                                    Wilaya = wilaya,
+                                    Address = "$street,$city" ,
+                                    Status = "Rejected",
                                     rejection_Reason = rejectionReason // Save rejection reason
                                 )
                                 deleteRequest(
