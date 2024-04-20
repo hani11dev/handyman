@@ -96,7 +96,7 @@ class FinalRegisterViewModel(
                             "Wilaya" to state.wilaya,
                             "City" to state.city,
                             "Street" to state.street,
-                            "AverageSalary" to state.averageSalary,
+                            "AverageSalary" to state.averageSalary.toDouble(),
                             "WorkingAreas" to state.workingAreas,
                             "About" to state.about,
                             "Status" to "ACTIVE"
