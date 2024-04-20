@@ -4,14 +4,10 @@ import android.net.Uri
 import android.util.Log
 import com.example.handyapp.Response
 import com.example.handyapp.domain.usecases.repository.FireStoreRepository
-import com.example.handyapp.home.Message
+import com.example.handyapp.home.chat.Message
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.getField
-import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.awaitClose
@@ -27,7 +23,7 @@ class FireStoreRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth
 ) : FireStoreRepository {
 
-    override fun getMessages(receiver : String): Flow<Response<List<Message>>> = callbackFlow {
+    override fun getMessages(receiver: String): Flow<Response<List<Message>>> = callbackFlow {
         trySend(Response.onLoading)
         val snapshot = fireStore.collection("Messages")
             .where(
@@ -40,6 +36,7 @@ class FireStoreRepositoryImpl @Inject constructor(
                         Filter.equalTo("sender", receiver),
                         Filter.equalTo("receiver", auth.currentUser!!.uid)
                     )
+
                 )
             ).addSnapshotListener { value, error ->
                 GlobalScope.launch {
@@ -54,7 +51,8 @@ class FireStoreRepositoryImpl @Inject constructor(
                                         messages.add(message)
                                     } else {
                                         val ref =
-                                            storage.reference.child("Messages/${it.id}").listAll().await()
+                                            storage.reference.child("Messages/${it.id}").listAll()
+                                                .await()
                                         var imagesList = ArrayList<String>()
                                         for (item in ref.items) {
                                             val uri = item.downloadUrl.await()

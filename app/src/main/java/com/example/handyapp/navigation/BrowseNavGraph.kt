@@ -16,7 +16,7 @@ import androidx.navigation.navigation
 import com.example.handyapp.finalRegister.FinalRegisterScreen
 import com.example.handyapp.finalRegister.FinishedSetupScreen
 import com.example.handyapp.finalRegister.OneLastStepScreen
-import com.example.handyapp.home.ChatScreen
+import com.example.handyapp.home.chat.ChatScreen
 import com.example.handyapp.home.Settings.SettingsScreen
 import com.example.handyapp.home.jobs.BiddingScreen
 import com.example.handyapp.home.myRequests.DetailScreen

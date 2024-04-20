@@ -13,7 +13,6 @@ import com.example.handyapp.domain.usecases.getMessagesUseCase
 import com.example.handyapp.domain.usecases.getUserIDUseCase
 import com.example.handyapp.domain.usecases.sendMessageUseCase
 import com.example.handyapp.domain.usecases.uploadMessageImagesUseCase
-import com.example.handyapp.home.Message
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,20 +42,22 @@ class ChatViewModel @Inject constructor(
 
     init {
         userID.value = getUserIDUseCase()
+
+
         savedStateHandle.get<String>("ClientID")?.let {
             viewModelScope.launch {
                 getMessagesUseCase(it).collect {
                     _messages.value = it
                 }
             }
-
-        }
-
-        viewModelScope.launch {
-            getDeviceTokenUseCase(id = "fbLnjdn6cKgkZTEmOd3hIqI9VYm1").collect {
-                _deviceToken.value = it
+            viewModelScope.launch {
+                getDeviceTokenUseCase(id = it).collect {
+                    _deviceToken.value = it
+                }
             }
+
         }
+
 
     }
 

@@ -2,7 +2,7 @@ package com.example.handyapp.domain.usecases.repository
 
 import android.net.Uri
 import com.example.handyapp.Response
-import com.example.handyapp.home.Message
+import com.example.handyapp.home.chat.Message
 import kotlinx.coroutines.flow.Flow
 
 interface FireStoreRepository {
