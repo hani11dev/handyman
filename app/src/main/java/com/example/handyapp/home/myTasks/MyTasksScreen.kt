@@ -71,6 +71,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
 import java.lang.Exception
 
 
@@ -83,52 +84,17 @@ data class Task(
     val time_day: String,
     val time_hour: String,
     val Price: Int,
-    val localisation: String,
+    val Willaya: String,
+    val Address:String,
     var status: String
 )
 
-/*val lists =mutableListOf<Task>(
-    Task(1,
-        "Louis lo",
-        "Painting",
-        "paint a room",
-        "paint a room...",
-        "10-4-2024","10:00",
-        600,"alger","in progress"),
-    Task(2,
-        "Louis Do",
-        "Painting",
-        "paint a room",
-        "paint a room...",
-        "12-3-2024","9:00",
-        600,
-        "alger","in progress"),
-    Task(3,
-        "Louis Do",
-        "Painting",
-        "paint a room",
-        "paint a room...",
-        "12-3-2024","9:00",
-        600,
-        "alger","in progress"),
-    Task(4,
-        "Louis Do",
-        "Painting",
-        "paint a room",
-        "paint a room...",
-        "12-3-2024","9:00",
-        600,
-        "alger","rejected"),
-    Task(5,
-        "Louis Do",
-        "Painting",
-        "paint a room",
-        "paint a room...",
-        "12-3-2024","9:00",
-        600,
-        "alger","done"),
+data class Clientinf(
+    val first_name:String,
+    val last_name:String,
+    val phoneNbr:String
 )
-*/
+
 @Composable
 fun HeaderRow(
     //navController: NavHostController,
@@ -158,7 +124,16 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
     var sheetstate = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
-    var paused by remember { mutableStateOf(if (task.status == "PAUSED") true else false) }
+    var paused by remember { mutableStateOf(if (task.status == "Paused") true else false) }
+    var cli=Clientinf("","","")
+    var client by remember { mutableStateOf(cli) }
+    LaunchedEffect(key1 = Unit) {
+        var result=getClientInfo(Firebase.firestore.collection("Clients"),
+            task.client)
+        if (result != null) {
+            client= result
+        }
+    }
     //var canceled by remember { mutableStateOf(false) }
     //task.status=if (!canceled && !paused )"in progress" else if (canceled) "canceled" else "paused"
     ElevatedCard(
@@ -202,22 +177,12 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    /* Icon(
-                         painter = painterResource(id = R.drawable.user),
-                         contentDescription = "user",
-                         tint = MaterialTheme.colorScheme.primary
-                     )*/
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = task.client,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = client.first_name+" "+client.last_name,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium
+                )
                 Text(
                     text = task.title,
                     textAlign = TextAlign.Center,
@@ -227,14 +192,14 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    /*Icon(
+                    Icon(
                         painter = painterResource(id = R.drawable.location),
                         contentDescription = "location",
                         tint = MaterialTheme.colorScheme.primary
-                    )*/
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = task.localisation,
+                        text = task.Willaya,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium
                     )
@@ -300,9 +265,9 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                     onClick = {
                         paused = !paused
                         if (paused) {
-                            updateStatus(tasksCollectionRef, task, "PAUSED")
+                            updateStatus(tasksCollectionRef, task, "Paused")
                         } else {
-                            updateStatus(tasksCollectionRef, task, "IN_PROGRESS")
+                            updateStatus(tasksCollectionRef, task, "In_Progress")
                         }
                     },
                     modifier = Modifier.padding(2.dp),
@@ -482,6 +447,15 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
 fun Taskcardcanceld(task: Task,navController: NavHostController) {
     var sheetstate = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
+    var cli=Clientinf("","","")
+    var client by remember { mutableStateOf(cli) }
+    LaunchedEffect(key1 = Unit) {
+        var result=getClientInfo(Firebase.firestore.collection("Clients"),
+            task.client)
+        if (result != null) {
+            client= result
+        }
+    }
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         modifier = Modifier
@@ -505,22 +479,12 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                     .align(Alignment.TopStart), verticalArrangement = Arrangement.Center
             )
             {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    /* Icon(
-                         painter = painterResource(id = R.drawable.user),
-                         contentDescription = "user",
-                         tint = MaterialTheme.colorScheme.primary
-                     )*/
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = task.client,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = client.first_name+" "+client.last_name,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium
+                )
                 Text(
                     text = task.title,
                     textAlign = TextAlign.Center,
@@ -537,7 +501,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = task.localisation,
+                        text = task.Willaya,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium
                     )
@@ -865,10 +829,6 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                         Taskcardcanceld(task = item , navController)
                     } else {
                         Taskcard(context = context,task = item , navController = navController  ) { cardId ->
-                            /*val cards = tasklist.toMutableList()
-                            val card = tasklist.indexOfFirst { it.id == cardId }
-                            cards[card]=cards[card].copy(status = "CANCELLED")
-                            tasklist=cards*/
                             updateStatus(tasksCollectionRef, item, "Cancelled")
                         }
                     }
@@ -880,10 +840,6 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                             Taskcardcanceld(task = item , navController)
                         } else {
                             Taskcard(context = context,task = item , navController) { cardId ->
-                                /*val cards = tasklist.toMutableList()
-                                val card = tasklist.indexOfFirst { it.id == cardId }
-                                cards[card]=cards[card].copy(status = "CANCELLED")
-                                tasklist=cards*/
                                 updateStatus(tasksCollectionRef, item, "Cancelled")
                             }
                         }
@@ -895,17 +851,17 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
 }
 
 fun Map<String, Any>.toTask(): Task {
-    val id = this["id"] as? Int ?: -1 // Handle potential missing key with default value
-    val client = this["client"] as? String ?: ""
-    val category = this["category"] as? String ?: ""
-    val title = this["title"] as? String ?: ""
-    val description = this["description"] as? String ?: ""
-    val time_hour = this["time_hour"] as? String ?: ""
-    val price = this["price"].toString().toInt() // Convert Price to Int
-    val time_day = this["time_day"] as? String ?: ""
-    val localisation = this["localisation"] as? String ?: ""
-    val status =
-        this["status"] as? String ?: ""    // ... similar logic for other Task properties ...
+    val id = this["HandyId"] as? Int ?: -1 // Handle potential missing key with default value
+    val client = this["ClientId"] as? String ?: ""
+    val category = this["Category"] as? String ?: ""
+    val title = this["Title"] as? String ?: ""
+    val description = this["Description"] as? String ?: ""
+    val time_hour = this["Time_hour"] as? String ?: ""
+    val price = this["Price"].toString().toInt() // Convert Price to Int
+    val time_day = this["Time_day"] as? String ?: ""
+    val willaya = this["Wilaya"] as? String ?: ""
+    val address= this["Address"] as? String ?: ""
+    val status = this["Status"] as? String ?: ""    // ... similar logic for other Task properties ...
     return Task(
         id,
         client,
@@ -915,7 +871,8 @@ fun Map<String, Any>.toTask(): Task {
         time_day,
         time_hour,
         price,
-        localisation,
+        willaya,
+        address,
         status
     )
 }
@@ -925,7 +882,7 @@ fun getTask(
     id: String,
     onUpdate: (List<Task>) -> Unit
 ): ListenerRegistration {
-    return taskref.whereEqualTo("id", id)
+    return taskref.whereEqualTo("HandyId", id)
         .addSnapshotListener { querySnapshot, _ ->
             querySnapshot?.let {
                 val documents = mutableListOf<Task>()
@@ -941,14 +898,14 @@ fun getTask(
 
 fun updateStatus(ref: CollectionReference, item: Task, newValue: String) {
     ref
-        .whereEqualTo("client", item.client)
-        .whereEqualTo("time_day", item.time_day)
-        .whereEqualTo("time_hour", item.time_hour)
-        .whereEqualTo("localisation", item.localisation)
+        .whereEqualTo("ClientId", item.client)
+        .whereEqualTo("Time_day", item.time_day)
+        .whereEqualTo("Time_hour", item.time_hour)
+        .whereEqualTo("Address", item.Address)
         .get()
         .addOnSuccessListener { documents ->
             for (doc in documents) {
-                doc.reference.update("status", newValue)
+                doc.reference.update("Status", newValue)
                     .addOnSuccessListener { }
                     .addOnFailureListener {}
             }
@@ -960,6 +917,35 @@ fun updateStatus(ref: CollectionReference, item: Task, newValue: String) {
         for(doc in task.result.documents){
             doc.reference.update("status",newValue)
         }*/
+}
+
+fun Map<String,Any>.toClientinfo(): Clientinf{
+    val firstname = this["FirstName"] as? String ?: ""
+    val lastname = this["LastName"] as? String ?: ""
+    val phone = this["PhoneNumber"] as? String ?: ""
+    return Clientinf(firstname,lastname,phone)
+}
+suspend fun getClientInfo(
+    clientref: CollectionReference,
+    id: String,
+): Clientinf?{
+    try {
+        val documentSnapshot = clientref.document(id).get().await()
+        if (documentSnapshot.exists()) {
+            val data = documentSnapshot.data
+            if (data != null) {
+                val result = data.toClientinfo()
+                return result
+            }
+        } else {
+            //onError("Document doesn't exist for the provided client ID")
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // we use to have a context argument but i had to remove it
+        //onError("Error fetching client name: ${e.message}")
+    }
+    return null
 }
 
 
