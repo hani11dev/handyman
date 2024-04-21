@@ -54,7 +54,7 @@ class RegisterViewModel(
                     "Month" to "",
                     "Year" to "",
                     "Rating" to 0.toDouble(),
-                    "nbReviews" to 0.toLong(),
+                    "nbReviews" to 0.toDouble(),
                     "OrdersCompleted" to "0",
                     "Category" to "",
                     "About" to "",

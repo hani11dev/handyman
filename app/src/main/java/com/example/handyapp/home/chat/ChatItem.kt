@@ -64,15 +64,28 @@ fun ChatItem(message: Message, userID: String) {
                     .padding(horizontal = 4.dp, vertical = 4.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
-                AnimatedVisibility(visible = showTimestamp) {
+                /*AnimatedVisibility(visible = showTimestamp) {
                     androidx.compose.material3.Text(text = timestampToDate(message.timestamp))
+                }*/
+                Row (verticalAlignment = Alignment.Bottom){
+                    if (message.sender != userID) {
+                        androidx.compose.material3.Text(
+                            text = message.text,
+                            Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+                            fontSize = 16.sp,
+                            color =  Color.White
+                        )
+                        androidx.compose.material3.Text(text = timestampToTime(message.timestamp) , fontSize = 12.sp , color = Color.LightGray)
+                    }else{
+                        androidx.compose.material3.Text(text = timestampToTime(message.timestamp) , fontSize = 12.sp , color = Color.Gray)
+                        androidx.compose.material3.Text(
+                            text = message.text,
+                            Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
-                androidx.compose.material3.Text(
-                    text = message.text,
-                    Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
-                    fontSize = 16.sp,
-                    color = if (message.sender == userID) MaterialTheme.colorScheme.onBackground else Color.White
-                )
 
             }
 
@@ -130,8 +143,23 @@ data class Message(
 
 fun timestampToDate(timestamp: Timestamp): String {
     try {
-        val sdf = SimpleDateFormat("dd/MM/YYYY" , Locale.getDefault())
-        val time = sdf.format(Date(System.currentTimeMillis()))
+        val sdf = SimpleDateFormat("dd/MM/YYYY", Locale.getDefault())
+        val time = sdf.format(Date(timestamp.toDate().time))
+        /*val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val netDate = Date(timestamp)
+        return sdf.format(netDate)*/
+        return time
+
+    } catch (e: Exception) {
+        return e.localizedMessage ?: "error"
+    }
+
+}
+
+fun timestampToTime(timestamp: Timestamp): String {
+    try {
+        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+        val time = sdf.format(Date(timestamp.toDate().time))
         /*val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val netDate = Date(timestamp)
         return sdf.format(netDate)*/

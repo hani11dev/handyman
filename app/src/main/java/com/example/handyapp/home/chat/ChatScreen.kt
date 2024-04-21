@@ -22,10 +22,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.AccountBox
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,9 +36,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +57,7 @@ import com.example.handyapp.R
 import com.example.handyapp.Response
 import com.example.handyapp.common.sendNotification
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -95,58 +101,104 @@ fun ChatScreen(ClientID : String,
 
     }
 
+    val state = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
 
 
-    Box(modifier = Modifier.fillMaxSize()){
-        Image(painter = painterResource(id = if(isSystemInDarkTheme()) R.drawable.chat_back_dark else R.drawable.chat_back ), contentDescription = null , modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = if (isSystemInDarkTheme()) R.drawable.chat_back_dark else R.drawable.chat_back),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
 
         ) {
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomEnd) {
 
-            when (val resp = viewModel.messages.value) {
-                is Response.onLoading -> {}
-                is Response.onFaillure -> {}
-                is Response.onSuccess -> {
-                    if (resp.data.isNotEmpty()) {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .weight(1f)
-                                .padding(horizontal = 12.dp),
-                            verticalArrangement = Arrangement.Bottom,
-                            reverseLayout = true,
-                        ) {
-                            items(resp.data.sortedByDescending { it.timestamp }) {
-                                ChatItem(message = it, viewModel.userID.value!!)
+
+                when (val resp = viewModel.messages.value) {
+                    is Response.onLoading -> {}
+                    is Response.onFaillure -> {}
+                    is Response.onSuccess -> {
+                        if (resp.data.isNotEmpty()) {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    //.weight(1f)
+                                    .padding(horizontal = 12.dp),
+                                verticalArrangement = Arrangement.Bottom,
+                                reverseLayout = true,
+                                state = state
+                            ) {
+
+                                items(resp.data.sortedByDescending { it.timestamp }) {
+                                    ChatItem(message = it, viewModel.userID.value!!)
+                                }
+                            }
+
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                //.weight(1f),
+                                , contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.message_illust),
+                                    contentDescription = null
+                                )
                             }
                         }
 
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .weight(1f),
-                            contentAlignment = Alignment.Center
+                    }
+                }
+                val showScroll by remember {
+                    derivedStateOf {
+                        when (state.firstVisibleItemIndex) {
+                            0, 1 -> {
+                                false
+                            }
+
+                            else -> {
+                                true
+                            }
+                        }
+                    }
+                }
+                Column {
+                    AnimatedVisibility(visible = showScroll) {
+                        FloatingActionButton(
+                            onClick = {
+                                scope.launch {
+                                    state.animateScrollToItem(0)
+                                }
+                            },
+                            modifier = Modifier.padding(end = 16.dp)
                         ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.message_illust),
+                            Icon(
+                                imageVector = Icons.Filled.ArrowDownward,
                                 contentDescription = null
                             )
                         }
+
                     }
 
                 }
+
+
             }
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(vertical = 8.dp, horizontal = 8.dp)
-                ,
+                    .padding(vertical = 8.dp, horizontal = 8.dp),
             ) {
                 OutlinedTextField(
                     value = messageText, onValueChange = {
@@ -155,17 +207,21 @@ fun ChatScreen(ClientID : String,
                     modifier = Modifier.fillMaxWidth(),
                     trailingIcon = {
                         IconButton(onClick = {
-                            viewModel.sendMessage(
-                                Message(
-                                    sender = viewModel.userID.value!!,
-                                    ClientID,
-                                    text = messageText,
-                                    timestamp = Timestamp(Date(System.currentTimeMillis()))
-                                ),
-                                images = selectedImageUris
-                            )
-                            messageText = ""
-                            sendNotification(deviceToken, "new message", messageText)
+                            if (messageText.isNotEmpty()) {
+
+
+                                viewModel.sendMessage(
+                                    Message(
+                                        sender = viewModel.userID.value!!,
+                                        ClientID,
+                                        text = messageText,
+                                        timestamp = Timestamp(Date(System.currentTimeMillis()))
+                                    ),
+                                    images = selectedImageUris
+                                )
+                                messageText = ""
+                                sendNotification(deviceToken, "new message", messageText)
+                            }
 
                         }) {
 
@@ -176,7 +232,12 @@ fun ChatScreen(ClientID : String,
                             )
                         }
                     },
-                    placeholder = { Text("Message..." , color = if (isSystemInDarkTheme()) Color.White else Color.Gray) },
+                    placeholder = {
+                        Text(
+                            "Message...",
+                            color = if (isSystemInDarkTheme()) Color.White else Color.Gray
+                        )
+                    },
                     leadingIcon = {
                         IconButton(onClick = {
                             multiplePhotoPickerLauncher.launch(
@@ -184,13 +245,16 @@ fun ChatScreen(ClientID : String,
                             )
                         }) {
                             Icon(
-                                imageVector = Icons.Outlined.AccountBox,
+                                painter = painterResource(id = R.drawable.gallery),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     },
-                    colors = TextFieldDefaults.colors( focusedContainerColor = Color.Transparent , unfocusedContainerColor = Color.Transparent),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent
+                    ),
                     shape = RoundedCornerShape(30.dp)
                 )
 
