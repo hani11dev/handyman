@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,14 +39,36 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.handyapp.R
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import toTask
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ReportScreen(task:Task,navController: NavHostController){
+fun ReportScreen(taskID:String,navController: NavHostController) {
     var ProblemSupportingText by rememberSaveable { mutableStateOf("") }
     var Problem by rememberSaveable { mutableStateOf("") }
     var ProblemError by rememberSaveable { mutableStateOf(false) }
+    val taskdoc = Task("", "", "", "", "", "", "", 1, "", "", "")
+    var task by remember { mutableStateOf<Task>(taskdoc) }
+    val tasksCollectionRef = Firebase.firestore.collection("tasks")
+    /*LaunchedEffect(key1 = Unit) {
+        //var taskdocument=tasksCollectionRef.document(taskID).get().await()
+        //task= taskdocument.data?.toTask()!!
+        tasksCollectionRef.document(taskID)
+            .addSnapshotListener { querySnapshot, _ ->
+                GlobalScope.launch {
+                    querySnapshot?.let {
+                        task = querySnapshot.data?.toTask()!!
+
+                    }
+                }
+
+            }
+    }*/
 
     var selectedImageUris by remember {
         mutableStateOf<List<Uri>>(emptyList())
@@ -56,9 +80,9 @@ fun ReportScreen(task:Task,navController: NavHostController){
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
+            .padding(10.dp)
     )
     { paddingValues ->
-        HeaderRow(/*navController = navController,*/ title = "Report Problem"/*, onClick = {}*/)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,31 +93,35 @@ fun ReportScreen(task:Task,navController: NavHostController){
                     )
                 )
         ) {
+            HeaderRow(/*navController = navController,*/ title = "Report Problem"/*, onClick = {}*/)
             Text(
                 text = "Problem :",
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp)
+                    .padding(start = 10.dp)
             )
             OutlinedTextField(
                 value = Problem,
-                onValueChange = { Problem = it
-                    ProblemSupportingText = ""},
+                onValueChange = {
+                    Problem = it
+                    ProblemSupportingText = ""
+                },
                 label = { Text("What went wrong?") },
                 isError = ProblemError,
                 singleLine = false,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(5.dp)
             )
-            Column(
+            /*Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Button(
@@ -108,7 +136,7 @@ fun ReportScreen(task:Task,navController: NavHostController){
                 }
                 selectedImageUris.forEach { uri ->
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -122,17 +150,17 @@ fun ReportScreen(task:Task,navController: NavHostController){
                         )
                     }
                 }
-            }
-            Button(onClick = {
-                ProblemError = false
-                if (Problem.isEmpty()) {
-                    ProblemError = true
-                    ProblemSupportingText="description can't be empty"
-                }
-                else {
-                }
+            }*/
 
-            }) {
+            Button(
+                onClick = {
+                    ProblemError = false
+                    if (Problem.isEmpty()) {
+                        ProblemError = true
+                        ProblemSupportingText = "description can't be empty"
+                    } else {}
+                }, modifier = Modifier.align(Alignment.End).padding(10.dp)
+            ) {
                 Text(text = "Submit")
             }
         }

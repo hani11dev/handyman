@@ -76,7 +76,7 @@ import java.lang.Exception
 
 
 data class Task(
-    val id: Int,
+    val id: String,
     val client: String,
     val category: String,
     val title: String,
@@ -127,9 +127,13 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
     var paused by remember { mutableStateOf(if (task.status == "Paused") true else false) }
     var cli=Clientinf("","","")
     var client by remember { mutableStateOf(cli) }
+    var taskID by remember { mutableStateOf<String>("") }
+    LaunchedEffect(key1 = Unit) {
+         taskID=getTaskID(tasksCollectionRef,task)
+    }
     LaunchedEffect(key1 = Unit) {
         var result=getClientInfo(Firebase.firestore.collection("Clients"),
-            task.client)
+            task.client,navController)
         if (result != null) {
             client= result
         }
@@ -145,7 +149,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
             .clip(RoundedCornerShape(8.dp))
             //.background(color =if(!paused) MaterialTheme.colorScheme. else  MaterialTheme.colorScheme. )
             .clickable {
-                isSheetOpen = true
+                navController.navigate(Screen.TasksDetails.route + "/$taskID"+"/${client.first_name+" "+client.last_name}"+"/${client.phoneNbr}")
             },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -188,7 +192,13 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Normal,
                 )
-                Row(
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = task.Willaya,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium
+                )
+                /*Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -203,7 +213,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Medium
                     )
-                }
+                }*/
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically
@@ -246,7 +256,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                 })
                 OutlinedButton(
                     onClick = {
-                        onClick(task.id)
+                        onClick(task.Price)
                         // canceled=true
                     },
                     modifier = Modifier.padding(2.dp),
@@ -257,7 +267,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
 
                 ) {
                     Text(
-                        text = "cancel",
+                        text = "Cancel",
                         fontWeight = FontWeight.Bold,
                     )
                 }
@@ -265,13 +275,12 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                     onClick = {
                         paused = !paused
                         if (paused) {
-                            updateStatus(tasksCollectionRef, task, "Paused")
+                            updateStatus(tasksCollectionRef, task, "Paused",navController)
                         } else {
-                            updateStatus(tasksCollectionRef, task, "In_Progress")
+                            updateStatus(tasksCollectionRef, task, "In_Progress",navController)
                         }
                     },
-                    modifier = Modifier.padding(2.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.LightGray)
+                    modifier = Modifier.padding(2.dp)
                 ) {
                     if (!paused) {
                         Text(
@@ -280,7 +289,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                         )
                     } else {
                         Text(
-                            text = "resume",
+                            text = "Resume",
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -340,7 +349,6 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                             IconButton(onClick = { navController.navigate(Screen.ChatScreen.route + "/${task.client}") }) {
                                 Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")
                             }
-
                         }
                         Text(
                             text = "Status: ",
@@ -451,7 +459,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
     var client by remember { mutableStateOf(cli) }
     LaunchedEffect(key1 = Unit) {
         var result=getClientInfo(Firebase.firestore.collection("Clients"),
-            task.client)
+            task.client,navController)
         if (result != null) {
             client= result
         }
@@ -479,7 +487,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                     .align(Alignment.TopStart), verticalArrangement = Arrangement.Center
             )
             {
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = client.first_name+" "+client.last_name,
                     textAlign = TextAlign.Center,
@@ -490,22 +498,12 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Normal,
                 )
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.location),
-                        contentDescription = "location",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = task.Willaya,
-                        textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = task.Willaya,
+                    textAlign = TextAlign.Center,
+                    fontWeight = FontWeight.Medium
+                )
             }
             Column(
                 modifier = Modifier
@@ -519,8 +517,8 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                         .wrapContentSize()
                         .weight(1f),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (task.status == "canceled") Color.Yellow
-                        else if (task.status == "rejected") Color.Red
+                        containerColor = if (task.status == "Canceled") Color.Yellow
+                        else if (task.status == "Rejected") Color.Red
                         else Color.Green
                     )
                 ) {
@@ -605,7 +603,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
             {
                 Row {
                     Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
-                        IconButton(onClick = { navController.navigate(Screen.ChatScreen.route) }) {
+                        IconButton(onClick = { navController.navigate(Screen.ChatScreen.route + "/${task.client}") }) {
                             Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")
                         }
                         Text(
@@ -829,7 +827,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                         Taskcardcanceld(task = item , navController)
                     } else {
                         Taskcard(context = context,task = item , navController = navController  ) { cardId ->
-                            updateStatus(tasksCollectionRef, item, "Cancelled")
+                            updateStatus(tasksCollectionRef, item, "Cancelled",navController)
                         }
                     }
                 }
@@ -840,7 +838,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                             Taskcardcanceld(task = item , navController)
                         } else {
                             Taskcard(context = context,task = item , navController) { cardId ->
-                                updateStatus(tasksCollectionRef, item, "Cancelled")
+                                updateStatus(tasksCollectionRef, item, "Cancelled",navController)
                             }
                         }
                     }
@@ -851,8 +849,8 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
 }
 
 fun Map<String, Any>.toTask(): Task {
-    val id = this["HandyId"] as? Int ?: -1 // Handle potential missing key with default value
-    val client = this["ClientId"] as? String ?: ""
+    val id = this["HandyId"] as? String ?: ""// Handle potential missing key with default value
+    val client = this["clientId"] as? String ?: ""
     val category = this["Category"] as? String ?: ""
     val title = this["Title"] as? String ?: ""
     val description = this["Description"] as? String ?: ""
@@ -882,10 +880,11 @@ fun getTask(
     id: String,
     onUpdate: (List<Task>) -> Unit
 ): ListenerRegistration {
-    return taskref.whereEqualTo("HandyId", id)
+    return taskref.whereEqualTo("HandyId",id)
         .addSnapshotListener { querySnapshot, _ ->
             querySnapshot?.let {
                 val documents = mutableListOf<Task>()
+                val doc=querySnapshot.documents[0].data?.toTask()
                 for (document in it.documents) {
                     val yourdocument = document.data?.toTask()
                     yourdocument?.let { doc -> documents.add(doc) }
@@ -896,9 +895,28 @@ fun getTask(
 
 }
 
-fun updateStatus(ref: CollectionReference, item: Task, newValue: String) {
+
+suspend fun getTaskID(ref: CollectionReference, item: Task): String {
+    var id by mutableStateOf("")
+    val querySnapshot=ref
+        .whereEqualTo("HandyId", item.id)
+        .whereEqualTo("Description", item.description)
+        .whereEqualTo("Time_day", item.time_day)
+        .whereEqualTo("Time_hour", item.time_hour)
+        .whereEqualTo("Address", item.Address)
+        .limit(1)
+        .get()
+        .await()
+    if(!querySnapshot.isEmpty){
+        val document= querySnapshot.documents[0]
+        id=document.id
+    }
+    return id
+
+}
+fun updateStatus(ref: CollectionReference, item: Task, newValue: String,navController: NavHostController) {
     ref
-        .whereEqualTo("ClientId", item.client)
+        .whereEqualTo("clientId", item.client)
         .whereEqualTo("Time_day", item.time_day)
         .whereEqualTo("Time_hour", item.time_hour)
         .whereEqualTo("Address", item.Address)
@@ -919,7 +937,7 @@ fun updateStatus(ref: CollectionReference, item: Task, newValue: String) {
         }*/
 }
 
-fun Map<String,Any>.toClientinfo(): Clientinf{
+fun Map<String,Any>.toClientinfo(navController: NavHostController): Clientinf{
     val firstname = this["FirstName"] as? String ?: ""
     val lastname = this["LastName"] as? String ?: ""
     val phone = this["PhoneNumber"] as? String ?: ""
@@ -928,13 +946,14 @@ fun Map<String,Any>.toClientinfo(): Clientinf{
 suspend fun getClientInfo(
     clientref: CollectionReference,
     id: String,
+    navController: NavHostController
 ): Clientinf?{
     try {
         val documentSnapshot = clientref.document(id).get().await()
         if (documentSnapshot.exists()) {
             val data = documentSnapshot.data
             if (data != null) {
-                val result = data.toClientinfo()
+                val result = data.toClientinfo(navController)
                 return result
             }
         } else {
