@@ -30,12 +30,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.example.handyapp.R
 import com.example.handyapp.home.jobs.JobsDetailsViewModel
 import com.example.handyapp.navigation.Screen
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -57,11 +59,23 @@ data class Handyman(
 )
 
 @Composable
-fun JobDetailsScreen(viewModel: JobsDetailsViewModel = hiltViewModel(), navHostController: NavHostController) {
+fun JobDetailsScreen(
+    viewModel: JobsDetailsViewModel = hiltViewModel(),
+    navHostController: NavHostController
+) {
     val jobID: String = viewModel.jobID.value
     val db = Firebase.firestore
     var job by remember { mutableStateOf<Job?>(null) }
     val images = remember { mutableStateListOf<String>() }
+
+    // Create an instance of SubcollectionCountViewModel
+    val subcollectionCountViewModel: SubcollectionCountViewModel = hiltViewModel()
+
+    // Pass the jobID to the ViewModel
+    subcollectionCountViewModel.setJobID(jobID)
+
+    // Observe total bids count using SubcollectionCountViewModel
+    val totalBids by subcollectionCountViewModel.subcollectionCountState
 
     LaunchedEffect(key1 = jobID) {
         val jobDocument = db.collection("Jobs").document(jobID).get().await()
@@ -83,17 +97,30 @@ fun JobDetailsScreen(viewModel: JobsDetailsViewModel = hiltViewModel(), navHostC
         modifier = Modifier.fillMaxSize()
     ) {
         job?.let { job ->
-            JobDetailsPage(job = job, images = images, rootNavController = navHostController, jobID = jobID)
+            JobDetailsPage(
+                job = job,
+                images = images,
+                rootNavController = navHostController,
+                jobID = jobID,
+                totalBids = totalBids // Pass total bids count to JobDetailsPage
+            )
         } ?: run {
             Text(text = "Loading job details...")
         }
     }
 }
 
-@Composable
-fun JobDetailsPage(job: Job, images: SnapshotStateList<String>, rootNavController: NavHostController, jobID: String) {
 
+@Composable
+fun JobDetailsPage(
+    job: Job,
+    images: SnapshotStateList<String>,
+    rootNavController: NavHostController,
+    jobID: String,
+    totalBids: Int // New parameter for total bids count
+) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
+
 
     val scrollState = rememberScrollState()
     Column(
@@ -103,6 +130,12 @@ fun JobDetailsPage(job: Job, images: SnapshotStateList<String>, rootNavControlle
             .padding(end = 12.dp)
     ) {
         JobDetailsHeader(job = job)
+
+        // Display total bids count
+        Text(
+            text = "Total Bids: $totalBids",
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -135,6 +168,7 @@ fun JobDetailsPage(job: Job, images: SnapshotStateList<String>, rootNavControlle
         }
     }
 }
+
 
 
 @Composable
@@ -419,3 +453,31 @@ fun JobDetailsHeader(job: Job) {
         }
     }
 }
+
+//;;;;;;;;;;;;
+class SubcollectionCountViewModel : ViewModel() {
+    private val firestore = FirebaseFirestore.getInstance()
+    val subcollectionCountState = mutableStateOf(0)
+    private var jobID: String? = null
+
+    fun setJobID(jobID: String) {
+        this.jobID = jobID
+        fetchSubcollectionCount()
+    }
+
+    private fun fetchSubcollectionCount() {
+        jobID?.let { id ->
+            val collectionRef = firestore.collection("Jobs")
+            val subcollectionRef = collectionRef.document(id).collection("bids")
+
+            subcollectionRef.get()
+                .addOnSuccessListener { documents ->
+                    subcollectionCountState.value = documents.size()
+                }
+                .addOnFailureListener { exception ->
+                    // Handle any errors
+                }
+        }
+    }
+}
+
