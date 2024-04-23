@@ -237,7 +237,7 @@ fun MyRequestsScreenReal(
                                     Price = budget.toInt() ?: 0,
                                     Wilaya = wilaya,
                                     Address = "$street,$city" ,
-                                    Status = "In_progress"
+                                    Status = "In Progress"
                                 )
                                 deleteRequest(
                                     Title = title,
