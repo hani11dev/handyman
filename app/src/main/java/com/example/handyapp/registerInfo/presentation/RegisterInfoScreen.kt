@@ -2,6 +2,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +40,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
@@ -213,9 +217,14 @@ private fun uploadToFirebase(contentResolver: ContentResolver, uri: Uri, path: S
 
         val inputStream = contentResolver.openInputStream(uri)
         val uploadTask = inputStream?.let { fileRef.putStream(it) }
-        uploadTask?.addOnSuccessListener { _ ->
+        uploadTask?.addOnSuccessListener { s ->
+            GlobalScope.launch {
+                val ur = s.storage.downloadUrl.await()
+                db.collection("HandyMan").document(user.uid).update("ProfileImage" , ur).await()
+                //Log.d("uploadedUri" ,ur.toString())
+                callback.invoke(uri.lastPathSegment ?: "Unknown")
 
-            callback.invoke(uri.lastPathSegment ?: "Unknown")
+            }
         }?.addOnFailureListener {
             // Error uploading file
         }

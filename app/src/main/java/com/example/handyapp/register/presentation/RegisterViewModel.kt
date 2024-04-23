@@ -61,6 +61,8 @@ class RegisterViewModel(
                     "WorkingAreas" to "",
                     "SubCategory" to "",
                     "ProfileImage" to "",
+                    "Latitude" to 0.toDouble(),
+                    "Longitude" to 0.toDouble(),
                 )
                 uid?.let {
                     db.collection("HandyMan")

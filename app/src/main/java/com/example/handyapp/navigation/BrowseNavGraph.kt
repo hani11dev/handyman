@@ -25,8 +25,10 @@ import com.example.handyapp.home.myRequests.DetailScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
 import com.example.handyapp.home.myTasks.ReportScreen
 import com.example.handyapp.home.myTasks.TasksDetailsScreen
+import com.example.handyapp.home.notification.NotificationScreen
 import com.example.handyapp.home.presentation.RefusedScreen
 import com.example.handyapp.home.presentation.WaitingScreen
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -123,6 +125,11 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                 })
             ) {
                 ChatScreen(ClientID = it.arguments?.getString("ClientID")?:"")
+            }
+            composable(
+                route = Screen.NotificationScreen.route
+            ) {
+                NotificationScreen(browseNavController)
             }
         }
 
