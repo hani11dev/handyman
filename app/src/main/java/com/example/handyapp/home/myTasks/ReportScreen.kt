@@ -12,6 +12,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,13 +50,17 @@ import toTask
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ReportScreen(taskID:String,navController: NavHostController) {
+    var progressState by rememberSaveable { mutableStateOf(false) }
     var ProblemSupportingText by rememberSaveable { mutableStateOf("") }
     var Problem by rememberSaveable { mutableStateOf("") }
     var ProblemError by rememberSaveable { mutableStateOf(false) }
-    val taskdoc = Task("", "", "", "", "", "", "", 1, "", "", "")
+    var TitleSupportingText by rememberSaveable { mutableStateOf("") }
+    var Title by rememberSaveable { mutableStateOf("") }
+    var TitleError by rememberSaveable { mutableStateOf(false) }
+    /*val taskdoc = Task("", "", "", "", "", "", "", 1, "", "", "")
     var task by remember { mutableStateOf<Task>(taskdoc) }
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
-    /*LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(key1 = Unit) {
         //var taskdocument=tasksCollectionRef.document(taskID).get().await()
         //task= taskdocument.data?.toTask()!!
         tasksCollectionRef.document(taskID)
@@ -88,12 +93,31 @@ fun ReportScreen(taskID:String,navController: NavHostController) {
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
                 .background(
-                    color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.background else colorResource(
-                        id = R.color.white
-                    )
+                    color =  MaterialTheme.colorScheme.background
                 )
         ) {
             HeaderRow(/*navController = navController,*/ title = "Report Problem"/*, onClick = {}*/)
+            Text(
+                text = "Title :",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 10.dp)
+            )
+            OutlinedTextField(
+                value = Title,
+                onValueChange = {
+                    Title = it
+                    TitleSupportingText = ""
+                },
+                label = { Text("Title") },
+                isError = TitleError,
+                singleLine = false,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+            )
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = "Problem :",
                 style = MaterialTheme.typography.bodyLarge,
@@ -155,10 +179,34 @@ fun ReportScreen(taskID:String,navController: NavHostController) {
             Button(
                 onClick = {
                     ProblemError = false
-                    if (Problem.isEmpty()) {
-                        ProblemError = true
-                        ProblemSupportingText = "description can't be empty"
-                    } else {}
+                    TitleError=false
+                    if (Problem.isEmpty()||Title.isEmpty()) {
+                        progressState=false
+                        if(Problem.isEmpty()){
+                            ProblemError = true
+                            ProblemSupportingText = "Problem description can't be empty"
+                        }
+                        if(Title.isEmpty()){
+                            TitleError=true
+                            TitleSupportingText="Title can't be empty"
+                        }
+                    } else {
+                        Firebase.firestore.collection("Reports")
+                            .add(
+                                hashMapOf(
+                                    "TaskID" to taskID,
+                                    "Title" to Title,
+                                    "Description" to Problem,
+                                    "Sender" to "Handyman",
+                                )
+                            )
+                            .addOnSuccessListener { documentReference ->
+                                println("DocumentSnapshot added with ID: ${documentReference.id}")
+                            }
+                            .addOnFailureListener { e ->
+                                println("Error adding document: $e")
+                            }
+                    }
                 }, modifier = Modifier.align(Alignment.End).padding(10.dp)
             ) {
                 Text(text = "Submit")
