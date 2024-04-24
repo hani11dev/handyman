@@ -34,7 +34,6 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
-import com.example.handyapp.R
 import com.example.handyapp.home.jobs.JobsDetailsViewModel
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.FirebaseFirestore
@@ -103,7 +102,7 @@ fun JobDetailsScreen(
                 images = images,
                 rootNavController = navHostController,
                 jobID = jobID,
-                totalBids = totalBids,
+                totalBids = totalBids, // Pass total bids count to JobDetailsPage
                 totalPrice = totalPrice // Pass total price to JobDetailsPage
             )
         } ?: run {
@@ -120,7 +119,7 @@ fun JobDetailsPage(
     rootNavController: NavHostController,
     jobID: String,
     totalBids: Int,
-    totalPrice: Int // Add parameter for total price
+    totalPrice: Int // New parameter for total price
 ) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
 
@@ -151,10 +150,32 @@ fun JobDetailsPage(
             selectedImage = imageUrl
         })
 
-        // Rest of the code remains the same
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { rootNavController.navigate(Screen.BidScreen.route + "/${jobID}") },
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(text = "Apply Now")
+        }
+
+        BidSection(jobID)
+
+        selectedImage?.let { imageUrl ->
+            AlertDialog(
+                onDismissRequest = { selectedImage = null },
+                title = { Text(text = "Image Detail") },
+                text = { Image(painter = rememberImagePainter(imageUrl), contentDescription = null) },
+                confirmButton = {
+                    Button(
+                        onClick = { selectedImage = null },
+                    ) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
     }
 }
-
 
 
 
@@ -347,6 +368,7 @@ private suspend fun loadImages(jobID: String): List<String> = withContext(Dispat
     }
     return@withContext images
 }
+
 @Composable
 fun JobDetailsHeader(job: Job) {
     Column(
@@ -445,30 +467,27 @@ fun JobDetailsHeader(job: Job) {
 class SubcollectionCountViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     val subcollectionCountState = mutableStateOf(0)
-    val totalPriceState = mutableStateOf(0) // Add mutable state for total price
+    val totalPriceState = mutableStateOf(0)
     private var jobID: String? = null
 
     fun setJobID(jobID: String) {
         this.jobID = jobID
-        fetchSubcollectionData()
+        fetchSubcollectionCount()
     }
 
-    private fun fetchSubcollectionData() {
+    private fun fetchSubcollectionCount() {
         jobID?.let { id ->
             val collectionRef = firestore.collection("Jobs")
             val subcollectionRef = collectionRef.document(id).collection("bids")
 
             subcollectionRef.get()
                 .addOnSuccessListener { documents ->
-                    val count = documents.size()
-                    subcollectionCountState.value = count
-
-                    var totalPrice = 0
+                    subcollectionCountState.value = documents.size()
+                    var total = 0
                     documents.forEach { document ->
-                        val price = document.getLong("price")?.toInt() ?: 0
-                        totalPrice += price
+                        total += document.getLong("price")?.toInt() ?: 0
                     }
-                    totalPriceState.value = totalPrice
+                    totalPriceState.value = total
                 }
                 .addOnFailureListener { exception ->
                     // Handle any errors
