@@ -133,17 +133,7 @@ fun JobDetailsPage(
     ) {
         JobDetailsHeader(job = job)
 
-        // Display total bids count
-        Text(
-            text = "Total Bids: $totalBids",
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
-        // Display average price
-        Text(
-            text = "Average Price: $${if (totalBids > 0) totalPrice / totalBids else 0}",
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -151,8 +141,47 @@ fun JobDetailsPage(
             selectedImage = imageUrl
         })
 
-        // Rest of the code remains the same
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = { rootNavController.navigate(Screen.BidScreen.route + "/${jobID}") },
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text(text = "Apply Now")
+        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+                .padding(15.dp)
+        ){
+            // Display total bids count
+            Text(
+                text = "Total Bids: $totalBids",
+            )
+
+            // Display average price
+            Text(
+                text = "Average Price: $${if (totalBids > 0) totalPrice / totalBids else 0}",
+            )
+        }
+
+        BidSection(jobID)
+
+        selectedImage?.let { imageUrl ->
+            AlertDialog(
+                onDismissRequest = { selectedImage = null },
+                title = { Text(text = "Image Detail") },
+                text = { Image(painter = rememberImagePainter(imageUrl), contentDescription = null) },
+                confirmButton = {
+                    Button(
+                        onClick = { selectedImage = null },
+                    ) {
+                        Text("Close")
+                    }
+                }
+            )
+        }
     }
+
 }
 
 
