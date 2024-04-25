@@ -1,4 +1,5 @@
-import android.content.Context
+package com.example.handyapp.home.jobs
+//import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -140,25 +142,56 @@ fun JobItem(job: Job, navHostController: NavHostController) {
 
 
 
-@Composable
-fun JobsScreen(navHostController: NavHostController , viewModel: JobsViewModel = hiltViewModel() , context : Context = LocalContext.current) {
+//@Composable
+//fun JobsScreen(navHostController: NavHostController , viewModel: JobsViewModel = hiltViewModel() , context : Context = LocalContext.current) {
+//
+//    when(val resp = viewModel.jobs.value){
+//        is Response.onLoading -> {
+//            //Toast.makeText(context , "load" ,Toast.LENGTH_SHORT).show()
+//        }
+//        is Response.onFaillure -> {Toast.makeText(context , "failled" ,Toast.LENGTH_SHORT).show()}
+//        is Response.onSuccess -> {
+//            //Toast.makeText(context , "succes" ,Toast.LENGTH_SHORT).show()
+//            if (resp.data.isNotEmpty()){
+//                LazyColumn {
+//                    items(resp.data) { job ->
+//                        JobItem(job , navHostController)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//
+//}
 
-    when(val resp = viewModel.jobs.value){
+@Composable
+fun JobsScreen(navHostController: NavHostController, viewModel: JobsViewModel = hiltViewModel()) {
+    val handymanId = "CqBwP7yUlTYHyJ4DXw43EKOkBw72"//"your_handyman_id_here" // Replace with the actual handyman ID
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.getHandymanJobs(handymanId)
+    }
+
+    val jobs by viewModel.jobs.collectAsState()
+
+    when (val resp = jobs) {
         is Response.onLoading -> {
-            //Toast.makeText(context , "load" ,Toast.LENGTH_SHORT).show()
+            // Display a loading indicator or placeholder
+            CircularProgressIndicator()
         }
-        is Response.onFaillure -> {Toast.makeText(context , "failled" ,Toast.LENGTH_SHORT).show()}
+        is Response.onFaillure -> {
+            Toast.makeText(context, resp.message, Toast.LENGTH_SHORT).show()
+        }
         is Response.onSuccess -> {
-            //Toast.makeText(context , "succes" ,Toast.LENGTH_SHORT).show()
-            if (resp.data.isNotEmpty()){
+            if (resp.data.isNotEmpty()) {
                 LazyColumn {
                     items(resp.data) { job ->
-                        JobItem(job , navHostController)
+                        JobItem(job, navHostController)
                     }
                 }
             }
         }
     }
-
-
 }

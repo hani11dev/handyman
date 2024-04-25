@@ -11,7 +11,7 @@ sealed class Screen(val route: String) {
    object MyRequests: Screen(route = "My Requests")
    object DetailRequest: Screen(route = "Detail Request")
    object MyTasks: Screen(route = "My Tasks")
-    object TasksDetails: Screen(route = "TasksDetails")
+   // object TasksDetails: Screen(route = "TasksDetails")
     object ReportScreen: Screen(route = "ReportScreen")
    object Notifications: Screen(route = "Notifications")
    object Settings: Screen(route = "settings")

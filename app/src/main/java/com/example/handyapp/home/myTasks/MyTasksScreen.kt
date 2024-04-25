@@ -1,6 +1,7 @@
+
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,10 +20,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,8 +33,6 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -44,7 +43,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,7 +52,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -64,10 +61,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.handyapp.R
-import com.example.handyapp.navigation.Screen
+import com.example.handyapp.home.myTasks.taskDetailScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -118,18 +114,20 @@ fun HeaderRow(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Taskcard(context : Context,task: Task,navController: NavHostController, onClick: (Int) -> Unit) {
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
     var sheetstate = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
+    var showCancelConfirmation by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(if (task.status == "Paused") true else false) }
     var cli=Clientinf("","","")
     var client by remember { mutableStateOf(cli) }
     var taskID by remember { mutableStateOf<String>("") }
     LaunchedEffect(key1 = Unit) {
-         taskID=getTaskID(tasksCollectionRef,task)
+        taskID=getTaskID(tasksCollectionRef,task)
     }
     LaunchedEffect(key1 = Unit) {
         var result=getClientInfo(Firebase.firestore.collection("Clients"),
@@ -138,18 +136,17 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
             client= result
         }
     }
-    //var canceled by remember { mutableStateOf(false) }
-    //task.status=if (!canceled && !paused )"in progress" else if (canceled) "canceled" else "paused"
     ElevatedCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .height(170.dp)
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             //.background(color =if(!paused) MaterialTheme.colorScheme. else  MaterialTheme.colorScheme. )
             .clickable {
-                navController.navigate(Screen.TasksDetails.route + "/$taskID"+"/${client.first_name+" "+client.last_name}"+"/${client.phoneNbr}")
+                isSheetOpen = true
+                // navController.navigate(Screen.TasksDetails.route + "/$taskID")//+"/${client.first_name+" "+client.last_name}"+"/${client.phoneNbr}")
             },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -167,26 +164,27 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                 Card(
                     modifier = Modifier
                         .wrapContentSize()
-                        .weight(1f),
+                        .weight(1f)
+                    ,
                     colors = CardDefaults.cardColors(
-                        containerColor = if (task.status == "paused") colorResource(id = R.color.purple_200) else colorResource
-                            (id = R.color.teal_200)
+                        containerColor = if (task.status == "Paused") colorResource(id = R.color.purple_200) else colorResource
+                            (id = R.color.teal_700)
                     )
                 ) {
                     Text(
-                        text = task.status,
+                        text = " "+task.status+" ",
                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                         textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
                 }
-                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = client.first_name+" "+client.last_name,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.ExtraBold
                 )
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = task.title,
                     textAlign = TextAlign.Center,
@@ -196,7 +194,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                 Text(
                     text = task.Willaya,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Light
                 )
                 /*Row(
                     modifier = Modifier.weight(1f),
@@ -256,8 +254,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                 })
                 OutlinedButton(
                     onClick = {
-                        onClick(task.Price)
-                        // canceled=true
+                        showCancelConfirmation=true
                     },
                     modifier = Modifier.padding(2.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -277,7 +274,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                         if (paused) {
                             updateStatus(tasksCollectionRef, task, "Paused",navController)
                         } else {
-                            updateStatus(tasksCollectionRef, task, "In_Progress",navController)
+                            updateStatus(tasksCollectionRef, task, "In Progress",navController)
                         }
                     },
                     modifier = Modifier.padding(2.dp)
@@ -303,156 +300,42 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
             onDismissRequest = {
                 isSheetOpen = false
             }) {
-            LazyHorizontalGrid(
-                rows = GridCells.Fixed(1), modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .height(200.dp)
-            ) {
-                /*items(item.jobImages) {
-                    Image(
-                        painter = painterResource(id = it),
-                        contentDescription = null, //alignment = Alignment.Center,
-                        modifier = Modifier.height(200.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }*/
-            }
-            Text(
-                text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            {
-                Row {
-                    Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
-                        Row {
-                            IconButton(onClick = {
-                                val uri = Uri.parse("tel:" + "0779616200")
-                                val intnet = Intent(Intent.ACTION_DIAL , uri)
-                                try {
-                                    context.startActivity(intnet)
-                                }catch (e:SecurityException){
-
-                                }
-                            }) {
-                                Icon(imageVector = Icons.Filled.Phone, contentDescription = "chat")
-                            }
-                            IconButton(onClick = { navController.navigate(Screen.ChatScreen.route + "/${task.client}") }) {
-                                Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")
-                            }
-                        }
-                        Text(
-                            text = "Status: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Date: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Time: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Phone: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Title: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Description: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.End, modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = task.status,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.time_day,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.time_hour,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "",//client.phone
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.title,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.description,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                    }
-                }
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(
-                            SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) {
-                            append(text = "Price : ${task.Price} DA ")
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.End)
-                )
-            }
+            taskDetailScreen(taskID = taskID, task = task, client = client, navController = navController)
         }
+    }
+    if(showCancelConfirmation){
+        AlertDialog(
+            onDismissRequest = { showCancelConfirmation = false },
+            title = { Text("Cancel Task") },
+            text = {
+                Text("Are sure you want to cancel this task?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        updateStatus(tasksCollectionRef, task, "Cancelled",navController)
+                        showCancelConfirmation= false // Dismiss the dialog
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showCancelConfirmation = false }
+                ) {
+                    Text("Undo")
+                }
+            }
+        )
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Taskcardcanceld(task: Task,navController: NavHostController) {
+    val tasksCollectionRef = Firebase.firestore.collection("tasks")
     var sheetstate = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
     var cli=Clientinf("","","")
@@ -464,15 +347,20 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
             client= result
         }
     }
+    var taskID by remember { mutableStateOf<String>("") }
+    LaunchedEffect(key1 = Unit) {
+        taskID=getTaskID(tasksCollectionRef,task)
+    }
     ElevatedCard(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
+        colors =  CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary),
         modifier = Modifier
             .fillMaxWidth()
             .height(128.dp)
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                isSheetOpen = true
+                       isSheetOpen=true
+                // navController.navigate(Screen.TasksDetails.route + "/$taskID")//+"/${client.first_name+" "+client.last_name}"+"/${client.phoneNbr}")
             },
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
@@ -487,23 +375,25 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                     .align(Alignment.TopStart), verticalArrangement = Arrangement.Center
             )
             {
-                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = client.first_name+" "+client.last_name,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.ExtraBold
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = task.title,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Normal,
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = task.Willaya,
                     textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Light
                 )
+
             }
             Column(
                 modifier = Modifier
@@ -515,19 +405,20 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                 Card(
                     modifier = Modifier
                         .wrapContentSize()
-                        .weight(1f),
+                        .weight(1f)
+                    ,
                     colors = CardDefaults.cardColors(
-                        containerColor = if (task.status == "Canceled") Color.Yellow
-                        else if (task.status == "Rejected") Color.Red
-                        else Color.Green
+                        containerColor = if (task.status == "Cancelled") colorResource(id =R.color.yellow )
+                        else if (task.status == "Rejected") colorResource(id =R.color.red_100)
+                        else colorResource(id =R.color.green)
                     )
                 ) {
                     Text(
-                        text = task.status,
-                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                        text = " "+task.status+" ",
+                        modifier = Modifier.padding(horizontal = 2.dp, vertical = 2.dp).align(Alignment.CenterHorizontally),
                         textAlign = TextAlign.Center,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.primary
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
                 }
                 Text(text = buildAnnotatedString {
@@ -572,140 +463,12 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
             onDismissRequest = {
                 isSheetOpen = false
             }) {
-            LazyHorizontalGrid(
-                rows = GridCells.Fixed(1), modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .height(200.dp)
-            ) {
-                /*items(item.jobImages) {
-                    Image(
-                        painter = painterResource(id = it),
-                        contentDescription = null, //alignment = Alignment.Center,
-                        modifier = Modifier.height(200.dp),
-                        contentScale = ContentScale.Crop
-                    )
-                }*/
-            }
-            Text(
-                text = task.category, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            Card(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(10.dp))
-                    .padding(8.dp)
-                    .align(Alignment.CenterHorizontally)
-            )
-            {
-                Row {
-                    Column(horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)) {
-                        IconButton(onClick = { navController.navigate(Screen.ChatScreen.route + "/${task.client}") }) {
-                            Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")
-                        }
-                        Text(
-                            text = "Status: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Date: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Time: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Phone: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Title: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "Description: ",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Left,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.End, modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = task.status,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.time_day,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.time_hour,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = "CENSORED",
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.title,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                        Text(
-                            text = task.description,
-                            fontWeight = FontWeight.SemiBold,
-                            textAlign = TextAlign.Right,
-                            color = Color.Gray,
-                            modifier = Modifier.padding(6.dp)
-                        )
-                    }
-                }
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(
-                            SpanStyle(
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        ) {
-                            append(text = "Price : ${task.Price} DA ")
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.End)
-                )
-            }
+            taskDetailScreen(taskID = taskID, task = task, client = client, navController = navController)
         }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTasksScreen(navController: NavHostController , context: Context = LocalContext.current) {
@@ -736,9 +499,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(
-                    color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.background else colorResource(
-                        id = R.color.white//R.color.lightGray
-                    )
+                    color = MaterialTheme.colorScheme.background
                 )
         ) {
             item {
@@ -884,7 +645,7 @@ fun getTask(
         .addSnapshotListener { querySnapshot, _ ->
             querySnapshot?.let {
                 val documents = mutableListOf<Task>()
-                val doc=querySnapshot.documents[0].data?.toTask()
+                //val doc=querySnapshot.documents[0].data?.toTask()
                 for (document in it.documents) {
                     val yourdocument = document.data?.toTask()
                     yourdocument?.let { doc -> documents.add(doc) }
@@ -966,6 +727,10 @@ suspend fun getClientInfo(
     }
     return null
 }
+
+
+
+
 
 
 

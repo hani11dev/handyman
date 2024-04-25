@@ -24,7 +24,6 @@ import com.example.handyapp.home.jobs.BiddingScreen
 import com.example.handyapp.home.myRequests.DetailScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
 import com.example.handyapp.home.myTasks.ReportScreen
-import com.example.handyapp.home.myTasks.TasksDetailsScreen
 import com.example.handyapp.home.notification.NotificationScreen
 import com.example.handyapp.home.presentation.RefusedScreen
 import com.example.handyapp.home.presentation.WaitingScreen
@@ -50,23 +49,25 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             ) {
                 MyTasksScreen(browseNavController)
             }
-            composable(
+            /*composable(
                 route = Screen.TasksDetails.route + "/{taskID}"+"/{Client}"+"/{PhoneNumber}",
                 arguments = listOf(navArgument("taskID") {
                     type = NavType.StringType
-                }, navArgument("Client"){
+                }/*, navArgument("Client"){
                     type= NavType.StringType
                 }, navArgument("PhoneNumber"){
                     type= NavType.StringType
-                })
+                }*/)
             ) {
                 val taskID = it.arguments?.getString("taskID") ?: ""
-                val PhoneNumber= it.arguments?.getString("PhoneNumber") ?: ""
-                TasksDetailsScreen( taskID= taskID,
-                    ClientName = it.arguments?.getString("Client")?:"",
-                    PhoneNumber,
+                //val PhoneNumber= it.arguments?.getString("PhoneNumber") ?: ""
+                //val ClientName = it.arguments?.getString("Client")?:""
+                TasksDetailsScreen(
+                    taskID= taskID,
+               //     ClientName =ClientName,
+                //    PhoneNumber=PhoneNumber,
                     navController = browseNavController)
-            }
+            }*/
             composable(
                 route = Screen.ReportScreen.route + "/{taskID}",
                 arguments = listOf(navArgument("taskID") {

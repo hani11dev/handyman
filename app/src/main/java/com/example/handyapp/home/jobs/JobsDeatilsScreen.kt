@@ -34,6 +34,7 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
+import com.example.handyapp.R
 import com.example.handyapp.home.jobs.JobsDetailsViewModel
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.FirebaseFirestore
@@ -102,7 +103,7 @@ fun JobDetailsScreen(
                 images = images,
                 rootNavController = navHostController,
                 jobID = jobID,
-                totalBids = totalBids, // Pass total bids count to JobDetailsPage
+                totalBids = totalBids,
                 totalPrice = totalPrice // Pass total price to JobDetailsPage
             )
         } ?: run {
@@ -119,7 +120,7 @@ fun JobDetailsPage(
     rootNavController: NavHostController,
     jobID: String,
     totalBids: Int,
-    totalPrice: Int // New parameter for total price
+    totalPrice: Int // Add parameter for total price
 ) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
 
@@ -132,17 +133,7 @@ fun JobDetailsPage(
     ) {
         JobDetailsHeader(job = job)
 
-        // Display total bids count
-        Text(
-            text = "Total Bids: $totalBids",
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
-        // Display average price
-        Text(
-            text = "Average Price: $${if (totalBids > 0) totalPrice / totalBids else 0}",
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -156,6 +147,21 @@ fun JobDetailsPage(
             modifier = Modifier.align(Alignment.End)
         ) {
             Text(text = "Apply Now")
+        }
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+                .padding(15.dp)
+        ){
+            // Display total bids count
+            Text(
+                text = "Total Bids: $totalBids",
+            )
+
+            // Display average price
+            Text(
+                text = "Average Price: $${if (totalBids > 0) totalPrice / totalBids else 0}",
+            )
         }
 
         BidSection(jobID)
@@ -175,7 +181,9 @@ fun JobDetailsPage(
             )
         }
     }
+
 }
+
 
 
 
@@ -368,7 +376,6 @@ private suspend fun loadImages(jobID: String): List<String> = withContext(Dispat
     }
     return@withContext images
 }
-
 @Composable
 fun JobDetailsHeader(job: Job) {
     Column(
@@ -467,27 +474,30 @@ fun JobDetailsHeader(job: Job) {
 class SubcollectionCountViewModel : ViewModel() {
     private val firestore = FirebaseFirestore.getInstance()
     val subcollectionCountState = mutableStateOf(0)
-    val totalPriceState = mutableStateOf(0)
+    val totalPriceState = mutableStateOf(0) // Add mutable state for total price
     private var jobID: String? = null
 
     fun setJobID(jobID: String) {
         this.jobID = jobID
-        fetchSubcollectionCount()
+        fetchSubcollectionData()
     }
 
-    private fun fetchSubcollectionCount() {
+    private fun fetchSubcollectionData() {
         jobID?.let { id ->
             val collectionRef = firestore.collection("Jobs")
             val subcollectionRef = collectionRef.document(id).collection("bids")
 
             subcollectionRef.get()
                 .addOnSuccessListener { documents ->
-                    subcollectionCountState.value = documents.size()
-                    var total = 0
+                    val count = documents.size()
+                    subcollectionCountState.value = count
+
+                    var totalPrice = 0
                     documents.forEach { document ->
-                        total += document.getLong("price")?.toInt() ?: 0
+                        val price = document.getLong("price")?.toInt() ?: 0
+                        totalPrice += price
                     }
-                    totalPriceState.value = total
+                    totalPriceState.value = totalPrice
                 }
                 .addOnFailureListener { exception ->
                     // Handle any errors
