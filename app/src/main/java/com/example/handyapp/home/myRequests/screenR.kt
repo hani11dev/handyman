@@ -77,7 +77,7 @@ fun MyRequestsScreenReal(
     val name = remember { mutableStateOf<String?>(null) }
     val wilaya = request["wilaya"] as? String ?: ""
     val city = request["city"] as? String ?: ""
-    val budget = request["budget"].toString() // Convert budget to string
+    val budget = request["budget"].toString()
     val day = request["day"] as? String ?: ""
     val description = request["description"] as? String ?: ""
     val hour = request["hour"] as? String ?: ""
@@ -85,6 +85,10 @@ fun MyRequestsScreenReal(
     val requestID = request["requestID"] as? String ?: ""
     val handymanID = request["handymanID"]as? String ?: ""
     val clientId= request["clientId"] as? String ?: ""
+    val latitude = request["latitude"]
+    val longitude = request["longitude"]
+
+
 
     var showAcceptConfirmation by remember { mutableStateOf(false) }
     var showRejectConfirmation by remember { mutableStateOf(false) }
@@ -237,6 +241,8 @@ fun MyRequestsScreenReal(
                                     Price = budget.toInt() ?: 0,
                                     Wilaya = wilaya,
                                     Address = "$street,$city" ,
+                                    latitude = latitude.toString().toDouble() ,
+                                    longitude = longitude.toString().toDouble() ,
                                     Status = "In Progress"
                                 )
                                 deleteRequest(
@@ -300,6 +306,8 @@ fun MyRequestsScreenReal(
                                     Wilaya = wilaya,
                                     Address = "$street,$city" ,
                                     Status = "Rejected",
+                                    latitude = latitude.toString().toDouble() ,
+                                    longitude = longitude.toString().toDouble() ,
                                     rejection_Reason = rejectionReason // Save rejection reason
                                 )
                                 deleteRequest(
