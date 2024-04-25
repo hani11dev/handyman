@@ -82,7 +82,9 @@ data class Task(
     val Price: Int,
     val Willaya: String,
     val Address:String,
-    var status: String
+    var status: String,
+    val longitude:Double,
+    val latitude:Double
 )
 
 data class Clientinf(
@@ -621,6 +623,8 @@ fun Map<String, Any>.toTask(): Task {
     val willaya = this["Wilaya"] as? String ?: ""
     val address= this["Address"] as? String ?: ""
     val status = this["Status"] as? String ?: ""    // ... similar logic for other Task properties ...
+    val longitude=this["longitude"].toString().toDouble()
+    val latitude=this["latitude"].toString().toDouble()
     return Task(
         id,
         client,
@@ -632,7 +636,9 @@ fun Map<String, Any>.toTask(): Task {
         price,
         willaya,
         address,
-        status
+        status,
+        longitude,
+        latitude
     )
 }
 
