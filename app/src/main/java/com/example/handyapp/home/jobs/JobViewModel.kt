@@ -8,12 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.handyapp.Response
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,7 +42,10 @@ class JobsViewModel @Inject constructor() : ViewModel() {
         Response.onLoading
         //val jobsList = mutableListOf<Job>()
         val db = Firebase.firestore
-        val jobsCollection = db.collection("Jobs").addSnapshotListener { value, error ->
+        val auth = FirebaseAuth.getInstance()
+        val handyMan = db.collection("HandyMan").document(auth.currentUser!!.uid).get().await()
+        val cat = handyMan.getString("Category")
+        val jobsCollection = db.collection("Jobs").whereEqualTo("category" , cat).addSnapshotListener { value, error ->
             val resp: Response<List<Job>> =
                 if (value != null) {
                     var jobs = arrayListOf<Job>()

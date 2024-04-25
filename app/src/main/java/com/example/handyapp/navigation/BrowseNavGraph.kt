@@ -4,6 +4,7 @@ import JobDetailsScreen
 import JobsScreen
 import MyRequestsScreen
 import MyTasksScreen
+import NotificationScreen
 import RegisterInfoScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -21,6 +22,7 @@ import com.example.handyapp.finalRegister.OneLastStepScreen
 import com.example.handyapp.home.chat.ChatScreen
 import com.example.handyapp.home.Settings.SettingsScreen
 import com.example.handyapp.home.jobs.BiddingScreen
+
 import com.example.handyapp.home.myRequests.DetailScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
 import com.example.handyapp.home.myTasks.ReportScreen
@@ -37,7 +39,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             composable(
                 route = Screen.Home.route
             ) {
-                JobsScreen(browseNavController)
+                JobsScreen(navHostController = browseNavController)
             }
             /*composable(
                 route = Screen.Waiting.route
@@ -130,7 +132,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             composable(
                 route = Screen.NotificationScreen.route
             ) {
-           //     NotificationScreen(browseNavController)
+                NotificationScreen(browseNavController)
             }
         }
 
