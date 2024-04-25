@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberImagePainter
 import com.example.handyapp.R
+import com.example.handyapp.home.jobs.Job
 import com.example.handyapp.home.jobs.JobsDetailsViewModel
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.FirebaseFirestore
