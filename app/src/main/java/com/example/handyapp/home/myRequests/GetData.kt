@@ -117,6 +117,8 @@ fun saveTask(
     Wilaya: String,
     Address: String,
     Status: String,
+    latitude: Double, // Change Int to Double for latitude
+    longitude: Double, // Change Int to Double for longitude
     rejection_Reason: String? = null // Make rejection reason nullable
 ) {
     val task = hashMapOf(
@@ -130,7 +132,9 @@ fun saveTask(
         "Price" to Price,
         "Wilaya" to Wilaya,
         "Address" to Address,
-        "Status" to Status
+        "Status" to Status,
+        "latitude" to latitude,
+        "longitude" to longitude
     )
 
     // Conditionally add rejection reason only if the status is "REJECTED"

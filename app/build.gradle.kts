@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     //implementation("io.coil-kt:coil-compose:1.4.0")
     implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.play.services.location)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
