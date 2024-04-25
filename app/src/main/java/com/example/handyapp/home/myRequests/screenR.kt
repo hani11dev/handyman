@@ -3,64 +3,45 @@ package com.example.handyapp.home.myRequests
 
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
-
-import com.example.handyapp.R
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 
 val taskCollectionRef = Firebase.firestore.collection("tasks")
@@ -83,8 +64,8 @@ fun MyRequestsScreenReal(
     val hour = request["hour"] as? String ?: ""
     val street = request["street"] as? String ?: ""
     val requestID = request["requestID"] as? String ?: ""
-    val handymanID = request["handymanID"]as? String ?: ""
-    val clientId= request["clientId"] as? String ?: ""
+    val handymanID = request["handymanID"] as? String ?: ""
+    val clientId = request["clientId"] as? String ?: ""
 
     var showAcceptConfirmation by remember { mutableStateOf(false) }
     var showRejectConfirmation by remember { mutableStateOf(false) }
@@ -99,124 +80,119 @@ fun MyRequestsScreenReal(
     }
 
 
-
-    Card(
-        modifier = Modifier.padding(4.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(backgroundColor),
-        border = BorderStroke(2.dp, Color.LightGray)
+    Surface( // Using Surface instead of Card for Material 3 styling
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface // Use surface color from theme
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Title with potential truncation
             Text(
                 text = title,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                maxLines = 2, // Allow 2 lines for title
+                overflow = TextOverflow.Ellipsis, // Ellipsis for truncation
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            // Stacked client and location info
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Client: ${name.value ?: ""}",
-                    modifier = Modifier.weight(1f)
-
+                    text = "Client:",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.width(IntrinsicSize.Max) // Wrap content
                 )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
                 Text(
-                    text = "Location: $wilaya, $city",
-                    modifier = Modifier.weight(1f)
+                    text = name.value ?: "",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f) // Fill remaining space
                 )
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "Price: $budget",
-                    modifier = Modifier.weight(1f)
+                    text = "Location:",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.width(IntrinsicSize.Max) // Wrap content
                 )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
                 Text(
-                    text = "Date: $day",
-                    modifier = Modifier.weight(1f)
+                    text = "$wilaya, $city",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f) // Fill remaining space
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Stacked price and date info
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Price:",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.width(IntrinsicSize.Max) // Wrap content
+                )
+                Text(
+                    text = budget,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f) // Fill remaining space
+                )
+            }
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "Date:",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.width(IntrinsicSize.Max) // Wrap content
+                )
+                Text(
+                    text = day,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f) // Fill remaining space
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(
-                    onClick = {
-                        showAcceptConfirmation = true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF84D588)
-                    ),
+                Button( // Updated to Material 3 Button
+                    onClick = { showAcceptConfirmation = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(
-                        text = "Accept",
-                    )
+                    Text(text = "Accept", color = Color.White) // White text for primary button
                 }
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                Button(
-                    onClick = {
-                        showRejectConfirmation = true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFDB6161)
-                    ),
+                Spacer(modifier = Modifier.width(8.dp))
+                OutlinedButton( // Updated to Material 3 OutlinedButton
+                    onClick = { showRejectConfirmation = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(
-                        text = "Reject",
-                    )
+                    Text(text = "Reject", color = MaterialTheme.colorScheme.error)
                 }
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                ClickableText(
-                    text = AnnotatedString.Builder().apply {
-                        withStyle(
-                            style = SpanStyle(
-                                textDecoration =
-                                TextDecoration.Underline, color = Color.Gray
-                            )
-                        ) {
-                            append("Detail")
-                        }
-
-                    }.toAnnotatedString(),
-                    onClick = {
-
-                        //  navController.navigate(Screen.DetailRequest.route)
-                        navController.navigate(Screen.DetailRequest.route + "/$requestID")
-                    },
-                    modifier = Modifier.align(Alignment.CenterVertically)
-                )
-
+                Spacer(modifier = Modifier.width(8.dp))
+                TextButton( // Updated to Material 3 TextButton
+                    onClick = { navController.navigate(Screen.DetailRequest.route + "/$requestID") },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Detail", color = MaterialTheme.colorScheme.primary)
+                }
             }
-
-
             if (showAcceptConfirmation) {
                 AlertDialog(
                     onDismissRequest = { showAcceptConfirmation = false },
@@ -227,7 +203,7 @@ fun MyRequestsScreenReal(
                             onClick = {
                                 saveTask(
                                     taskCollectionRef,
-                                    HandyId  = handymanID,
+                                    HandyId = handymanID,
                                     clientId = clientId,
                                     Category = "CATEGORY",
                                     Title = title,
@@ -236,7 +212,7 @@ fun MyRequestsScreenReal(
                                     Time_hour = hour,
                                     Price = budget.toInt() ?: 0,
                                     Wilaya = wilaya,
-                                    Address = "$street,$city" ,
+                                    Address = "$street,$city",
                                     Status = "In_progress"
                                 )
                                 deleteRequest(
@@ -289,7 +265,7 @@ fun MyRequestsScreenReal(
                             onClick = {
                                 saveTask(
                                     taskCollectionRef,
-                                    HandyId  = handymanID,
+                                    HandyId = handymanID,
                                     clientId = clientId,
                                     Category = "CATEGORY",
                                     Title = title,
@@ -298,7 +274,7 @@ fun MyRequestsScreenReal(
                                     Time_hour = hour,
                                     Price = budget.toInt() ?: 0,
                                     Wilaya = wilaya,
-                                    Address = "$street,$city" ,
+                                    Address = "$street,$city",
                                     Status = "Rejected",
                                     rejection_Reason = rejectionReason // Save rejection reason
                                 )
@@ -330,8 +306,7 @@ fun MyRequestsScreenReal(
                 )
             }
         }
-
     }
+
+
 }
-
-
