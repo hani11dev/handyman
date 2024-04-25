@@ -239,7 +239,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                 Column (verticalArrangement = Arrangement.Center){
                     OutlinedButton(
                         onClick = {
-                                  showDoneConfirmation=true
+                            showDoneConfirmation=true
                         },
                         modifier = Modifier
                             .width(105.dp)
@@ -347,7 +347,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                     Text("Something went wrong?")
                     Text("Do you want to the client?")
                 }
-                   },
+            },
             confirmButton = {
                 Button(
                     onClick = {

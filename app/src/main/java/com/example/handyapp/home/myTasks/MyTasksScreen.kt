@@ -359,7 +359,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                       isSheetOpen=true
+                isSheetOpen=true
                 // navController.navigate(Screen.TasksDetails.route + "/$taskID")//+"/${client.first_name+" "+client.last_name}"+"/${client.phoneNbr}")
             },
         elevation = CardDefaults.cardElevation(2.dp)
@@ -727,7 +727,6 @@ suspend fun getClientInfo(
     }
     return null
 }
-
 
 
 

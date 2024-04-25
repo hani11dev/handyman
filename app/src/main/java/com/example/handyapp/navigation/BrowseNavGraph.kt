@@ -130,7 +130,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             composable(
                 route = Screen.NotificationScreen.route
             ) {
-           //     NotificationScreen(browseNavController)
+                //     NotificationScreen(browseNavController)
             }
         }
 
@@ -184,4 +184,3 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
         }*/
     }
 }
-
