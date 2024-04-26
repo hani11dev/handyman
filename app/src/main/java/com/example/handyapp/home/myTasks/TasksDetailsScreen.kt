@@ -44,10 +44,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.handyapp.R
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -127,6 +129,9 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                         }
                         IconButton(onClick = { navController.navigate(Screen.ChatScreen.route + "/${task.client}") }) {
                             Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")
+                        }
+                        IconButton(onClick = { navController.navigate(Screen.MapScreen.route + "/${task.latitude}" + "/${task.longitude}") }) {
+                            Icon(painter = painterResource(R.drawable.loc), contentDescription = "location")
                         }
                     }
                 }

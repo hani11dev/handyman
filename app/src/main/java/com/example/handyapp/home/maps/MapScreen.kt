@@ -47,7 +47,7 @@ import kotlinx.coroutines.tasks.await
 
 
 @Composable
-fun MapScreen( lat : String , log : String , context : Context = LocalContext.current){
+fun MapScreen(lat : String, long : String, context : Context = LocalContext.current){
     val mapViewportState = rememberMapViewportState {
         setCameraOptions {
             center(Point.fromLngLat(2.8770072419209303, 36.50321008456727))
@@ -127,9 +127,9 @@ fun MapScreen( lat : String , log : String , context : Context = LocalContext.cu
                     }
                 )
             }
-            if (lat.isNotEmpty()) {
-                PointAnnotation(point = Point.fromLngLat(log.toDouble() , lat.toDouble()),
-                    iconImageBitmap = context.getDrawable(R.drawable.location)!!
+            if (lat.isNotEmpty() && long.isNotEmpty()) {
+                PointAnnotation(point = Point.fromLngLat(long.toDouble() , lat.toDouble()),
+                    iconImageBitmap = context.getDrawable(R.drawable.loc)!!
                         .toBitmap(),
                     onClick = {
 
@@ -143,7 +143,7 @@ fun MapScreen( lat : String , log : String , context : Context = LocalContext.cu
             Button(shape = CircleShape, onClick = {
 
                 scope.launch {
-                    while (locationInfo?.latitude == null) {
+
                         if (permissions.all {
                                 ContextCompat.checkSelfPermission(
                                     context, it
@@ -175,7 +175,7 @@ fun MapScreen( lat : String , log : String , context : Context = LocalContext.cu
                                     locationInfo!!.latitude
                                 )
                         }
-                    }
+
 
                 }
             }) {

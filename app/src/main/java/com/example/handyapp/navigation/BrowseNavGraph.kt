@@ -22,6 +22,7 @@ import com.example.handyapp.finalRegister.OneLastStepScreen
 import com.example.handyapp.home.chat.ChatScreen
 import com.example.handyapp.home.Settings.SettingsScreen
 import com.example.handyapp.home.jobs.BiddingScreen
+import com.example.handyapp.home.maps.MapScreen
 import com.example.handyapp.home.myRequests.DetailScreen
 import com.example.handyapp.home.myRequests.NotificationsScreen
 import com.example.handyapp.home.myTasks.ReportScreen
@@ -127,6 +128,14 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                 })
             ) {
                 ChatScreen(ClientID = it.arguments?.getString("ClientID")?:"")
+            }
+            composable(
+                route = Screen.MapScreen.route + "/{lat}" + "/{long}", arguments = listOf(
+                    navArgument("lat"){type = NavType.StringType},
+                    navArgument("long"){type = NavType.StringType}
+                )
+            ) {
+                MapScreen(lat = it.arguments?.getString("lat")?:"", long = it.arguments?.getString("long")?:"")
             }
             composable(
                 route = Screen.NotificationScreen.route

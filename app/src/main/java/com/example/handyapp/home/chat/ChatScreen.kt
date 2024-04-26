@@ -245,7 +245,7 @@ fun ChatScreen(ClientID : String,
                             )
                         }) {
                             Icon(
-                                painter = painterResource(id = R.drawable.gallery),
+                                painter = painterResource(R.drawable.gallery),
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )

@@ -6,6 +6,7 @@ import com.example.handyapp.Response
 import com.example.handyapp.domain.usecases.repository.FireStoreRepository
 import com.example.handyapp.home.chat.Message
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -47,9 +48,10 @@ class FireStoreRepositoryImpl @Inject constructor(
                                 //messages = value.toObjects(Message::class.java)
                                 value.documents.forEach {
                                     val message = it.toObject(Message::class.java)
-                                    if (message?.type == "text") {
+                                    //if (message?.type == "text") {
+                                    if (message != null)
                                         messages.add(message)
-                                    } else {
+                                    /*} else {
                                         val ref =
                                             storage.reference.child("Messages/${it.id}").listAll()
                                                 .await()
@@ -73,7 +75,7 @@ class FireStoreRepositoryImpl @Inject constructor(
                                             )
 
                                         }
-                                    }
+                                    }*/
                                 }
                             }
                             Response.onSuccess(messages)
@@ -92,13 +94,20 @@ class FireStoreRepositoryImpl @Inject constructor(
     override fun sendMessage(message: Message, images: List<Uri>): Flow<Response<Boolean>> = flow {
         try {
             emit(Response.onLoading)
-            val doc = fireStore.collection("Messages").add(message).await()
+
             if (message.type == "images") {
+                val doc = fireStore.collection("Messages").add(message).await()
                 for (i in images.indices) {
                     storage.reference.child("Messages/${doc.id}/image${i + 1}.jpg")
-                        .putFile(images[i]).await()
+                        .putFile(images[i]).addOnSuccessListener {
+                            val uri = it.storage.downloadUrl.addOnSuccessListener {
+
+                                fireStore.collection("Messages").document(doc.id)
+                                    .update("images", FieldValue.arrayUnion(it))
+                            }
+                        }
                 }
-            }
+            } else fireStore.collection("Messages").add(message).await()
             emit(Response.onSuccess(true))
         } catch (e: Exception) {
             emit(Response.onFaillure(e.localizedMessage ?: "error"))
