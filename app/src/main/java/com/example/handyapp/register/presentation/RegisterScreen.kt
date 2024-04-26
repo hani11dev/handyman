@@ -130,6 +130,7 @@ fun RegisterScreen1(
         )
         if(state.confirmPasswordError != null){
             Text(text = state.confirmPasswordError, color = MaterialTheme.colorScheme.error)
+
         }
         Spacer(modifier = Modifier.height(16.dp))
         Row(
