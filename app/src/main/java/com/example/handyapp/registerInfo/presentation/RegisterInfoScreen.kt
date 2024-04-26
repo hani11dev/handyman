@@ -7,16 +7,25 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -25,8 +34,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,6 +50,10 @@ import com.example.handyapp.registerInfo.presentation.RegisterInfoViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -46,8 +61,20 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.IOException
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterInfoScreen(context: Context, navController: NavController) {
+    var day = rememberSaveable { mutableStateOf("") }
+    val calendarState = rememberSheetState()
+    CalendarDialog(state = calendarState,
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true,
+        ),
+        selection = CalendarSelection.Date { date ->
+            day.value = date.toString()
+        })
+
     val selectedImageUri = remember { mutableStateOf<Uri?>(null) }
     val selectedFileUri = remember { mutableStateOf<Uri?>(null) }
     val uploadedImageName = remember { mutableStateOf<String?>(null) }
@@ -65,12 +92,20 @@ fun RegisterInfoScreen(context: Context, navController: NavController) {
         }
     }
     Column (
-        modifier = Modifier.verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .border(width = 1.dp, color = Color.White) // Add border here
+            .padding(horizontal = 16.dp), // Add padding for the content
+        verticalArrangement = Arrangement.Center
     ){
         TextField(value = state.firstName, onValueChange = {
             viewModel.onEvent(RegisterInfoEvent.FirstNameChanged(it))},
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = "First Name") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Edit, contentDescription = null
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
         if(state.firstNameError != null){
@@ -81,6 +116,11 @@ fun RegisterInfoScreen(context: Context, navController: NavController) {
             viewModel.onEvent(RegisterInfoEvent.LastNameChanged(it))},
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = "Last Name") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Edit, contentDescription = null
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
         )
         if(state.lastNameError != null){
@@ -95,9 +135,14 @@ fun RegisterInfoScreen(context: Context, navController: NavController) {
                     .fillMaxWidth()
                     .weight(1f),
                 placeholder = { Text(text = "Day") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.DateRange, contentDescription = null
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            TextField(value = state.month, onValueChange = {
+        TextField(value = state.month, onValueChange = {
                 viewModel.onEvent(RegisterInfoEvent.MonthChanged(it))},
                 modifier = Modifier
                     .fillMaxWidth()

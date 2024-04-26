@@ -1,19 +1,32 @@
 package com.example.handyapp.finalRegister
 
 import android.util.Log
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.handyapp.navigation.Graph
@@ -60,21 +73,32 @@ fun FinalRegisterScreen(navController: NavController){
         }
     }
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .border(width = 1.dp, color = Color.White) // Add border here
+            .padding(horizontal = 16.dp), // Add padding for the content
+        verticalArrangement = Arrangement.Center
     ) {
         TextField(value = state.about, onValueChange = {
             viewModel.onEvent(FinalRegistrationEvent.AboutChanged(it))},
             isError = state.aboutError != null,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = "About your self") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.Create, contentDescription = null
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
             )
         )
+        Spacer(modifier = Modifier.height(16.dp))
         TextField(value = state.averageSalary, onValueChange = {
             viewModel.onEvent(FinalRegistrationEvent.AverageSalaryChanged(it))},
             isError = state.averageSalaryError != null,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = "Average salary") },
+
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal
             )
         )
@@ -86,14 +110,25 @@ fun FinalRegisterScreen(navController: NavController){
                 isError = state.wilayaError != null,
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 placeholder = { Text(text = "Wilaya") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn, contentDescription = null
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
                 )
             )
+
             TextField(value = state.city, onValueChange = {
                 viewModel.onEvent(FinalRegistrationEvent.CityChanged(it))},
                 isError = state.cityError != null,
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 placeholder = { Text(text = "City") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.LocationOn, contentDescription = null
+                    )
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
                 )
             )
@@ -103,17 +138,29 @@ fun FinalRegisterScreen(navController: NavController){
             isError = state.streetError != null,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = "Street") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn, contentDescription = null
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
             )
         )
+        Spacer(modifier = Modifier.height(16.dp))
         TextField(value = state.workingAreas, onValueChange = {
             viewModel.onEvent(FinalRegistrationEvent.WorkingAreaChanged(it))},
             isError = state.workingAreasError != null,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = "Working Areas") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn, contentDescription = null
+                )
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
             )
         )
+        Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {viewModel.onEvent(FinalRegistrationEvent.Submit)}) {
             Text(text = "Submit")
         }
