@@ -9,8 +9,10 @@ data class FinalRegisterState (
     val wilayaError: String? = null,
     val city: String = "",
     val cityError: String? = null,
-    val street: String = "",
+    var street: String = "",
     val streetError: String? = null,
     val workingAreas: String = "",
-    val workingAreasError: String? = null
+    val workingAreasError: String? = null,
+    val Latitude : String = "",
+    val Longitude : String = ""
 )

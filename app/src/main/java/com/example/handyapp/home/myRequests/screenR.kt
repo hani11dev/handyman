@@ -87,6 +87,7 @@ fun MyRequestsScreenReal(
     val clientId= request["clientId"] as? String ?: ""
     val latitude = request["latitude"]
     val longitude = request["longitude"]
+    val category  = request["Category"]
 
 
 

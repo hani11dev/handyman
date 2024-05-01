@@ -125,7 +125,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
 
                             }
                         }) {
-                            Icon(imageVector = Icons.Filled.Phone, contentDescription = "chat")
+                            Icon(imageVector = Icons.Filled.Phone, contentDescription = "call")
                         }
                         IconButton(onClick = { navController.navigate(Screen.ChatScreen.route + "/${task.client}") }) {
                             Icon(imageVector = Icons.Filled.Email, contentDescription = "chat")

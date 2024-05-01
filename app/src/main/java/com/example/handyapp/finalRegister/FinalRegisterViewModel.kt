@@ -1,16 +1,21 @@
 package com.example.handyapp.finalRegister
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.handyapp.Response
 import com.example.handyapp.register.domain.components.RegistrationEvent
 import com.example.handyapp.register.presentation.RegisterState
 import com.example.handyapp.register.presentation.RegisterViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.koDea.fixMasterClient.data.remote.dto.geoCodeReverse.GeocodeReverseResponse
+import com.koDea.fixMasterClient.domain.useCases.locationUseCases.GetLocationUseCases
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -21,13 +26,17 @@ class FinalRegisterViewModel(
     private val validateWilaya: ValidateWilaya = ValidateWilaya(),
     private val validateAverageSalary: ValidateAverageSalary = ValidateAverageSalary(),
     private val validateAbout: ValidateAbout = ValidateAbout(),
-    private val validateWorkingAreas: ValidateWorkingAreas = ValidateWorkingAreas()
+    private val validateWorkingAreas: ValidateWorkingAreas = ValidateWorkingAreas(),
+
 
 ): ViewModel() {
     var state by mutableStateOf(FinalRegisterState())
 
     private val validateEventChannel = Channel<ValidationEvent>()
     val validationEvents = validateEventChannel.receiveAsFlow()
+
+
+
     fun onEvent(event: FinalRegistrationEvent){
         when(event){
             is FinalRegistrationEvent.AboutChanged->{
@@ -49,9 +58,16 @@ class FinalRegisterViewModel(
             is FinalRegistrationEvent.WorkingAreaChanged->{
                 state = state.copy(workingAreas =  event.workingAreas)
             }
+            is FinalRegistrationEvent.LatitudeChanged -> {
+                state = state.copy(Latitude = event.lat)
+            }
+            is FinalRegistrationEvent.LongitudeChanged -> {
+                state = state.copy(Longitude = event.long)
+            }
             is FinalRegistrationEvent.Submit->{
                 submitData()
             }
+
             else -> {}
         }
     }
@@ -63,6 +79,7 @@ class FinalRegisterViewModel(
         val streetResult = validateStreet.excute(street = state.street)
         val averageSalaryResult = validateAverageSalary.excute(averageSalary = state.averageSalary)
         val workingAreasResult = validateWorkingAreas.excute(workingAreas = state.workingAreas)
+
         val hasError = listOf(
             aboutResult,
             wilayaResult,
@@ -99,7 +116,9 @@ class FinalRegisterViewModel(
                             "AverageSalary" to state.averageSalary.toDouble(),
                             "WorkingAreas" to state.workingAreas,
                             "About" to state.about,
-                            "Status" to "ACTIVE"
+                            "Status" to "ACTIVE",
+                            "Latitude" to state.Latitude,
+                            "Longitude" to state.Longitude
                         )
                     )
                     .addOnSuccessListener {

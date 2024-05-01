@@ -1,9 +1,13 @@
 package com.example.handyapp.di
 
+import com.example.handyapp.common.Constants
 import com.example.handyapp.data.AuthRepositoryImpl
 import com.example.handyapp.data.FireStoreRepositoryImpl
+import com.example.handyapp.data.LocationRepositoryImpl
+import com.example.handyapp.data.remote.GeocodeReverseApi
 import com.example.handyapp.domain.usecases.repository.AuthRepository
 import com.example.handyapp.domain.usecases.repository.FireStoreRepository
+import com.example.handyapp.domain.usecases.repository.LocationRepository
 import com.example.handyapp.home.Settings.AuthRepo
 import com.example.handyapp.home.Settings.data.AuthRepoImpl
 import com.google.firebase.auth.FirebaseAuth
@@ -13,6 +17,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 
@@ -55,4 +61,18 @@ object appModule {
         auth: FirebaseAuth
     ): FireStoreRepository = FireStoreRepositoryImpl(fireStore = firestore, storage = storage ,auth )
 
+    @Provides
+    @Singleton
+    fun provideApi(): GeocodeReverseApi {
+        return (Retrofit.Builder().baseUrl(Constants.baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(GeocodeReverseApi::class.java))
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetLocationUseCases(api: GeocodeReverseApi): LocationRepository {
+        return LocationRepositoryImpl(api)
+    }
 }

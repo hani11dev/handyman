@@ -7,5 +7,7 @@ sealed class FinalRegistrationEvent {
     data class WilayaChanged(val wilaya: String): FinalRegistrationEvent()
     data class StreetChanged(val street: String): FinalRegistrationEvent()
     data class CityChanged(val city: String): FinalRegistrationEvent()
+    data class LatitudeChanged(val lat: String): FinalRegistrationEvent()
+    data class LongitudeChanged(val long: String): FinalRegistrationEvent()
     object Submit: FinalRegistrationEvent()
 }
