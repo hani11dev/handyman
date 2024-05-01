@@ -327,7 +327,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
             confirmButton = {
                 Button(
                     onClick = {
-
+                        updateStatus(tasksCollectionRef, task, "Done...",navController)
                         showDoneConfirmation= false // Dismiss the dialog
                     }
                 ) {

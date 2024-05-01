@@ -150,7 +150,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                 isSheetOpen = true
                 // navController.navigate(Screen.TasksDetails.route + "/$taskID")//+"/${client.first_name+" "+client.last_name}"+"/${client.phoneNbr}")
             },
-        elevation = CardDefaults.cardElevation(2.dp)
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
 
         Box(
@@ -412,6 +412,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                     colors = CardDefaults.cardColors(
                         containerColor = if (task.status == "Cancelled") colorResource(id =R.color.yellow )
                         else if (task.status == "Rejected") colorResource(id =R.color.red_100)
+                        else if (task.status == "Done...") colorResource(id =R.color.lightGray)
                         else colorResource(id =R.color.green)
                     )
                 ) {
@@ -501,7 +502,9 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(
-                    color = MaterialTheme.colorScheme.background
+                    color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.background else colorResource(
+                        id = R.color.lightGray
+                    )
                 )
         ) {
             item {
@@ -586,7 +589,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
             }
             if (selectedStatus == "All") {
                 items(tasklist) { item ->
-                    if (item.status == "Done" || item.status == "Rejected" || item.status == "Cancelled") {
+                    if (item.status == "Done" ||item.status == "Done..." || item.status == "Rejected" || item.status == "Cancelled") {
                         Taskcardcanceld(task = item , navController)
                     } else {
                         Taskcard(context = context,task = item , navController = navController  ) { cardId ->
@@ -597,7 +600,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
             } else {
                 items(tasklist) { item ->
                     if (selectedStatus == item.status) {
-                        if (item.status == "Done" || item.status == "Rejected" || item.status == "Cancelled") {
+                        if (item.status == "Done" ||item.status == "Done..." || item.status == "Rejected" || item.status == "Cancelled") {
                             Taskcardcanceld(task = item , navController)
                         } else {
                             Taskcard(context = context,task = item , navController) { cardId ->

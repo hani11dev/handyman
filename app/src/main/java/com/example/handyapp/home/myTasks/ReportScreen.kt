@@ -4,6 +4,7 @@ import HeaderRow
 import Task
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -202,6 +203,8 @@ fun ReportScreen(taskID:String,navController: NavHostController) {
                             )
                             .addOnSuccessListener { documentReference ->
                                 println("DocumentSnapshot added with ID: ${documentReference.id}")
+                                Title=""
+                                Problem=""
                             }
                             .addOnFailureListener { e ->
                                 println("Error adding document: $e")
