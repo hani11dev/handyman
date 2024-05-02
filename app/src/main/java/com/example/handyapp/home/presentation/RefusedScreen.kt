@@ -75,7 +75,7 @@ suspend fun fetchDataFromFirestore(): String {
             val currentUser = FirebaseAuth.getInstance().currentUser
             val userId = currentUser?.uid
             if (userId != null) {
-                val docRef = db.collection("handymen").document(userId)
+                val docRef = db.collection("HandyMan").document(userId)
                 docRef.get()
                     .addOnSuccessListener { documentSnapshot ->
                         if (documentSnapshot.exists()) {
