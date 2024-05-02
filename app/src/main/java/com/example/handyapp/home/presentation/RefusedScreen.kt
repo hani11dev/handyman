@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.handyapp.navigation.Graph
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
@@ -24,7 +25,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 @Composable
-fun RefusedScreen(navController: NavController){
+fun RefusedScreen(navController: NavHostController , rootNavController : NavHostController){
     val refuseReasonState = remember { mutableStateOf("") }
 
     // Use LaunchedEffect to launch a coroutine when this composable is first composed
@@ -46,7 +47,7 @@ fun RefusedScreen(navController: NavController){
             runBlocking {
                 FirebaseAuth.getInstance().signOut()
             }
-            navController.navigate(Graph.Auth.route){
+            rootNavController.navigate(Graph.Auth.route){
                 popUpTo(Graph.Refused.route) {
                     inclusive = true
                     saveState = true

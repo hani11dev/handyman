@@ -149,7 +149,7 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                 WaitingScreen(navController = browseNavController , rootNavController = rootNavController)
             }
             composable(route = Screen.Refused.route){
-                RefusedScreen(navController = browseNavController)
+                RefusedScreen(navController = browseNavController , rootNavController)
             }
 
             composable(route = Screen.OneLastStepScreen.route){

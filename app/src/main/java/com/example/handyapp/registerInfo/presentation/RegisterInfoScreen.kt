@@ -263,11 +263,14 @@ private fun uploadToFirebase(contentResolver: ContentResolver, uri: Uri, path: S
         val inputStream = contentResolver.openInputStream(uri)
         val uploadTask = inputStream?.let { fileRef.putStream(it) }
         uploadTask?.addOnSuccessListener { s ->
-            GlobalScope.launch {
-                val ur = s.storage.downloadUrl.await()
-                db.collection("HandyMan").document(user.uid).update("ProfileImage" , ur).await()
-                //Log.d("uploadedUri" ,ur.toString())
-                callback.invoke(uri.lastPathSegment ?: "Unknown")
+            if (path == "profile_pictures"){
+                GlobalScope.launch {
+                    val ur = s.storage.downloadUrl.await()
+                    db.collection("HandyMan").document(user.uid).update("ProfileImage" , ur).await()
+                    //Log.d("uploadedUri" ,ur.toString())
+                    callback.invoke(uri.lastPathSegment ?: "Unknown")
+
+                }
 
             }
         }?.addOnFailureListener {

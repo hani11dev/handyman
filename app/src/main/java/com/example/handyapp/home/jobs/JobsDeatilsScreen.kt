@@ -463,7 +463,7 @@ fun JobDetailsHeader(job: Job) {
             )
 
             Text(
-                text = "$${job.min} - $${job.max}",
+                text = "${job.min} - ${job.max} DA",
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary
             )
