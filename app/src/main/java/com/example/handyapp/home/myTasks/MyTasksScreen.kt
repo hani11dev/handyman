@@ -69,6 +69,9 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import java.lang.Exception
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 
 data class Task(
@@ -188,7 +191,8 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = task.title,
+                    text =if(task.title.length>18){task.title.take(15)+"..."}
+                    else{task.title},
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Normal,
                 )
@@ -361,7 +365,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                isSheetOpen=true
+                isSheetOpen = true
                 // navController.navigate(Screen.TasksDetails.route + "/$taskID")//+"/${client.first_name+" "+client.last_name}"+"/${client.phoneNbr}")
             },
         elevation = CardDefaults.cardElevation(2.dp)
@@ -385,7 +389,8 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = task.title,
+                    text =if(task.title.length>18){task.title.take(15)+"..."}
+                    else{task.title},
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Normal,
                 )
@@ -418,7 +423,9 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
                 ) {
                     Text(
                         text = " "+task.status+" ",
-                        modifier = Modifier.padding(horizontal = 2.dp, vertical = 2.dp).align(Alignment.CenterHorizontally),
+                        modifier = Modifier
+                            .padding(horizontal = 2.dp, vertical = 2.dp)
+                            .align(Alignment.CenterHorizontally),
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -670,6 +677,9 @@ suspend fun getTaskID(ref: CollectionReference, item: Task): String {
     var id by mutableStateOf("")
     val querySnapshot=ref
         .whereEqualTo("HandyId", item.id)
+        .whereEqualTo("clientId", item.client)
+        .whereEqualTo("Title", item.title)
+        .whereEqualTo("Price", item.Price)
         .whereEqualTo("Description", item.description)
         .whereEqualTo("Time_day", item.time_day)
         .whereEqualTo("Time_hour", item.time_hour)
@@ -687,6 +697,9 @@ suspend fun getTaskID(ref: CollectionReference, item: Task): String {
 fun updateStatus(ref: CollectionReference, item: Task, newValue: String,navController: NavHostController) {
     ref
         .whereEqualTo("clientId", item.client)
+        .whereEqualTo("Description", item.description)
+        .whereEqualTo("Title", item.title)
+        .whereEqualTo("Price", item.Price)
         .whereEqualTo("Time_day", item.time_day)
         .whereEqualTo("Time_hour", item.time_hour)
         .whereEqualTo("Address", item.Address)

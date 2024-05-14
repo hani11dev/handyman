@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -43,7 +44,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -70,7 +73,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
     val currentDate= LocalDate.now()
     val formattedDate=currentDate.format(dateformat)
     val currenttime= LocalTime.now()
-    //val formattedTime=currentTime.format(timeformat)/**/
+    val formattedTime=currenttime.format(timeformat)/**/
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
     var paused by remember { mutableStateOf(if (task.status == "Paused") true else false) }
     Column(
@@ -140,69 +143,66 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Status ",
-            textAlign = TextAlign.Center,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Text(
-            text = task.status, textAlign = TextAlign.Center,
+            text = task.status,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Category ",
-            textAlign = TextAlign.Center,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Text(
-            text = task.category, textAlign = TextAlign.Center,
+            text = task.category,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "title", textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold,
+            text = "Title",
+            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Text(
-            text = task.title, textAlign = TextAlign.Center,
+            text = task.title,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Description ",
-            textAlign = TextAlign.Center,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Text(
-            text = task.description, textAlign = TextAlign.Center,
+            text = task.description,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "Price ", textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold,
+            text = "Price ", fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Text(
-            text = task.Price.toString() + " DA", textAlign = TextAlign.Center,
+            text = task.Price.toString() + " DA",
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Location ",
-            textAlign = TextAlign.Center,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Row {
             Text(
-                text = task.Willaya, textAlign = TextAlign.Center,
+                text = task.Willaya,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
@@ -215,17 +215,17 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
         }
         Spacer(modifier = Modifier.height(20.dp))
         Text(
-            text = "Time ", textAlign = TextAlign.Center, fontWeight = FontWeight.SemiBold,
+            text = "Time ", fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
         Row {
             Text(
-                text = task.time_day, textAlign = TextAlign.Center,
+                text = task.time_day,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
             Text(
-                text = task.time_hour, textAlign = TextAlign.Center,
+                text = task.time_hour,
                 fontWeight = FontWeight.Normal,
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
@@ -263,7 +263,6 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                         modifier = Modifier
                             .width(105.dp)
                             .padding(2.dp)
-
                     ) {
                         Text(
                             text = "Report",
@@ -307,7 +306,6 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                             .padding(2.dp)
                             .width(105.dp)
                         //.align(Alignment.End),
-
                     ) {
                         Text(
                             text = "Cancel",
