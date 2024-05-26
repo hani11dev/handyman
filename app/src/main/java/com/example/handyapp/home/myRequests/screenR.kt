@@ -54,6 +54,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 
 import com.example.handyapp.R
+import com.example.handyapp.common.sendNotification
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
@@ -75,6 +76,7 @@ fun MyRequestsScreenReal(
     val backgroundColor = MaterialTheme.colorScheme.surface
     val title = request["title"] as? String ?: ""
     val name = remember { mutableStateOf<String?>(null) }
+    val deviceToken = remember { mutableStateOf<String?>(null) }
     val wilaya = request["wilaya"] as? String ?: ""
     val city = request["city"] as? String ?: ""
     val budget = request["budget"].toString()
@@ -98,6 +100,10 @@ fun MyRequestsScreenReal(
     LaunchedEffect(key1 = Unit) {
 
         name.value = getClientFirstName(
+            clientRef,
+            request["clientId"] as? String ?: ""
+        )
+        deviceToken.value = getClientDeviceToken(
             clientRef,
             request["clientId"] as? String ?: ""
         )
@@ -258,6 +264,7 @@ fun MyRequestsScreenReal(
                                     clientId = clientId,
                                     handymanID = handymanID
                                 )
+                                sendNotification(deviceToken.value?:"" , "Request Status Updated","Your request was Accepted, check It")
                                 showAcceptConfirmation = false // Dismiss the dialog
                             }
                         ) {
@@ -266,7 +273,9 @@ fun MyRequestsScreenReal(
                     },
                     dismissButton = {
                         Button(
-                            onClick = { showAcceptConfirmation = false }
+                            onClick = { showAcceptConfirmation = false
+                                sendNotification(deviceToken.value?:"" , "Request Refused" , "$title Request was refused")
+                            }
                         ) {
                             Text("Cancel")
                         }

@@ -2,10 +2,13 @@ package com.example.handyapp.finalRegister
 
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,10 +18,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material.icons.filled.Create
@@ -26,7 +38,15 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -40,7 +60,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -48,8 +74,10 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.handyapp.R
 import com.example.handyapp.Response
+import com.example.handyapp.Wilaya_CommunesDBList
 import com.example.handyapp.navigation.Graph
 import com.example.handyapp.navigation.Screen
 import com.example.handyapp.register.domain.components.RegistrationEvent
@@ -59,6 +87,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.koDea.fixMasterClient.domain.model.wilayas_communes.Baladyiat
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapInitOptions
@@ -73,11 +102,67 @@ import com.mapbox.maps.plugin.scalebar.generated.ScaleBarSettings
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hiltViewModel()){
+fun FinalRegisterScreen(navController: NavController, VM: FRegViewModel = hiltViewModel()) {
     val viewModel = viewModel<FinalRegisterViewModel>()
     val state = viewModel.state
     val context = LocalContext.current
+    var about by rememberSaveable {
+        mutableStateOf("")
+    }
+    var aboutError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var aboutSupportingText by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var city by rememberSaveable {
+        mutableStateOf("")
+    }
+    var cityError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var citySupportingText by rememberSaveable {
+        mutableStateOf("")
+    }
+    var street by rememberSaveable {
+        mutableStateOf("")
+    }
+    var streetError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var streetSupportingText by rememberSaveable {
+        mutableStateOf("")
+    }
+    var wilaya by rememberSaveable {
+        mutableStateOf("")
+    }
+    var wilayaError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var wilayaSupportingText by rememberSaveable {
+        mutableStateOf("")
+    }
+    var averageSalary by rememberSaveable {
+        mutableStateOf("")
+    }
+    var averageSalaryError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var averageSalarySupportingText by rememberSaveable {
+        mutableStateOf("")
+    }
+    var workingAreas by rememberSaveable {
+        mutableStateOf("")
+    }
+    var workingAreasError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var workingAreasSupportingText by rememberSaveable {
+        mutableStateOf("")
+    }
 
     var showMap by remember {
         mutableStateOf(false)
@@ -131,10 +216,10 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
         android.Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
-    LaunchedEffect(key1 = context){
-        viewModel.validationEvents.collect{event ->
-            when(event){
-                is FinalRegisterViewModel.ValidationEvent.Success ->{
+    LaunchedEffect(key1 = context) {
+        viewModel.validationEvents.collect { event ->
+            when (event) {
+                is FinalRegisterViewModel.ValidationEvent.Success -> {
                     val db = FirebaseFirestore.getInstance()
 // Get the current user ID (assuming the user is authenticated)
                     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -162,30 +247,59 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
             }
         }
     }
-    when(val resp = VM.location.value){
-        is Response.onLoading ->{}
-        is Response.onFaillure ->{Toast.makeText(context , resp.message , Toast.LENGTH_SHORT).show()}
-        is Response.onSuccess ->{
+    var showLocationField by remember{ mutableStateOf(false) }
+    var isExpandedWilaya by remember {
+        mutableStateOf(false)
+    }
+    var selectedStatusWilaya by remember {
+        mutableStateOf("")
+    }
+    var selectedStatusCity by remember {
+        mutableStateOf("")
+    }
+    when (val resp = VM.location.value) {
+        is Response.onLoading -> {}
+        is Response.onFaillure -> {
+            Toast.makeText(context, resp.message, Toast.LENGTH_SHORT).show()
+        }
 
-            if (resp.data != null){
+        is Response.onSuccess -> {
+
+            if (resp.data != null) {
                 //Toast.makeText(context , resp.data.address.state , Toast.LENGTH_SHORT).show()
-                viewModel.onEvent(FinalRegistrationEvent.StreetChanged(resp.data.display_name.toString().lowercase()))
-                viewModel.onEvent(FinalRegistrationEvent.WilayaChanged(resp.data.address?.state.toString().lowercase()))
-                viewModel.onEvent(FinalRegistrationEvent.CityChanged(resp.data.address?.town.toString().lowercase()))
+                //viewModel.onEvent(FinalRegistrationEvent.StreetChanged(resp.data.display_name.toString().lowercase()))
+                street = resp.data.display_name.toString().toLowerCase()
+                //viewModel.onEvent(FinalRegistrationEvent.WilayaChanged(resp.data.address?.state.toString().lowercase()))
+                wilaya = resp.data.address?.state?.toLowerCase() ?: ""
+                //viewModel.onEvent(FinalRegistrationEvent.CityChanged(resp.data.address?.town.toString().lowercase()))
+                city = resp.data.address?.town.toString().toLowerCase() ?: ""
+                selectedStatusCity = resp.data.address?.town.toString().toLowerCase()
+                selectedStatusWilaya = resp.data.address?.state.toString().toLowerCase()
+                cityError = false
+                wilayaError = false
+                streetError = false
+                    showLocationField = true
             }
         }
     }
+
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
+                .verticalScroll(rememberScrollState())
                 .fillMaxSize()
                 .border(width = 1.dp, color = Color.White) // Add border here
-                .padding(horizontal = 16.dp), // Add padding for the content
+                .padding(horizontal = 16.dp, vertical = 16.dp), // Add padding for the content
             verticalArrangement = Arrangement.Center
         ) {
-            TextField(value = state.about, onValueChange = {
-                viewModel.onEvent(FinalRegistrationEvent.AboutChanged(it))},
-                isError = state.aboutError != null,
+            TextField(value = about, onValueChange = {
+                //viewModel.onEvent(FinalRegistrationEvent.AboutChanged(it))
+                about = it
+                aboutError = false
+                aboutSupportingText = ""
+            },
+                isError = aboutError,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(text = "About your self") },
                 leadingIcon = {
@@ -193,34 +307,226 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
                         imageVector = Icons.Filled.Create, contentDescription = null
                     )
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
-                )
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                ),
+                supportingText = {
+                    Text(
+                        text = aboutSupportingText,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextField(value = state.averageSalary, onValueChange = {
-                viewModel.onEvent(FinalRegistrationEvent.AverageSalaryChanged(it))},
-                isError = state.averageSalaryError != null,
+            TextField(value = averageSalary, onValueChange = {
+                //viewModel.onEvent(FinalRegistrationEvent.AverageSalaryChanged(it))
+                averageSalary = it
+                averageSalaryError = false
+                averageSalarySupportingText = ""
+            },
+                isError = averageSalaryError,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(text = "Average salary") },
 
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal
-                )
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Decimal
+                ),
+                supportingText = {
+                    Text(
+                        text = averageSalarySupportingText,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { showMap = !showMap } , modifier = Modifier
+            Button(onClick = { showMap = !showMap }, modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
                 shape = RoundedCornerShape(8.dp)) {
-                Text("Select on Map")
+                Text("Select your location on Map")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Row(
+
+
+            AnimatedVisibility(visible = showLocationField) {
+                Column {
+
+
+                    Box(
+                        modifier = Modifier.wrapContentSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ExposedDropdownMenuBox(
+                            expanded = isExpandedWilaya,
+                            onExpandedChange = { isExpandedWilaya = !isExpandedWilaya },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            TextField(
+                                value = selectedStatusWilaya, onValueChange = {
+                                    wilayaError = false
+                                    wilayaSupportingText = ""
+                                }, readOnly = true,
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpandedWilaya)
+                                }, modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                leadingIcon = {
+                                    Icon(
+
+                                        painter = painterResource(id = R.drawable.loc),
+                                        contentDescription = null
+                                    )
+                                },
+                                placeholder = {
+                                    Text(text = "select wilaya")
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                supportingText = {
+                                    Text(
+                                        text = "${wilayaSupportingText}",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            )
+                            DropdownMenu(
+                                expanded = isExpandedWilaya,
+                                onDismissRequest = { isExpandedWilaya = false },
+                                modifier = Modifier
+                                    .exposedDropdownSize()
+                                    .padding(2.dp)
+                            ) {
+                                Wilaya_CommunesDBList.sortedBy { it.name_en }.forEach {
+                                    DropdownMenuItem(
+                                        text = { Text(it.name_en.lowercase()) },
+                                        onClick = {
+                                            selectedStatusWilaya = it.name_en
+                                            wilaya = selectedStatusWilaya
+                                            isExpandedWilaya = false
+                                            wilayaError = false
+                                            wilayaSupportingText = ""
+                                            selectedStatusCity = ""
+                                        }
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    var isExpandedCity by remember {
+                        mutableStateOf(false)
+                    }
+                    Box(
+                        modifier = Modifier.wrapContentSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ExposedDropdownMenuBox(
+                            expanded = isExpandedCity,
+                            onExpandedChange = { isExpandedCity = !isExpandedCity },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            TextField(
+                                value = selectedStatusCity, onValueChange = {
+                                    cityError = false
+                                    citySupportingText = ""
+                                }, readOnly = true,
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpandedCity)
+                                }, modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                leadingIcon = {
+                                    Icon(
+
+                                        painter = painterResource(id = R.drawable.loc),
+                                        contentDescription = null
+                                    )
+                                },
+                                placeholder = {
+                                    Text(text = "select city")
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                supportingText = {
+                                    Text(
+                                        text = "${citySupportingText}",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            )
+                            DropdownMenu(
+                                expanded = isExpandedCity,
+                                onDismissRequest = { isExpandedCity = false },
+                                modifier = Modifier
+                                    .exposedDropdownSize()
+                                    .padding(2.dp)
+                            ) {
+                                val wilayaSelected =
+                                    Wilaya_CommunesDBList.find { it.name_en == selectedStatusWilaya }
+                                val allBaladyiat = mutableListOf<Baladyiat>()
+                                wilayaSelected?.dairats?.forEach {
+                                    if (it.baladyiats != null)
+                                        allBaladyiat.addAll(it.baladyiats)
+                                }
+                                allBaladyiat.sortedBy { it.name_en }.forEach {
+                                    DropdownMenuItem(
+                                        text = { Text(it.name_en.lowercase()) },
+                                        onClick = {
+                                            selectedStatusCity = it.name_en.lowercase()
+                                            city = selectedStatusCity
+                                            isExpandedCity = false
+                                            cityError = false
+                                            citySupportingText = ""
+                                        }
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextField(value = street, onValueChange = {
+                        //viewModel.onEvent(FinalRegistrationEvent.StreetChanged(it))
+                        street = it
+                        streetError = false
+                        streetSupportingText = ""
+                    },
+                        isError = streetError,
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text(text = "Street") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.LocationOn, contentDescription = null
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text
+                        ),
+                        supportingText = {
+                            Text(
+                                text = streetSupportingText,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+            }
+            /*Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TextField(value = state.wilaya, onValueChange = {
-                    viewModel.onEvent(FinalRegistrationEvent.WilayaChanged(it))},
-                    isError = state.wilayaError != null,
+                TextField(value = wilaya, onValueChange = {
+                    //viewModel.onEvent(FinalRegistrationEvent.WilayaChanged(it))
+                    wilaya = it
+                },
+                    isError = wilayaError,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
@@ -230,13 +536,27 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
                             imageVector = Icons.Filled.LocationOn, contentDescription = null
                         )
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
-                    )
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text
+                    ),
+                    supportingText = {
+                        Text(
+                            text = wilayaSupportingText,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    singleLine = true,
+                    maxLines = 1
                 )
+                Spacer(modifier = Modifier.width(8.dp))
 
-                TextField(value = state.city, onValueChange = {
-                    viewModel.onEvent(FinalRegistrationEvent.CityChanged(it))},
-                    isError = state.cityError != null,
+                TextField(value = city, onValueChange = {
+                    //viewModel.onEvent(FinalRegistrationEvent.CityChanged(it))
+                    city = it
+                    cityError = false
+                    citySupportingText = ""
+                },
+                    isError = cityError,
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f),
@@ -246,13 +566,26 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
                             imageVector = Icons.Filled.LocationOn, contentDescription = null
                         )
                     },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
-                    )
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text
+                    ),
+                    supportingText = {
+                        Text(
+                            text = citySupportingText,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    singleLine = true,
+                    maxLines = 1
                 )
             }
-            TextField(value = state.street, onValueChange = {
-                viewModel.onEvent(FinalRegistrationEvent.StreetChanged(it))},
-                isError = state.streetError != null,
+            TextField(value = street, onValueChange = {
+                //viewModel.onEvent(FinalRegistrationEvent.StreetChanged(it))
+                street = it
+                streetError = false
+                streetSupportingText = ""
+            },
+                isError = streetError,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(text = "Street") },
                 leadingIcon = {
@@ -260,13 +593,24 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
                         imageVector = Icons.Filled.LocationOn, contentDescription = null
                     )
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
-                )
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            TextField(value = state.workingAreas, onValueChange = {
-                viewModel.onEvent(FinalRegistrationEvent.WorkingAreaChanged(it))},
-                isError = state.workingAreasError != null,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                ),
+                supportingText = {
+                    Text(
+                        text = streetSupportingText,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            )*/
+            //Spacer(modifier = Modifier.height(16.dp))
+            TextField(value = workingAreas, onValueChange = {
+                //viewModel.onEvent(FinalRegistrationEvent.WorkingAreaChanged(it))
+                workingAreas = it
+                workingAreasError = false
+                workingAreasSupportingText = ""
+            },
+                isError = workingAreasError,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text(text = "Working Areas") },
                 leadingIcon = {
@@ -274,12 +618,116 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
                         imageVector = Icons.Filled.LocationOn, contentDescription = null
                     )
                 },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text
-                )
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                ),
+                supportingText = {
+                    Text(
+                        text = workingAreasSupportingText,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {viewModel.onEvent(FinalRegistrationEvent.Submit)}) {
+            var progressBarState = remember {
+                mutableStateOf(false)
+            }
+            var selectedImageUris by remember {
+                mutableStateOf<List<Uri>>(emptyList())
+            }
+            val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickMultipleVisualMedia(),
+                onResult = { uris -> selectedImageUris = uris })
+            Button(onClick = { multiplePhotoPickerLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            ) } , modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp) , shape = RoundedCornerShape(8.dp)) {
+                Text("Upload Portfolio Image")
+            }
+
+            LazyVerticalGrid(columns = GridCells.Fixed(3) , modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 192.dp)) {
+                items(selectedImageUris.take(9)){
+                    AsyncImage(model = it, contentDescription = null, contentScale = ContentScale.Crop)
+                }
+            }
+
+
+            Button(modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp) , shape = RoundedCornerShape(8.dp),onClick = {
+
+
+                aboutError = false
+                workingAreasError = false
+                cityError = false
+                wilayaError = false
+                streetError = false
+                //viewModel.onEvent(FinalRegistrationEvent.Submit)
+                if (about.isEmpty()) {
+                    Toast.makeText(context, "about empty", Toast.LENGTH_SHORT).show()
+                    aboutError = true
+                    aboutSupportingText = "can't be empty"
+                }
+                if (workingAreas.isEmpty()) {
+                    Toast.makeText(context, "working empty", Toast.LENGTH_SHORT).show()
+                    workingAreasError = true
+                    workingAreasSupportingText = "can't be empty"
+                }
+                if (averageSalary.isEmpty()) {
+                    Toast.makeText(context, "average empty", Toast.LENGTH_SHORT).show()
+                    averageSalaryError = true
+                    averageSalarySupportingText = "can't be empty"
+                }
+                if (point?.latitude() == null) {
+                    Toast.makeText(context, "Select your location", Toast.LENGTH_SHORT).show()
+                }
+                if (!aboutError || !averageSalaryError || point?.latitude() != null || !workingAreasError) {
+                    progressBarState.value = true
+                    VM.updateInfo(
+                        about = about,
+                        workingAreas = workingAreas,
+                        averageSalary = averageSalary.toDouble(),
+                        city = city,
+                        wilaya = wilaya,
+                        street = street,
+                        lat = point?.latitude().toString(),
+                        long = point?.longitude().toString()
+                    )
+                }
+
+
+            }) {
+
+                when(val resp = VM.updateState.value){
+                    is Response.onLoading -> {
+                    }
+                    is Response.onFaillure -> {
+                        progressBarState.value = false
+                        Toast.makeText(context , resp.message , Toast.LENGTH_SHORT).show()
+                        val c = LocalClipboardManager.current.setText(AnnotatedString(resp.message))
+                    }
+                    is Response.onSuccess -> {
+                        progressBarState.value = false
+                        navController.navigate(Screen.FinishedSetupScreen.route){
+                            navController.popBackStack()
+                        }
+
+                    }
+                }
                 Text(text = "Submit")
+                if (progressBarState.value) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier
+                            .size(26.dp)
+                            .fillMaxSize(),
+                        strokeWidth = 2.5.dp
+                    )
+                }
+
             }
         }
 
@@ -388,12 +836,17 @@ fun FinalRegisterScreen(navController: NavController , VM : FRegViewModel = hilt
                     Button(onClick = {
                         if (point != null) {
                             showMap = !showMap
-                            viewModel.onEvent(FinalRegistrationEvent.LatitudeChanged(point?.latitude().toString()))
-                            viewModel.onEvent(FinalRegistrationEvent.LongitudeChanged(point?.longitude().toString()))
-                            VM.getLocation(point!!.latitude().toString() , point!!.longitude().toString())
+                            //viewModel.onEvent(FinalRegistrationEvent.LatitudeChanged(point?.latitude().toString()))
+
+                            //viewModel.onEvent(FinalRegistrationEvent.LongitudeChanged(point?.longitude().toString()))
+                            VM.getLocation(
+                                point!!.latitude().toString(),
+                                point!!.longitude().toString()
+                            )
+
                             //showLocationField = true
 
-                        }else Toast.makeText(context , "select location" , Toast.LENGTH_SHORT).show()
+                        } else Toast.makeText(context, "select location", Toast.LENGTH_SHORT).show()
 
 
                     }) {

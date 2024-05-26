@@ -1,8 +1,8 @@
 package com.example.handyapp.navigation
 
 sealed class Screen(val route: String) {
-    //   object Home: Screen(route = "home_screen/{id}")
-    object Home: Screen(route = "home_screen")
+    //   object Jobs: Screen(route = "home_screen/{id}")
+    object Jobs: Screen(route = "Jobs")
     object Login: Screen(route = "login_screen")
     object Register: Screen(route = "register_screen")
     object RegisterInfo: Screen(route = "register_info_screen")
@@ -14,15 +14,18 @@ sealed class Screen(val route: String) {
     // object TasksDetails: Screen(route = "TasksDetails")
     object ReportScreen: Screen(route = "ReportScreen")
     object Notifications: Screen(route = "Notifications")
-    object Settings: Screen(route = "settings")
+    object Settings: Screen(route = "Settings")
     object Refused: Screen(route = "refused")
-    object OneLastStepScreen: Screen(route = "one_last_step_screen")
-    object FinalRegistrationScreen: Screen(route = "final_registration_screen")
-    object FinishedSetupScreen: Screen(route = "finished_setup_screen")
+    object OneLastStepScreen: Screen(route = "One last step")
+    object FinalRegistrationScreen: Screen(route = "Final registration")
+    object FinishedSetupScreen: Screen(route = "Finished setup")
     object BrowseJobsScreen: Screen (route = "jobs_screen")
     object JobsDetails: Screen (route = "jobs_details_screen")
     object BidScreen: Screen (route = "bid_screen")
     object ChatScreen: Screen (route = "chat_screen")
     object NotificationScreen: Screen (route = "Notification")
     object MapScreen: Screen (route = "Map")
+    object Blocked: Screen (route = "Banned")
+    object ProfileSettings: Screen (route = "Profile")
+    object SavedJobs: Screen (route = "Saved Jobs")
 }

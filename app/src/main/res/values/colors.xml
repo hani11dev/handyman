@@ -11,5 +11,7 @@
     <color name="red">#FFADAD</color>
     <color name="red_100">#FF5555</color>
     <color name="green">#B8FFC8</color>
-    <color name="lightGray">#EDEDED</color>
+    <!--<color name="lightGray">#EDEDED</color>-->
+    <color name="blue">#5B62CE</color>
+    <color name="lightGray">#f6f6f6</color>
 </resources>

@@ -58,11 +58,11 @@ fun BiddingScreen(viewModel: JobsDetailsViewModel = hiltViewModel()) {
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .background(
+            /*.background(
                 color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.background else colorResource(
                     id = R.color.white
                 )
-            )
+            )*/
     ) {
         Column(
             modifier = Modifier
@@ -162,6 +162,7 @@ fun BiddingScreen(viewModel: JobsDetailsViewModel = hiltViewModel()) {
                         var bid=ABid(
                             description,
                             day,
+                            price = estimatedPrice.toInt()
                         )
                         addBid(bid, jobID)
                     }

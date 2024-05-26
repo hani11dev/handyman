@@ -1,13 +1,16 @@
 package com.example.handyapp.register.presentation
 
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.example.handyapp.Response
 import com.example.handyapp.data.Handyman
+import com.example.handyapp.domain.usecases.signUpUseCase
 import com.example.handyapp.navigation.Screen
 import com.example.handyapp.register.domain.use_case.ValidateConfirmPassword
 import com.example.handyapp.register.domain.use_case.ValidateEmail
@@ -19,10 +22,25 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.onesignal.OneSignal
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
+class RegisterViewModel @Inject constructor(private val signUpUseCase: signUpUseCase) : ViewModel(){
+    private var _signUpState = mutableStateOf<Response<Unit>>(Response.onLoading)
+    var signUpState : State<Response<Unit>> = _signUpState
+    fun signUp(email : String , password : String , phoneNumber : String){
+        viewModelScope.launch {
+            signUpUseCase(email, password, phoneNumber) .collect{
+                _signUpState.value = it
+            }
+        }
+    }
+}
+/*
 class RegisterViewModel(
     private val validateEmail: ValidateEmail = ValidateEmail(),
     private val validatePassword: ValidatePassword = ValidatePassword(),
@@ -138,4 +156,4 @@ class RegisterViewModel(
         object Success: ValidationEvent()
     }
 
-}
+}*/

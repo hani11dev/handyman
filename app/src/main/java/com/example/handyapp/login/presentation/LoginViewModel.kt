@@ -14,8 +14,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.handyapp.R
+import com.example.handyapp.Response
+import com.example.handyapp.domain.usecases.signInUseCase
 import com.example.handyapp.navigation.Graph
 import com.example.handyapp.navigation.Screen
 import com.example.handyapp.register.domain.components.LoginEvent
@@ -25,7 +28,23 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.onesignal.OneSignal
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
+class LoginViewModel @Inject constructor(private val signInUseCase: signInUseCase) : ViewModel() {
+    private var _signInState = mutableStateOf<Response<Unit>>(Response.onLoading)
+    var signInState : State<Response<Unit>> = _signInState
+    fun signIn(email : String , password : String) {
+        viewModelScope.launch {
+            signInUseCase(email, password).collect{
+                _signInState.value = it
+            }
+        }
+    }
+}
+/*
 class LoginViewModel(
     val navController: NavController,
 
@@ -48,7 +67,8 @@ class LoginViewModel(
                                     inclusive = true
                                 }
                             }
-                            /*val db = FirebaseFirestore.getInstance()
+                            */
+/*val db = FirebaseFirestore.getInstance()
             // Get the current user ID (assuming the user is authenticated)
                             val currentUser = FirebaseAuth.getInstance().currentUser
                             val userId = currentUser?.uid
@@ -84,7 +104,8 @@ class LoginViewModel(
                                     }
                             } else {
                                 Log.d("Login", "login failed")
-                            }*/
+                            }*//*
+
                         }
                 }
 
@@ -112,3 +133,4 @@ class LoginViewModel(
         object Success: ValidationEvent()
     }
     }
+*/

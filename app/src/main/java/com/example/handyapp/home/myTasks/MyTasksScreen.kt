@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.handyapp.R
+import com.example.handyapp.common.sendNotification
 import com.example.handyapp.home.myTasks.taskDetailScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
@@ -93,7 +94,8 @@ data class Task(
 data class Clientinf(
     val first_name:String,
     val last_name:String,
-    val phoneNbr:String
+    val phoneNbr:String,
+    val deviceToken : String
 )
 
 @Composable
@@ -128,7 +130,7 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
     var isSheetOpen by remember { mutableStateOf(false) }
     var showCancelConfirmation by remember { mutableStateOf(false) }
     var paused by remember { mutableStateOf(if (task.status == "Paused") true else false) }
-    var cli=Clientinf("","","")
+    var cli=Clientinf("","","" , "")
     var client by remember { mutableStateOf(cli) }
     var taskID by remember { mutableStateOf<String>("") }
     LaunchedEffect(key1 = Unit) {
@@ -279,8 +281,10 @@ fun Taskcard(context : Context,task: Task,navController: NavHostController, onCl
                         paused = !paused
                         if (paused) {
                             updateStatus(tasksCollectionRef, task, "Paused",navController)
+                            sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} task status updated to Pause")
                         } else {
                             updateStatus(tasksCollectionRef, task, "In Progress",navController)
+                            sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} task resume")
                         }
                     },
                     modifier = Modifier.padding(2.dp)
@@ -344,7 +348,7 @@ fun Taskcardcanceld(task: Task,navController: NavHostController) {
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
     var sheetstate = rememberModalBottomSheetState()
     var isSheetOpen by remember { mutableStateOf(false) }
-    var cli=Clientinf("","","")
+    var cli=Clientinf("","","" ,"")
     var client by remember { mutableStateOf(cli) }
     LaunchedEffect(key1 = Unit) {
         var result=getClientInfo(Firebase.firestore.collection("Clients"),
@@ -498,25 +502,25 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
     val statList = listOf("All", "Cancelled", "In Progress", "Done", "Rejected", "Paused")
     var isExpanded by remember { mutableStateOf(false) }
     var selectedStatus by remember { mutableStateOf(statList[0]) }
-    Scaffold(
+    /*Scaffold(
         modifier = Modifier
             .fillMaxSize()
     )
-    { paddingValues ->
+    { paddingValues ->*/
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                //.padding(paddingValues)
                 .background(
                     color = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.background else colorResource(
                         id = R.color.lightGray
                     )
                 )
         ) {
-            item {
-                HeaderRow(/*navController = navController,*/ title = "Tasks"/*, onClick = {}*/)
-            }
+            /*item {
+                HeaderRow(*//*navController = navController,*//* title = "Tasks"*//*, onClick = {}*//*)
+            }*/
             item {
                 ExposedDropdownMenuBox(
                     expanded = isExpanded,
@@ -618,7 +622,7 @@ fun MyTasksScreen(navController: NavHostController , context: Context = LocalCon
                 }
             }
         }
-    }
+
 }
 
 fun Map<String, Any>.toTask(): Task {
@@ -724,7 +728,8 @@ fun Map<String,Any>.toClientinfo(navController: NavHostController): Clientinf{
     val firstname = this["FirstName"] as? String ?: ""
     val lastname = this["LastName"] as? String ?: ""
     val phone = this["PhoneNumber"] as? String ?: ""
-    return Clientinf(firstname,lastname,phone)
+    val deviceToken = this["DeviceToken"] as? String ?: ""
+    return Clientinf(firstname,lastname,phone , deviceToken)
 }
 suspend fun getClientInfo(
     clientref: CollectionReference,

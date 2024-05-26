@@ -2,19 +2,26 @@ package com.example.handyapp.home.maps
 
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +32,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.graphics.drawable.toBitmap
 import com.example.handyapp.R
 import com.google.android.gms.location.LocationServices
@@ -139,42 +148,42 @@ fun MapScreen(lat : String, long : String, context : Context = LocalContext.curr
             }
         }
         val scope = rememberCoroutineScope()
-        Column {
-            Button(shape = CircleShape, onClick = {
+        Column(modifier = Modifier.padding(end = 8.dp , bottom = 8.dp)) {
 
+            FloatingActionButton(onClick = {
                 scope.launch {
 
-                        if (permissions.all {
-                                ContextCompat.checkSelfPermission(
-                                    context, it
-                                ) == PackageManager.PERMISSION_GRANTED
-                            }) {
-                            //get Location
+                    if (permissions.all {
+                            ContextCompat.checkSelfPermission(
+                                context, it
+                            ) == PackageManager.PERMISSION_GRANTED
+                        }) {
+                        //get Location
 
-                            locationInfo = locationClient.getCurrentLocation(
-                                Priority.PRIORITY_HIGH_ACCURACY,
-                                CancellationTokenSource().token
-                            ).await()
-                            locationInfo = locationClient.getLastLocation().await()
+                        locationInfo = locationClient.getCurrentLocation(
+                            Priority.PRIORITY_HIGH_ACCURACY,
+                            CancellationTokenSource().token
+                        ).await()
+                        locationInfo = locationClient.getLastLocation().await()
 
 
-                            if (locationInfo?.latitude != null && locationInfo?.longitude != null)
-                                mapViewportState.flyTo(
-                                    CameraOptions.Builder().zoom(16.0).center(
-                                        Point.fromLngLat(
-                                            locationInfo!!.longitude,
-                                            locationInfo!!.latitude
-                                        )
-                                    ).build()
-                                )
-                        } else launcherMultiplePermissions.launch(permissions)
-                        if (locationInfo?.latitude != null) {
-                            currentLoc =
-                                Point.fromLngLat(
-                                    locationInfo!!.longitude,
-                                    locationInfo!!.latitude
-                                )
-                        }
+                        if (locationInfo?.latitude != null && locationInfo?.longitude != null)
+                            mapViewportState.flyTo(
+                                CameraOptions.Builder().zoom(16.0).center(
+                                    Point.fromLngLat(
+                                        locationInfo!!.longitude,
+                                        locationInfo!!.latitude
+                                    )
+                                ).build()
+                            )
+                    } else launcherMultiplePermissions.launch(permissions)
+                    if (locationInfo?.latitude != null) {
+                        currentLoc =
+                            Point.fromLngLat(
+                                locationInfo!!.longitude,
+                                locationInfo!!.latitude
+                            )
+                    }
 
 
                 }
@@ -185,6 +194,34 @@ fun MapScreen(lat : String, long : String, context : Context = LocalContext.curr
                 )
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+
+            FloatingActionButton(onClick = {
+
+                val travelMode = "driving"
+
+                val directionUri = Uri.parse("google.navigation:q=$lat,$long")
+                val mapIntent = Intent(Intent.ACTION_VIEW, directionUri)
+                mapIntent.setPackage("com.google.android.apps.maps")
+                context.startActivity(mapIntent)
+                /*if (mapIntent.resolveActivity(context.packageManager) != null) {
+                    Toast.makeText(context, "map intent", Toast.LENGTH_LONG).show()
+                    //startActivity(context , mapIntent)
+                    context.startActivity(mapIntent)
+
+                } else {
+                    // Google Maps app is not installed
+                    val playStoreIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.apps.maps"))
+                    if (playStoreIntent.resolveActivity(context.packageManager) != null) {
+                        //startActivity(playStoreIntent)
+                        context.startActivity(playStoreIntent)
+                    } else {
+                        Toast.makeText(context, "Please install Google Maps", Toast.LENGTH_LONG).show()
+                    }
+                }*/
+            }) {
+                Text("Go")
+            }
 
         }
 

@@ -55,25 +55,11 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     context: Context = LocalContext.current
 ) {
-    Scaffold(topBar = {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Settings",
-                    fontWeight = FontWeight.SemiBold
-                )
-            },
-            navigationIcon = {
-                IconButton(onClick = { browseNavController.navigateUp() }) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
-                }
-            },
-        )
-    }) {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it)
+            
         ) {
 
             var progressState = rememberSaveable {
@@ -114,6 +100,6 @@ fun SettingsScreen(
                 }
             }
         }
-    }
+
 
 }

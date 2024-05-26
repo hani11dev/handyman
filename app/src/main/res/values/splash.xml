@@ -2,7 +2,7 @@
 <resources>
     <style name="App.Starting.Theme" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground" >#FFFFFF</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/adam</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/logo_temp</item>
         <item name="postSplashScreenTheme">@style/Theme.HandyApp</item>
     </style>
 </resources>

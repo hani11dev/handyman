@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,8 +53,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.handyapp.R
+import com.example.handyapp.common.sendNotification
+import com.example.handyapp.domain.model.Notification
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -64,7 +69,7 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: NavHostController, context: Context = LocalContext.current) {
+fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: NavHostController, context: Context = LocalContext.current , viewModel: myTasksViewModel = hiltViewModel()) {
     var showDoneConfirmation by remember { mutableStateOf(false) }
     var showReportConfirmation by remember { mutableStateOf(false) }
     var showCancelConfirmation by remember { mutableStateOf(false) }
@@ -76,6 +81,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
     val formattedTime=currenttime.format(timeformat)/**/
     val tasksCollectionRef = Firebase.firestore.collection("tasks")
     var paused by remember { mutableStateOf(if (task.status == "Paused") true else false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -151,7 +157,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp)
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        /*Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Category ",
             fontWeight = FontWeight.SemiBold,
@@ -161,7 +167,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
             text = task.category,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(horizontal = 12.dp)
-        )
+        )*/
         Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = "Title",
@@ -276,8 +282,14 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                             paused = !paused
                             if (paused) {
                                 updateStatus(tasksCollectionRef, task, "Paused",navController)
+                                sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} task status updated to Pause")
+                                viewModel.sendNotificationToFireStore(Notification("Task Paused Temporarily" , "${task.title} Task Status updated" , receiver = task.client , deepLink = "Booking"))
+
                             } else {
                                 updateStatus(tasksCollectionRef, task, "In Progress",navController)
+                                sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} task resume")
+                                viewModel.sendNotificationToFireStore(Notification("Task Resumed" , "${task.title} Task has been resumed and is now inProgress" , receiver = task.client , deepLink = "Booking"))
+
                             }
                         },
                         modifier = Modifier
@@ -327,6 +339,8 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                     onClick = {
                         updateStatus(tasksCollectionRef, task, "Done...",navController)
                         showDoneConfirmation= false // Dismiss the dialog
+                        sendNotification(client.deviceToken , "Task Finished" , "Check tasks for confirm Finished Task")
+                        viewModel.sendNotificationToFireStore(Notification("Task Finished" , "Confirm Status of ${task.title} Task" , receiver = task.client , deepLink = "Booking"))
                     }
                 ) {
                     Text("Done")
@@ -354,7 +368,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
             confirmButton = {
                 Button(
                     onClick = {
-                        navController.navigate(Screen.ReportScreen.route + "/${taskID}")
+                        navController.navigate(Screen.ReportScreen.route + "/${taskID}" + "/${task.client}")
                         showReportConfirmation= false // Dismiss the dialog
                     }
                 ) {
@@ -382,6 +396,8 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                     onClick = {
                         updateStatus(tasksCollectionRef, task, "Cancelled",navController)
                         showCancelConfirmation= false // Dismiss the dialog
+                        sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} Task was Cancelled")
+                        viewModel.sendNotificationToFireStore(Notification("Task Cancelled" , " ${task.title} Task was Cancelled" , receiver = task.client , deepLink = "Booking"))
                     }
                 ) {
                     Text("Cancel")

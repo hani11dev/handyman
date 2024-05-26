@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.handyapp.Response
+import com.example.handyapp.domain.usecases.updateHandyManInfoUseCase
 import com.koDea.fixMasterClient.data.remote.dto.geoCodeReverse.GeocodeReverseResponse
 import com.koDea.fixMasterClient.domain.useCases.locationUseCases.GetLocationUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,10 +15,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FRegViewModel @Inject constructor(
-    private val getLocationUseCases: GetLocationUseCases
+    private val getLocationUseCases: GetLocationUseCases,
+    private val updateHandyManInfoUseCase: updateHandyManInfoUseCase
 ) : ViewModel()  {
     private var _location : MutableState<Response<GeocodeReverseResponse>> = mutableStateOf(Response.onLoading)
     var location : State<Response<GeocodeReverseResponse>> = _location
+
+    private var _updateState : MutableState<Response<Unit>> = mutableStateOf(Response.onLoading)
+    var updateState : State<Response<Unit>> = _updateState
 
     fun getLocation(lat : String , lon : String){
         viewModelScope.launch {
@@ -26,4 +31,14 @@ class FRegViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateInfo(about : String , workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String){
+        viewModelScope.launch {
+            updateHandyManInfoUseCase(about, workingAreas, averageSalary, city, wilaya, street, lat, long).collect{
+                _updateState.value = it
+            }
+        }
+    }
+
+
 }

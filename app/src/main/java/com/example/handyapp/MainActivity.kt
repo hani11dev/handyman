@@ -33,11 +33,11 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background,
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
                 ) {
 
                    // val navController = rememberNavController()
-                    SetupNavGraph(startDestination = viewModel.startDestination)
+                    SetupNavGraph(startDestination = viewModel.startDestination , /*subStartDestination = viewModel.subStartDestination*/)
                 }
             }
         }

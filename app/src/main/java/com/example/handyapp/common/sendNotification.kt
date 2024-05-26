@@ -17,6 +17,7 @@ fun sendNotification(playerId: String, title: String, message: String) {
         .put("contents", JSONObject().put("en", message))
         .put("headings", JSONObject().put("en", title))
 
+
     val body = RequestBody.create("application/json".toMediaTypeOrNull(), json.toString())
     val request = okhttp3.Request.Builder()
         .url("https://onesignal.com/api/v1/notifications")

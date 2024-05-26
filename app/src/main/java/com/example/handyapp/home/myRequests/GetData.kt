@@ -201,6 +201,33 @@ suspend fun getClientFirstName(
     return null
 }
 
+suspend fun getClientDeviceToken(
+    clientRef: CollectionReference,
+    clientId: String,
+): String? {
+    try {
+        val documentSnapshot = clientRef.document(clientId).get().await()
+        if (documentSnapshot.exists()) {
+            val data = documentSnapshot.data
+            if (data != null && data.containsKey("FirstName")) {
+
+                val deviceToken = data["DeviceToken"] as String
+                //Log.d("ClientName", "Retrieved client name: $firstName")
+                return deviceToken
+            } else {
+                // onError("First Name field doesn't exist")
+            }
+        } else {
+            //onError("Document doesn't exist for the provided client ID")
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // we use to have a context argument but i had to remove it
+        //onError("Error fetching client name: ${e.message}")
+    }
+    return null
+}
+
 
 /*@Composable
 fun requestPictureDisplay(requestID: String, onSuccess: (List<String>) -> Unit) {
@@ -405,7 +432,7 @@ fun RequestDetailsHeader(request: Request) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Location: ${request.street}, ${request.city}, ${request.wilaya}",
+            text = "Location: ${request.street}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
@@ -421,7 +448,7 @@ fun RequestDetailsHeader(request: Request) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Budget: $${request.budget}",
+            text = "Budget: ${request.budget}DA",
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
             color = MaterialTheme.colorScheme.primary
         )

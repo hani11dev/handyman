@@ -51,6 +51,9 @@ class BrowseViewModel @Inject constructor() : ViewModel(){
                             //navController.navigate(Graph.Browse.route)
                             startDestination = Graph.Home.route
                             subStartDestination = Screen.Waiting.route
+                        }else if (data == "BLOCKED"){
+                            startDestination = Graph.State.route
+                            subStartDestination = Screen.Blocked.route
                         }
                     }
                     // You can further process the retrieved document data here

@@ -16,9 +16,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+//import com.example.handyapp.banned.BannedScreen
 import com.example.handyapp.finalRegister.FinalRegisterScreen
 import com.example.handyapp.finalRegister.FinishedSetupScreen
 import com.example.handyapp.finalRegister.OneLastStepScreen
+import com.example.handyapp.home.ProfileSettings.ProfileSettingsScreen
+import com.example.handyapp.home.SavedJobs.SavedJobsScreen
 import com.example.handyapp.home.chat.ChatScreen
 import com.example.handyapp.home.Settings.SettingsScreen
 import com.example.handyapp.home.jobs.BiddingScreen
@@ -35,9 +38,9 @@ import com.example.handyapp.home.presentation.WaitingScreen
 @Composable
 fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: NavHostController , startDestination : String , subStartDestination : String){
     NavHost(navController = browseNavController, startDestination = startDestination ){
-        navigation(route = Graph.Home.route , startDestination = Screen.MyRequests.route){
+        navigation(route = Graph.Home.route , startDestination = Screen.Jobs.route){
             composable(
-                route = Screen.Home.route
+                route = Screen.Jobs.route
             ) {
                 JobsScreen(navHostController = browseNavController)
             }
@@ -71,13 +74,13 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                     navController = browseNavController)
             }*/
             composable(
-                route = Screen.ReportScreen.route + "/{taskID}",
+                route = Screen.ReportScreen.route + "/{taskID}" + "/{clientID}",
                 arguments = listOf(navArgument("taskID") {
                     type = NavType.StringType
-                })
+                }, navArgument("clientID" ){type = NavType.StringType})
             ) {
                 val taskID = it.arguments?.getString("taskID") ?: ""
-                ReportScreen( taskID= taskID,navController = browseNavController)
+                ReportScreen( taskID= taskID,clientID = it.arguments?.getString("clientID") ?: "",navController = browseNavController)
             }
             composable(
                 route = Screen.MyRequests.route
@@ -111,6 +114,12 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
                 route = Screen.Settings.route
             ) {
                 SettingsScreen(rootNavController, browseNavController)
+            }
+            composable(route = Screen.ProfileSettings.route){
+                ProfileSettingsScreen()
+            }
+            composable(route = Screen.SavedJobs.route){
+                SavedJobsScreen(browseNavController)
             }
             composable(
                 route = Screen.JobsDetails.route + "/{jobID}"
@@ -166,6 +175,9 @@ fun BrowseNavGraph(rootNavController: NavHostController , browseNavController: N
             ) {
                 RegisterInfoScreen(context = LocalContext.current, navController = browseNavController)
             }
+            /*composable(route = Screen.Blocked.route){
+                BannedScreen()
+            }*/
 
         }
 

@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.handyapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -121,6 +121,13 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.retrofit2:converter-moshi:2.9.0")
+
+    implementation ("com.google.accompanist:accompanist-insets:0.17.0")
+
+    implementation ("com.google.android.material:material:1.4.0")
+    implementation ("androidx.compose.ui:ui:1.0.5")
+    implementation ("androidx.compose.material:material:1.0.5")
+    implementation ("androidx.compose.ui:ui-tooling-preview:1.0.5")
 
 
 

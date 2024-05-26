@@ -21,7 +21,8 @@ import com.example.handyapp.register.presentation.RegisterSuccessScreen
 @Composable
 fun SetupNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination : String
+    startDestination : String,
+    //subStartDestination : String
 ) {
     NavHost(
         navController = navController,
@@ -50,7 +51,7 @@ fun SetupNavGraph(
             }
         }
         composable(route = Graph.Browse.route){
-            BrowseScreen(rootNavController = navController)
+            BrowseScreen(rootNavController = navController /*, startDestination = subStartDestination*/)
         }
         /*navigation(startDestination = Screen.Waiting.route , route = Graph.Waiting.route){
             composable(route = Screen.Waiting.route){

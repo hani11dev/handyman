@@ -41,16 +41,19 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.handyapp.R
+import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import toTask
+import java.util.Date
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ReportScreen(taskID:String,navController: NavHostController) {
+fun ReportScreen(taskID:String,clientID : String,navController: NavHostController) {
     var progressState by rememberSaveable { mutableStateOf(false) }
     var ProblemSupportingText by rememberSaveable { mutableStateOf("") }
     var Problem by rememberSaveable { mutableStateOf("") }
@@ -198,7 +201,10 @@ fun ReportScreen(taskID:String,navController: NavHostController) {
                                     "TaskID" to taskID,
                                     "Title" to Title,
                                     "Description" to Problem,
-                                    "Sender" to "Handyman",
+                                    "Reporter" to FirebaseAuth.getInstance().currentUser!!.uid,
+                                    "Reported" to clientID,
+                                    "Time" to Timestamp(Date(System.currentTimeMillis())),
+                                    "ReporterType" to "HandyMan"
                                 )
                             )
                             .addOnSuccessListener { documentReference ->

@@ -1,11 +1,15 @@
 package com.example.handyapp.registerInfo.presentation
 
+import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.handyapp.Response
+import com.example.handyapp.domain.usecases.updateRegisterInfoUseCase
 import com.example.handyapp.register.domain.components.RegisterInfoEvent
 import com.example.handyapp.registerInfo.data.userInfo
 import com.example.handyapp.registerInfo.domain.use_cases.ValidateDay
@@ -17,11 +21,31 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.storage
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
+@HiltViewModel
+class RegisterInfoViewModel @Inject constructor(private val updateRegisterInfos: updateRegisterInfoUseCase) : ViewModel(){
+    private var _updateState  = mutableStateOf<Response<Unit>>(Response.onLoading)
+    var updateState : State<Response<Unit>> = _updateState
+
+    fun updateRegisterInfo(firstName: String,
+                           lastName: String,
+                           day: String,
+                           month: String,
+                           year: String,imageUri : Uri , fileUri : Uri){
+        viewModelScope.launch {
+            updateRegisterInfos(firstName, lastName, day, month, year ,imageUri,fileUri).collect{
+                _updateState.value = it
+            }
+        }
+    }
+}
+/*
 class RegisterInfoViewModel (
     val validateFirstName: ValidateFirstName = ValidateFirstName(),
     val validateLastName: ValidateLastName = ValidateLastName(),
@@ -146,4 +170,4 @@ class RegisterInfoViewModel (
 //            }
 //            .addOnFailureListener { e ->
 //                Log.w("registerInfo", "Error adding document", e)
-//            }
+//            }*/
