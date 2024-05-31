@@ -17,25 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DismissibleDrawerSheet
-import androidx.compose.material3.DismissibleNavigationDrawer
-import androidx.compose.material3.Divider
-import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -59,7 +46,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -99,10 +85,10 @@ fun BrowseScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val enabledGestureScreen = listOf(
-        BottomScreenNavigation.Home,
+        BottomScreenNavigation.Jobs,
         BottomScreenNavigation.Settings,
-        BottomScreenNavigation.Search,
-        BottomScreenNavigation.Booking,
+        BottomScreenNavigation.MyTasks,
+        BottomScreenNavigation.Requests,
         //Screen.Jobs
     )
 
@@ -264,6 +250,7 @@ fun BrowseScreen(
                                     else if (currentDestinationRoute == Screen.BidScreen.route + "/{jobID}") "Bid"
                                     else if (currentDestinationRoute == Screen.FinalRegistrationScreen.route) "Final Registration"
                                     else if (currentDestinationRoute == Screen.RegisterInfo.route) "Register Info"
+                                    else if (currentDestinationRoute == Screen.ChatScreen.route + "/{ClientID}") "Chat"
                                     else currentDestination?.route ?: ""
                                 )
                             },
@@ -282,9 +269,9 @@ fun BrowseScreen(
                                 },*/
                             navigationIcon = {
                                 when(currentDestination?.route){
-                                    BottomScreenNavigation.Home.route ,
-                                    BottomScreenNavigation.Booking.route ,
-                                    BottomScreenNavigation.Search.route ,
+                                    BottomScreenNavigation.Jobs.route ,
+                                    BottomScreenNavigation.Requests.route ,
+                                    BottomScreenNavigation.MyTasks.route ,
                                     BottomScreenNavigation.Settings.route -> {
                                         IconButton(onClick = {
                                             scope.launch {
@@ -311,12 +298,23 @@ fun BrowseScreen(
                                 }
                             },
                             actions = {
-                                if (currentDestination?.route.equals(BottomScreenNavigation.Home.route)){
+                                when(currentDestination?.route){
+                                    BottomScreenNavigation.Jobs.route ,
+                                    BottomScreenNavigation.Requests.route ,
+                                    BottomScreenNavigation.MyTasks.route ,
+                                    BottomScreenNavigation.Settings.route ->{
+                                        IconButton(onClick = { browseNavController.navigate(Screen.NotificationScreen.route) }) {
+                                            Icon(imageVector = Icons.Outlined.Notifications, contentDescription = null)
+                                        }
+                                    }
+                                    else -> {}
+                                }
+                                /*if (currentDestination?.route.equals(BottomScreenNavigation.Jobs.route) || currentDestination?.route.equals(BottomScreenNavigation.MyTasks.route)){
                                     IconButton(onClick = { browseNavController.navigate(Screen.NotificationScreen.route) }) {
                                         Icon(imageVector = Icons.Outlined.Notifications, contentDescription = null)
                                     }
 
-                                }
+                                }*/
 
                             }
                         )

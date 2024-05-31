@@ -2,10 +2,14 @@ package com.example.handyapp.data
 
 import Job
 import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import com.example.handyapp.Response
 import com.example.handyapp.domain.model.Category
+import com.example.handyapp.domain.model.HandyMan
 import com.example.handyapp.domain.model.Notification
+import com.example.handyapp.domain.model.ProfileHandyMenInfo
 import com.example.handyapp.domain.usecases.repository.FireStoreRepository
 import com.example.handyapp.home.chat.Message
 import com.google.firebase.Timestamp
@@ -198,7 +202,7 @@ class FireStoreRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun updateFinalRegisterInfo(about : String , workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String): Flow<Response<Unit>> =
+    override fun updateFinalRegisterInfo(about : String , workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String , portfolio : List<Uri>): Flow<Response<Unit>> =
         flow{
             try {
                 emit(Response.onLoading)
@@ -213,6 +217,15 @@ class FireStoreRepositoryImpl @Inject constructor(
                     "Longitude" , long,
                     "Status" , "ACTIVE"
                 ).await()
+                for (i in 1..portfolio.size) {
+                    storage.reference.child("HandyMan/${auth.currentUser!!.uid}/Portfolio/image$i.jpg").putFile(portfolio[i - 1])
+                        .addOnSuccessListener {
+
+                            Log.d("upload", "success")
+                        }.addOnFailureListener {
+                            Log.d("upload", it.localizedMessage ?: "failled")
+                        }
+                }
                 emit(Response.onSuccess(Unit))
 
             }catch (e:Exception){
@@ -338,6 +351,133 @@ class FireStoreRepositoryImpl @Inject constructor(
                 }
             awaitClose { snapshot.remove() }
 
+        }
+
+    override fun getHandyMenCardInfo(): Flow<Response<HandyMan>> = callbackFlow {
+        Response.onLoading
+        val snapshot = fireStore.collection("HandyMan").document(auth.currentUser!!.uid)
+            .addSnapshotListener { value, error ->
+                val resp = if (value != null) {
+                    val handyMenDTO = value.toObject(HandyMan::class.java)
+                    val handyMen = HandyMan(
+                        handyMenDTO!!.Email,
+                        handyMenDTO.FirstName,
+                        handyMenDTO.LastName,
+                        handyMenDTO.Category,
+                        handyMenDTO.City,
+                        handyMenDTO.Wilaya,
+                        handyMenDTO.Rating,
+                        handyMenDTO.AverageSalary,
+                        handyMenDTO.ProfileImage,
+                        value.id,
+                        handyMenDTO.DeviceToken,
+                        handyMenDTO.Status,
+                    )
+                    Response.onSuccess(handyMen)
+                } else Response.onFaillure(error?.localizedMessage ?: "Unknown error")
+                trySend(resp).isSuccess
+            }
+        awaitClose {
+            snapshot.remove()
+        }
+    }
+
+    override fun getProfileHandyManInfo(): Flow<Response<ProfileHandyMenInfo>> =
+        callbackFlow {
+            Response.onLoading
+            val snapshot =
+                fireStore.collection("HandyMan").document(auth.currentUser!!.uid).addSnapshotListener { value, error ->
+                    val resp =
+                        if (error == null) {
+                            if (value != null) {
+                                val info = ProfileHandyMenInfo(
+                                    nbReviews = value.getDouble("nbReviews") ?: 0.0,
+                                    Rating = value.getDouble("Rating") ?: 0.0,
+                                    OrdersCompleted = value.getString("OrdersCompleted") ?: "",
+                                    About = value.getString("About") ?: "",
+                                    SubCategory = value.getString("SubCategory") ?: "",
+                                    WorkingAreas = value.getString("WorkingAreas") ?: "",
+                                )
+
+                                Response.onSuccess(info)
+                            } else {
+                                Response.onFaillure("there is no handyMen with this id")
+                            }
+                        } else {
+                            Response.onFaillure(error.localizedMessage ?: "Unknown error")
+                        }
+                    trySend(resp).isSuccess
+
+                }
+
+            awaitClose {
+                snapshot.remove()
+            }
+        }
+
+    override fun calculeRating(): Flow<Response<HashMap<String, Any>>> = callbackFlow {
+        trySend(Response.onLoading)
+
+        val snapshot = fireStore.collection("Reviews").whereEqualTo("handyId", auth.currentUser!!.uid)
+            .addSnapshotListener { value, error ->
+
+                if (error == null) {
+                    if (value != null) {
+
+                        var nbRating = mutableStateOf(0)
+
+
+                        var ratingSum = mutableStateOf<Float>(0.toFloat())
+
+                        value?.forEach { reviewDocument ->
+
+                            val rating = reviewDocument.getDouble("value") ?: 0.0
+                            //if (rating.isNotEmpty()) {
+                            ratingSum.value = ratingSum.value + rating.toFloat()
+                            //}
+
+                            nbRating.value++
+
+
+                        }
+                        val rat: Float = ratingSum.value / value?.documents?.size!!
+                        trySend(
+                            Response.onSuccess(
+                                hashMapOf(
+                                    "Rating" to rat,
+                                    "nbRating" to nbRating.value.toString()
+                                )
+                            )
+                        )
+                    } else trySend(
+                        Response.onSuccess(
+                            hashMapOf(
+                                "Rating" to 0.toFloat(),
+                                "nbRating" to ""
+                            )
+                        )
+                    )
+                } else {
+                    trySend(Response.onFaillure(error.localizedMessage ?: "Unknown error"))
+                }
+            }
+
+        awaitClose {
+            snapshot.remove()
+        }
+    }
+
+    override fun updateProfessionalInfo(map: HashMap<String, String>): Flow<Response<Unit>> =
+        flow {
+            emit(Response.onLoading)
+            try {
+                fireStore.collection("HandyMan").document(auth.currentUser!!.uid)
+                    .update(map as Map<String  , String>).await()
+                emit(Response.onSuccess(Unit))
+
+            }catch (e : Exception){
+                emit(Response.onFaillure(e.localizedMessage?:"error"))
+            }
         }
 }
 

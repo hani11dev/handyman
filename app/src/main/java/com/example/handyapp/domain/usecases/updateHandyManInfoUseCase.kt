@@ -1,5 +1,6 @@
 package com.example.handyapp.domain.usecases
 
+import android.net.Uri
 import com.example.handyapp.domain.usecases.repository.FireStoreRepository
 import javax.inject.Inject
 
@@ -12,7 +13,8 @@ class updateHandyManInfoUseCase @Inject constructor(private val fireStoreReposit
         wilaya: String,
         street: String,
         lat: String,
-        long: String
+        long: String,
+        portfolio : List<Uri>
     ) = fireStoreRepository.updateFinalRegisterInfo(
         about,
         workingAreas,
@@ -21,6 +23,7 @@ class updateHandyManInfoUseCase @Inject constructor(private val fireStoreReposit
         wilaya,
         street,
         lat,
-        long
+        long,
+        portfolio
     )
 }

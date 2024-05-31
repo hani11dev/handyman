@@ -283,12 +283,12 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                             if (paused) {
                                 updateStatus(tasksCollectionRef, task, "Paused",navController)
                                 sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} task status updated to Pause")
-                                viewModel.sendNotificationToFireStore(Notification("Task Paused Temporarily" , "${task.title} Task Status updated" , receiver = task.client , deepLink = "Booking"))
+                                viewModel.sendNotificationToFireStore(Notification("Task Paused Temporarily" , "${task.title} Task Status updated" , receiver = task.client , deepLink = "Requests"))
 
                             } else {
                                 updateStatus(tasksCollectionRef, task, "In Progress",navController)
                                 sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} task resume")
-                                viewModel.sendNotificationToFireStore(Notification("Task Resumed" , "${task.title} Task has been resumed and is now inProgress" , receiver = task.client , deepLink = "Booking"))
+                                viewModel.sendNotificationToFireStore(Notification("Task Resumed" , "${task.title} Task has been resumed and is now inProgress" , receiver = task.client , deepLink = "Requests"))
 
                             }
                         },
@@ -340,7 +340,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                         updateStatus(tasksCollectionRef, task, "Done...",navController)
                         showDoneConfirmation= false // Dismiss the dialog
                         sendNotification(client.deviceToken , "Task Finished" , "Check tasks for confirm Finished Task")
-                        viewModel.sendNotificationToFireStore(Notification("Task Finished" , "Confirm Status of ${task.title} Task" , receiver = task.client , deepLink = "Booking"))
+                        viewModel.sendNotificationToFireStore(Notification("Task Finished" , "Confirm Status of ${task.title} Task" , receiver = task.client , deepLink = "Requests"))
                     }
                 ) {
                     Text("Done")
@@ -397,7 +397,7 @@ fun taskDetailScreen(taskID:String,task:Task,client:Clientinf,navController: Nav
                         updateStatus(tasksCollectionRef, task, "Cancelled",navController)
                         showCancelConfirmation= false // Dismiss the dialog
                         sendNotification(client.deviceToken , "Task Status Updated" , "${task.title} Task was Cancelled")
-                        viewModel.sendNotificationToFireStore(Notification("Task Cancelled" , " ${task.title} Task was Cancelled" , receiver = task.client , deepLink = "Booking"))
+                        viewModel.sendNotificationToFireStore(Notification("Task Cancelled" , " ${task.title} Task was Cancelled" , receiver = task.client , deepLink = "Requests"))
                     }
                 ) {
                     Text("Cancel")

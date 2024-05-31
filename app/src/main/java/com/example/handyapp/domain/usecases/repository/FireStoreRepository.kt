@@ -4,7 +4,9 @@ import Job
 import android.net.Uri
 import com.example.handyapp.Response
 import com.example.handyapp.domain.model.Category
+import com.example.handyapp.domain.model.HandyMan
 import com.example.handyapp.domain.model.Notification
+import com.example.handyapp.domain.model.ProfileHandyMenInfo
 import com.example.handyapp.home.chat.Message
 import kotlinx.coroutines.flow.Flow
 
@@ -15,11 +17,15 @@ interface FireStoreRepository {
      fun uploadMessageImages(id: String , images : List<Uri>) : Flow<Response<Boolean>>
      fun getCategories() : Flow<Response<List<Category>>>
      fun registerInfo(firstName: String, lastName: String, day: String, month: String, year: String, imageUri : Uri ,fileUri:Uri) : Flow<Response<Unit>>
-     fun updateFinalRegisterInfo(about : String , workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String) : Flow<Response<Unit>>
+     fun updateFinalRegisterInfo(about : String , workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String , portfolio : List<Uri>) : Flow<Response<Unit>>
      fun getHandyManSettingsInfo() : Flow<Response<HashMap<String , String>>>
      fun getSavedJobs() : Flow<Response<List<Job>>>
      fun saveJob(jobID : String) : Flow<Response<Unit>>
      fun removeJob(jobID : String) : Flow<Response<Unit>>
      fun sendNotificationFireStore(notification: Notification) : Flow<Response<Unit>>
      fun getNotificationFireStore() : Flow<Response<List<Notification>>>
+     fun getHandyMenCardInfo() : Flow<Response<HandyMan>>
+     fun getProfileHandyManInfo() : Flow<Response<ProfileHandyMenInfo>>
+     fun calculeRating() : Flow<Response<HashMap<String , Any>>>
+     fun updateProfessionalInfo(map  : HashMap<String , String>) : Flow<Response<Unit>>
 }

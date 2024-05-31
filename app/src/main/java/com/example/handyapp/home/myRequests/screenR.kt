@@ -51,10 +51,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 
 import com.example.handyapp.R
 import com.example.handyapp.common.sendNotification
+import com.example.handyapp.domain.model.Notification
+import com.example.handyapp.home.myTasks.myTasksViewModel
 import com.example.handyapp.navigation.Screen
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.ktx.firestore
@@ -72,6 +75,7 @@ fun MyRequestsScreenReal(
     clientRef: CollectionReference,
     request: Map<String, Any>,
     navController: NavHostController,
+    viewModel: myTasksViewModel = hiltViewModel()
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     val title = request["title"] as? String ?: ""
@@ -265,6 +269,7 @@ fun MyRequestsScreenReal(
                                     handymanID = handymanID
                                 )
                                 sendNotification(deviceToken.value?:"" , "Request Status Updated","Your request was Accepted, check It")
+                                viewModel.sendNotificationToFireStore(Notification("Request Accepted" , "${title} Request Accepted" , receiver = clientId , deepLink = "Requests"))
                                 showAcceptConfirmation = false // Dismiss the dialog
                             }
                         ) {
@@ -274,7 +279,7 @@ fun MyRequestsScreenReal(
                     dismissButton = {
                         Button(
                             onClick = { showAcceptConfirmation = false
-                                sendNotification(deviceToken.value?:"" , "Request Refused" , "$title Request was refused")
+                                //sendNotification(deviceToken.value?:"" , "Request Refused" , "$title Request was refused")
                             }
                         ) {
                             Text("Cancel")
@@ -282,6 +287,7 @@ fun MyRequestsScreenReal(
                     }
                 )
             }
+
 
             if (showRejectConfirmation) {
                 var rejectionReason by remember { mutableStateOf("") } // State for rejection reason
@@ -333,6 +339,9 @@ fun MyRequestsScreenReal(
                                     handymanID = request["handymanID"] as? String ?: ""
                                 )
                                 showRejectConfirmation = false // Dismiss the dialog
+                                sendNotification(deviceToken.value?:"" , "Request Refused" , "$title Request was refused")
+                                viewModel.sendNotificationToFireStore(Notification("Request Refused" , "${title} Request was Refused" , receiver = clientId , deepLink = "null"))
+
                             }
                         ) {
                             Text("Reject")

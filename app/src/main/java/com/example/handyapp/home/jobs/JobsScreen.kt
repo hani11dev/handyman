@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -22,12 +24,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -251,6 +256,21 @@ fun JobsScreen(
     viewModel: JobsViewModel = hiltViewModel(),
     context: Context = LocalContext.current
 ) {
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+    val radioOptionsSearch = listOf("Name", "Category", "Location")
+    val (selectedOptionSearch, onOptionSelectedSearch) = remember {
+        mutableStateOf(
+            radioOptionsSearch[0]
+        )
+    }
+    val radioOptionsOrder = listOf("Price", "Rating")
+    val (selectedOptionOdrer, onOptionSelectedOrder) = remember {
+        mutableStateOf(
+            radioOptionsOrder[0]
+        )
+    }
 
     var searchValue by rememberSaveable {
         mutableStateOf("")
@@ -285,7 +305,7 @@ fun JobsScreen(
                                 },
                                 placeholder = {
                                     Text(
-                                        text = "Search",
+                                        text = "MyTasks",
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 16.sp,
                                         color = Color.DarkGray
@@ -294,17 +314,19 @@ fun JobsScreen(
                                 leadingIcon = {
                                     Icon(
                                         painter = painterResource(id = R.drawable.filled_search),
-                                        contentDescription = "Search",
+                                        contentDescription = "MyTasks",
                                         modifier = Modifier.size(20.dp),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
                                 },
-                                shape = RoundedCornerShape(6.dp)
+                                shape = RoundedCornerShape(6.dp),
                             )
 
                             Spacer(modifier = Modifier.width(4.dp))
                             SmallFloatingActionButton(
-                                onClick = { /*TODO*/ },
+                                onClick = {
+                                          expanded = !expanded
+                                },
                                 modifier = Modifier.size(56.dp),
                                 containerColor = MaterialTheme.colorScheme.primaryContainer
                             ) {
@@ -312,6 +334,75 @@ fun JobsScreen(
                                     painter = painterResource(R.drawable.settings),
                                     contentDescription = null
                                 )
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = !expanded }) {
+                                    Row {
+                                        Column(
+                                            Modifier
+                                                .selectableGroup()
+                                                .weight(1f)
+                                        ) {
+                                            Text(text = "Sort :", modifier = Modifier.padding(horizontal = 36.dp))
+                                            radioOptionsSearch.forEach { text ->
+                                                Row(
+                                                    Modifier
+                                                        .fillMaxWidth()
+                                                        .height(56.dp)
+                                                        .selectable(
+                                                            selected = text == selectedOptionSearch,
+                                                            onClick = { onOptionSelectedSearch(text) },
+                                                            role = Role.RadioButton
+                                                        )
+                                                        .padding(horizontal = 4.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    RadioButton(
+                                                        selected = (text == selectedOptionSearch),
+                                                        onClick = { onOptionSelectedSearch(text) },
+                                                    )
+                                                    Text(
+                                                        text = "by" + text,
+                                                        modifier = Modifier.padding(start = 4.dp),
+                                                        fontWeight = FontWeight.Medium
+                                                    )
+                                                }
+                                            }
+                                        }
+
+                                        Column(
+                                            Modifier
+                                                .selectableGroup()
+                                                .weight(1f)
+                                        ) {
+                                            Text(text = "Order :", modifier = Modifier.padding(horizontal = 36.dp))
+                                            radioOptionsOrder.forEach { text ->
+                                                Row(
+                                                    Modifier
+                                                        .fillMaxWidth()
+                                                        .height(56.dp)
+                                                        .selectable(
+                                                            selected = text == selectedOptionOdrer,
+                                                            onClick = { onOptionSelectedOrder(text) },
+                                                            role = Role.RadioButton
+                                                        )
+                                                        .padding(horizontal = 4.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    RadioButton(
+                                                        selected = (text == selectedOptionOdrer),
+                                                        onClick = { onOptionSelectedOrder(text) },
+                                                    )
+                                                    Text(
+                                                        text = "by" + text,
+                                                        modifier = Modifier.padding(start = 4.dp),
+                                                        fontWeight = FontWeight.Medium
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

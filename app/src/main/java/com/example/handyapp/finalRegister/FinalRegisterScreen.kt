@@ -694,7 +694,8 @@ fun FinalRegisterScreen(navController: NavController, VM: FRegViewModel = hiltVi
                         wilaya = wilaya,
                         street = street,
                         lat = point?.latitude().toString(),
-                        long = point?.longitude().toString()
+                        long = point?.longitude().toString(),
+                        portfolio = selectedImageUris
                     )
                 }
 

@@ -42,7 +42,7 @@ fun ChatItem(message: Message, userID: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(top = 4.dp , bottom = 4.dp , start = if (message.sender == userID) 30.dp else 0.dp , end = if (message.receiver == userID) 30.dp else 0.dp),
         horizontalAlignment = if (message.sender == userID) Alignment.End else Alignment.Start
     ) {
         if (message.type == "text") {
@@ -72,7 +72,7 @@ fun ChatItem(message: Message, userID: String) {
                         androidx.compose.material3.Text(
                             text = message.text,
                             Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             color =  Color.White
                         )
                         androidx.compose.material3.Text(text = timestampToTime(message.timestamp) , fontSize = 12.sp , color = Color.LightGray)
@@ -81,7 +81,7 @@ fun ChatItem(message: Message, userID: String) {
                         androidx.compose.material3.Text(
                             text = message.text,
                             Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }

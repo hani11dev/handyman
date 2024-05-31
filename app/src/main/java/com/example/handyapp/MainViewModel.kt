@@ -70,7 +70,7 @@ class MainViewModel @Inject constructor() : ViewModel() {
                             subStartDestination = Screen.Refused.route
                         }else if(status == "ACTIVE"){
                             //navController.navigate(Graph.Browse.route)
-                            startDestination = Graph.Home.route
+                            startDestination = Graph.Jobs.route
                             subStartDestination = Screen.Waiting.route
                         }
                     }
