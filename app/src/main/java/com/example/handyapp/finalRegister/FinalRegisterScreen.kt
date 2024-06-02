@@ -118,6 +118,16 @@ fun FinalRegisterScreen(navController: NavController, VM: FRegViewModel = hiltVi
         mutableStateOf("")
     }
 
+    var services by rememberSaveable {
+        mutableStateOf("")
+    }
+    var servicesError by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var servicesSupportingText by rememberSaveable {
+        mutableStateOf("")
+    }
+
     var city by rememberSaveable {
         mutableStateOf("")
     }
@@ -313,6 +323,31 @@ fun FinalRegisterScreen(navController: NavController, VM: FRegViewModel = hiltVi
                 supportingText = {
                     Text(
                         text = aboutSupportingText,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            TextField(value = services, onValueChange = {
+                //viewModel.onEvent(FinalRegistrationEvent.AboutChanged(it))
+                services = it
+                servicesError = false
+                aboutSupportingText = ""
+            },
+                isError = servicesError,
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(text = "Services") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Create, contentDescription = null
+                    )
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                ),
+                supportingText = {
+                    Text(
+                        text = servicesSupportingText,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -667,9 +702,12 @@ fun FinalRegisterScreen(navController: NavController, VM: FRegViewModel = hiltVi
                 streetError = false
                 //viewModel.onEvent(FinalRegistrationEvent.Submit)
                 if (about.isEmpty()) {
-                    Toast.makeText(context, "about empty", Toast.LENGTH_SHORT).show()
                     aboutError = true
                     aboutSupportingText = "can't be empty"
+                }
+                if (services.isEmpty()) {
+                    servicesError = true
+                    servicesSupportingText = "can't be empty"
                 }
                 if (workingAreas.isEmpty()) {
                     Toast.makeText(context, "working empty", Toast.LENGTH_SHORT).show()
@@ -684,10 +722,11 @@ fun FinalRegisterScreen(navController: NavController, VM: FRegViewModel = hiltVi
                 if (point?.latitude() == null) {
                     Toast.makeText(context, "Select your location", Toast.LENGTH_SHORT).show()
                 }
-                if (!aboutError || !averageSalaryError || point?.latitude() != null || !workingAreasError) {
+                if (!aboutError || !averageSalaryError || point?.latitude() != null || !workingAreasError || !servicesError) {
                     progressBarState.value = true
                     VM.updateInfo(
                         about = about,
+                        services = services,
                         workingAreas = workingAreas,
                         averageSalary = averageSalary.toDouble(),
                         city = city,

@@ -80,17 +80,20 @@ fun ChatScreen(ClientID : String,
     val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
         onResult = { uris ->
-            selectedImageUris = uris
-            viewModel.sendMessage(
-                Message(
-                    sender = viewModel.userID.value!!,
-                    ClientID,
-                    text = messageText,
-                    timestamp = Timestamp(Date(System.currentTimeMillis())),
-                    type = "images"
-                ),
-                images = selectedImageUris
-            )
+            if (uris.isNotEmpty()){
+                selectedImageUris = uris
+                viewModel.sendMessage(
+                    Message(
+                        sender = viewModel.userID.value!!,
+                        ClientID,
+                        text = messageText,
+                        timestamp = Timestamp(Date(System.currentTimeMillis())),
+                        type = "images"
+                    ),
+                    images = selectedImageUris
+                )
+
+            }
         })
     when (val resp = viewModel.deviceToken.value) {
         is Response.onLoading -> {}

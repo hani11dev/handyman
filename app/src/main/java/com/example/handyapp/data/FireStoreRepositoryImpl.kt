@@ -202,12 +202,13 @@ class FireStoreRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun updateFinalRegisterInfo(about : String , workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String , portfolio : List<Uri>): Flow<Response<Unit>> =
+    override fun updateFinalRegisterInfo(about : String , services : String, workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String , portfolio : List<Uri>): Flow<Response<Unit>> =
         flow{
             try {
                 emit(Response.onLoading)
                 fireStore.collection("HandyMan").document(auth.currentUser!!.uid).update(
                     "About" , about,
+                    "SubCategory" , services,
                     "WorkingAreas" , workingAreas,
                     "AverageSalary" , averageSalary,
                     "City" , city,

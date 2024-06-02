@@ -7,6 +7,7 @@ import javax.inject.Inject
 class updateHandyManInfoUseCase @Inject constructor(private val fireStoreRepository: FireStoreRepository) {
     operator fun invoke(
         about: String,
+        services : String,
         workingAreas: String,
         averageSalary: Double,
         city: String,
@@ -17,6 +18,7 @@ class updateHandyManInfoUseCase @Inject constructor(private val fireStoreReposit
         portfolio : List<Uri>
     ) = fireStoreRepository.updateFinalRegisterInfo(
         about,
+        services,
         workingAreas,
         averageSalary,
         city,

@@ -33,9 +33,9 @@ class FRegViewModel @Inject constructor(
         }
     }
 
-    fun updateInfo(about : String , workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String , portfolio : List<Uri>){
+    fun updateInfo(about : String ,services : String ,workingAreas : String , averageSalary : Double , city : String , wilaya : String , street : String , lat : String , long: String , portfolio : List<Uri>){
         viewModelScope.launch {
-            updateHandyManInfoUseCase(about, workingAreas, averageSalary, city, wilaya, street, lat, long , portfolio).collect{
+            updateHandyManInfoUseCase(about, services,workingAreas, averageSalary, city, wilaya, street, lat, long , portfolio).collect{
                 _updateState.value = it
             }
         }

@@ -40,12 +40,17 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarHalf
 import androidx.compose.material.icons.rounded.StarOutline
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -53,8 +58,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -93,8 +100,12 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.handyapp.R
 import com.example.handyapp.Response
+import com.example.handyapp.Wilaya_CommunesDBList
 import com.example.handyapp.domain.model.HandyMan
+import com.koDea.fixMasterClient.domain.model.wilayas_communes.Baladyiat
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.BreakIterator
 import java.text.StringCharacterIterator
 
@@ -107,21 +118,25 @@ import java.text.StringCharacterIterator
 fun ProfileSettingsScreen(viewModel: ProfileSettingsViewModel = hiltViewModel() , context : Context = LocalContext.current) {
     //Column(modifier = Modifier.fillMaxSize()) {
 
-    var changed by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var about by rememberSaveable {
-        mutableStateOf("")
-    }
-    var services by rememberSaveable {
-        mutableStateOf("")
-    }
-    var workingAreas by rememberSaveable {
-        mutableStateOf("")
-    }
-    var clientView by rememberSaveable {
-        mutableStateOf(true)
-    }
+
+
+    var changed by rememberSaveable { mutableStateOf(false) }
+    var about by rememberSaveable { mutableStateOf("") }
+    var services by rememberSaveable { mutableStateOf("") }
+    var workingAreas by rememberSaveable { mutableStateOf("") }
+    var clientView by rememberSaveable { mutableStateOf(true) }
+    var isExpandedWilaya by remember { mutableStateOf(false) }
+    var selectedStatusWilaya by remember { mutableStateOf("") }
+    var selectedStatusCity by remember { mutableStateOf("") }
+    var WilayaSupportingText = rememberSaveable { mutableStateOf("") }
+    var CitySupportingText = rememberSaveable { mutableStateOf("") }
+    var StreetSupportingText = rememberSaveable { mutableStateOf("") }
+    var wilayaError by rememberSaveable { mutableStateOf(false) }
+    var cityError by rememberSaveable { mutableStateOf(false) }
+    var StreetError by rememberSaveable { mutableStateOf(false) }
+    var wilaya = rememberSaveable { mutableStateOf("") }
+    var city = rememberSaveable { mutableStateOf("") }
+    var street = rememberSaveable { mutableStateOf("") }
         when (val resp = viewModel.cardInfo.value) {
             is Response.onLoading -> {}
             is Response.onFaillure -> {}
@@ -324,6 +339,160 @@ fun ProfileSettingsScreen(viewModel: ProfileSettingsViewModel = hiltViewModel() 
                         }) {
                             when (state) {
                                 0 -> {
+
+
+
+
+                                    Button(onClick = {
+
+                                    }, modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp),
+                                        shape = RoundedCornerShape(8.dp)) {
+                                        Text("Select on Map")
+                                    }
+
+                                    Column {
+
+
+
+                                        Box(
+                                            modifier = Modifier.wrapContentSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            ExposedDropdownMenuBox(
+                                                expanded = isExpandedWilaya,
+                                                onExpandedChange = { isExpandedWilaya = !isExpandedWilaya },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 8.dp)
+                                            ) {
+                                                OutlinedTextField(
+                                                    value = selectedStatusWilaya, onValueChange = {
+                                                        wilayaError = false
+                                                        WilayaSupportingText.value = ""
+                                                    }, readOnly = true,
+                                                    trailingIcon = {
+                                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpandedWilaya)
+                                                    }, modifier = Modifier
+                                                        .menuAnchor()
+                                                        .fillMaxWidth(),
+                                                    leadingIcon = {
+                                                        Icon(
+
+                                                            painter = painterResource(id = R.drawable.loc),
+                                                            contentDescription = null
+                                                        )
+                                                    },
+                                                    placeholder = {
+                                                        Text(text = "select wilya")
+                                                    },
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    supportingText = {
+                                                        Text(
+                                                            text = "${WilayaSupportingText.value}",
+                                                            color = MaterialTheme.colorScheme.error
+                                                        )
+                                                    }
+                                                )
+                                                DropdownMenu(
+                                                    expanded = isExpandedWilaya,
+                                                    onDismissRequest = { isExpandedWilaya = false },
+                                                    modifier = Modifier
+                                                        .exposedDropdownSize()
+                                                        .padding(2.dp)
+                                                ) {
+                                                    Wilaya_CommunesDBList.sortedBy { it.name_en }.forEach {
+                                                        DropdownMenuItem(
+                                                            text = { Text(it.name_en.lowercase()) },
+                                                            onClick = {
+                                                                selectedStatusWilaya = it.name_en
+                                                                wilaya.value = selectedStatusWilaya
+                                                                isExpandedWilaya = false
+                                                                wilayaError = false
+                                                                WilayaSupportingText.value = ""
+                                                                selectedStatusCity = ""
+                                                            }
+                                                        )
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        var isExpandedCity by remember {
+                                            mutableStateOf(false)
+                                        }
+                                        Box(
+                                            modifier = Modifier.wrapContentSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            ExposedDropdownMenuBox(
+                                                expanded = isExpandedCity,
+                                                onExpandedChange = { isExpandedCity = !isExpandedCity },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 8.dp)
+                                            ) {
+                                                OutlinedTextField(
+                                                    value = selectedStatusCity, onValueChange = {
+                                                        cityError = false
+                                                        CitySupportingText.value = ""
+                                                    }, readOnly = true,
+                                                    trailingIcon = {
+                                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpandedCity)
+                                                    }, modifier = Modifier
+                                                        .menuAnchor()
+                                                        .fillMaxWidth(),
+                                                    leadingIcon = {
+                                                        Icon(
+
+                                                            painter = painterResource(id = R.drawable.loc),
+                                                            contentDescription = null
+                                                        )
+                                                    },
+                                                    placeholder = {
+                                                        Text(text = "select city")
+                                                    },
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    supportingText = {
+                                                        Text(
+                                                            text = "${CitySupportingText.value}",
+                                                            color = MaterialTheme.colorScheme.error
+                                                        )
+                                                    }
+                                                )
+                                                DropdownMenu(
+                                                    expanded = isExpandedCity,
+                                                    onDismissRequest = { isExpandedCity = false },
+                                                    modifier = Modifier
+                                                        .exposedDropdownSize()
+                                                        .padding(2.dp)
+                                                ) {
+                                                    val wilayaSelected =
+                                                        Wilaya_CommunesDBList.find { it.name_en == selectedStatusWilaya }
+                                                    val allBaladyiat = mutableListOf<Baladyiat>()
+                                                    wilayaSelected?.dairats?.forEach {
+                                                        if (it.baladyiats != null)
+                                                            allBaladyiat.addAll(it.baladyiats)
+                                                    }
+                                                    allBaladyiat.sortedBy { it.name_en }.forEach {
+                                                        DropdownMenuItem(
+                                                            text = { Text(it.name_en.lowercase()) },
+                                                            onClick = {
+                                                                selectedStatusCity = it.name_en.lowercase()
+                                                                city.value = selectedStatusCity
+                                                                isExpandedCity = false
+                                                                cityError = false
+                                                                CitySupportingText.value = ""
+                                                            }
+                                                        )
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                                 1 -> {
                                     var progressState by remember {
@@ -343,20 +512,22 @@ fun ProfileSettingsScreen(viewModel: ProfileSettingsViewModel = hiltViewModel() 
                                     }
                                     when (val resp = viewModel.profileInfo.value) {
                                         is Response.onLoading -> {
-                                            progressState = true
+                                            //progressState = true
                                         }
 
                                         is Response.onFaillure -> {
-                                            progressState = false
+                                           // progressState = false
                                             Toast.makeText(LocalContext.current, "failled", Toast.LENGTH_SHORT).show()
                                         }
 
                                         is Response.onSuccess -> {
-                                            progressState = false
+                                            //progressState = false
                                             val info = resp.data
-                                            about = info.About
-                                            services = info.SubCategory
-                                            workingAreas = info.WorkingAreas
+                                            LaunchedEffect(true) {
+                                                about = info.About
+                                                services = info.SubCategory
+                                                workingAreas = info.WorkingAreas
+                                            }
 
 
                                             Column(

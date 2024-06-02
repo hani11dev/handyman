@@ -16,11 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
@@ -33,12 +35,16 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -235,7 +241,12 @@ fun BrowseScreen(
                 },
                 drawerState = drawerState
             ) {
-                Scaffold(bottomBar = {
+                val scaffoldState: ScaffoldState = rememberScaffoldState()
+                val snackBarHostState = remember{SnackbarHostState()}
+                Scaffold(snackbarHost = {
+                                        SnackbarHost(hostState = snackBarHostState)
+                },
+                    bottomBar = {
                     BottomBar(navController = browseNavController)
                 },
                     topBar = {
@@ -251,9 +262,11 @@ fun BrowseScreen(
                                     else if (currentDestinationRoute == Screen.FinalRegistrationScreen.route) "Final Registration"
                                     else if (currentDestinationRoute == Screen.RegisterInfo.route) "Register Info"
                                     else if (currentDestinationRoute == Screen.ChatScreen.route + "/{ClientID}") "Chat"
+                                    else if (currentDestinationRoute == Screen.MapScreen.route + "/{lat}" + "/{long}") "Map"
                                     else currentDestination?.route ?: ""
                                 )
                             },
+
 
                             /*actions = {
                                 *//*IconButton(onClick = { browseNavController.navigate(Screen.NotificationScreen.route) }) {
@@ -321,6 +334,11 @@ fun BrowseScreen(
 
                         //}
                     }) {
+                    if (currentDestination?.route.equals(Screen.ProfileSettings.route)){
+                        LaunchedEffect (true){
+                            snackBarHostState.showSnackbar(message = "long press on text to edit")
+                        }
+                    }
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
